@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Sat, 19 Apr 2025 21:18:45 -0500
+Subject: [PATCH] Fish Added Config And Command
+
+
+diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
+index c16475818be31d68cbe72216ca124fdaf527b56c..6d0baa5a1778b132895c9dc592afc93eacc5b44f 100644
+--- a/net/minecraft/server/Main.java
++++ b/net/minecraft/server/Main.java
+@@ -109,6 +109,7 @@ public class Main {
+                 JvmProfiler.INSTANCE.start(Environment.SERVER);
+             }
+ 
++            new net.serlith.fish.FishConfig().load(); // Fish - Config and command
+             io.papermc.paper.plugin.PluginInitializerManager.load(optionSet); // Paper
+             Bootstrap.bootStrap();
+             Bootstrap.validate();
+diff --git a/net/minecraft/server/ReloadableServerResources.java b/net/minecraft/server/ReloadableServerResources.java
+index 0265fee09afd7cded53fb606a1333974537831af..08b0c964e4fc01e46aaee7df095851365340e033 100644
+--- a/net/minecraft/server/ReloadableServerResources.java
++++ b/net/minecraft/server/ReloadableServerResources.java
+@@ -43,6 +43,7 @@ public class ReloadableServerResources {
+         io.papermc.paper.command.PaperCommands.registerCommands(); // Paper
+         gg.pufferfish.pufferfish.PufferfishCommand.init(); // Pufferfish - Config and command
+         gg.pufferfish.pufferfish.flare.FlareCommand.init(); // Pufferfish - Config and command
++        net.serlith.fish.FishCommand.init(); // Fish - Config and command
+         this.advancements = new ServerAdvancementManager(registries);
+         this.functionLibrary = new ServerFunctionLibrary(functionCompilationLevel, this.commands.getDispatcher());
+     }
+diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
+index c46876197e5450dff501645c46b608ad2862231b..eff2ae5d9cca81902e004f28a58932c234843050 100644
+--- a/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -185,6 +185,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics(); // Paper - start metrics
+         com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
+         new gg.pufferfish.pufferfish.PufferfishConfig().load(); // Pufferfish - Config and command
++        net.serlith.fish.FishConfig.init(); // Fish start - Config and command
+ 
+         this.setPvpAllowed(properties.pvp);
+         this.setFlightAllowed(properties.allowFlight);

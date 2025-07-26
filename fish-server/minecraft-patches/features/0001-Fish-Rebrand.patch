@@ -1,0 +1,60 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Wed, 18 Jun 2025 18:23:06 -0500
+Subject: [PATCH] Fish Rebrand
+
+
+diff --git a/net/minecraft/CrashReport.java b/net/minecraft/CrashReport.java
+index 606c8f4a47f3ea2dc223c2bc3cab543bc389f4ea..44acf9a60ccbd20336dd594ceb144223096acbeb 100644
+--- a/net/minecraft/CrashReport.java
++++ b/net/minecraft/CrashReport.java
+@@ -30,7 +30,7 @@ public class CrashReport {
+     private boolean trackingStackTrace = true;
+     private StackTraceElement[] uncategorizedStackTrace = new StackTraceElement[0];
+     private final SystemReport systemReport = new SystemReport();
+-    private final List<String> extraInfo = List.of("", "DO NOT REPORT THIS TO PAPER! REPORT THIS TO PUFFERFISH!", ""); // Pufferfish - Rebrand
++    private final List<String> extraInfo = List.of("", "DO NOT REPORT THIS TO PAPER! REPORT THIS TO FISH!", ""); // Pufferfish - Rebrand // Fish - Rebrand
+ 
+     public CrashReport(String title, Throwable exception) {
+         io.papermc.paper.util.StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(exception); // Paper
+diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
+index fd3553bdc1c3cdbf6aa3dc00e0a4987f8eaa4fb8..c16475818be31d68cbe72216ca124fdaf527b56c 100644
+--- a/net/minecraft/server/Main.java
++++ b/net/minecraft/server/Main.java
+@@ -154,6 +154,23 @@ public class Main {
+                 return;
+             }
+ 
++            // Fish start - Rebrand, we just love ascii arts
++            LOGGER.info("");
++            LOGGER.info("            .                     :  .    .");
++            LOGGER.info("                   .          .      :    .   .");
++            LOGGER.info("            :      :    .         |       :");
++            LOGGER.info("        .   :                 : .    |        |");
++            LOGGER.info("        :          :          : . |  :    |       :");
++            LOGGER.info("        :   |      ;    |_____,-+-!  :    :   :");
++            LOGGER.info("     ___,---!______,----'       !-'  :____:       .         ╔═╗┬ ┬┬─┐┌─┐┬─┐┌─┐");
++            LOGGER.info("                         .       `---'    `---.___,-----    ╠═╣│ │├┬┘│ │├┬┘├─┤");
++            LOGGER.info("   .     .|,      .           .       .                     ╩ ╩└─┘┴└─└─┘┴└─┴ ┴");
++            LOGGER.info("         -*-                                 *        .");
++            LOGGER.info("    *    '|`             *           .");
++            LOGGER.info("               *    .            .             .    *");
++            LOGGER.info("");
++            // Fish end - Rebrand, we just love ascii arts
++
+             // Paper start - Detect headless JRE
+             String awtException = io.papermc.paper.util.ServerEnvironment.awtDependencyCheck();
+             if (awtException != null) {
+diff --git a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
+index 6ec80b0e865f37f3411ac7894e0007f56180f051..facafaff7c9bb1ac111762238ac45b4e1dc35821 100644
+--- a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
++++ b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
+@@ -308,7 +308,7 @@ public class RegionFileStorage implements AutoCloseable, ca.spottedleaf.moonrise
+ 
+     // Paper start
+     private static void printOversizedLog(String msg, Path file, int x, int z) {
+-        org.apache.logging.log4j.LogManager.getLogger().fatal(msg + " (" + file.toString().replaceAll(".+[\\\\/]", "") + " - " + x + "," + z + ") Go clean it up to remove this message. /minecraft:tp " + (x<<4)+" 128 "+(z<<4) + " - DO NOT REPORT THIS TO PUFFERFISH - You may ask for help on Discord, but do not file an issue. These error messages can not be removed."); // Pufferfish - Rebrand
++        org.apache.logging.log4j.LogManager.getLogger().fatal(msg + " (" + file.toString().replaceAll(".+[\\\\/]", "") + " - " + x + "," + z + ") Go clean it up to remove this message. /minecraft:tp " + (x<<4)+" 128 "+(z<<4) + " - DO NOT REPORT THIS TO FISH - You may ask for help on Discord, but do not file an issue. These error messages can not be removed."); // Pufferfish - Rebrand // Fish - Rebrand
+     }
+ 
+     private static CompoundTag readOversizedChunk(RegionFile regionfile, ChunkPos chunkCoordinate) throws IOException {

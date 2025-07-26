@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Wed, 18 Jun 2025 18:00:05 -0500
+Subject: [PATCH] Fish Rebrand
+
+
+diff --git a/src/main/java/io/papermc/paper/ServerBuildInfo.java b/src/main/java/io/papermc/paper/ServerBuildInfo.java
+index fbf2859a784bcc25d6a29d48469f5b4728f4a8a1..e4500b6334afe53bce16940f8dcd114e21f8e5e7 100644
+--- a/src/main/java/io/papermc/paper/ServerBuildInfo.java
++++ b/src/main/java/io/papermc/paper/ServerBuildInfo.java
+@@ -19,6 +19,7 @@ public interface ServerBuildInfo {
+      */
+     Key BRAND_PAPER_ID = Key.key("papermc", "paper");
+     Key BRAND_PUFFERFISH_ID = Key.key("pufferfish", "pufferfish"); // Pufferfish - Rebrand
++    Key BRAND_FISH_ID = Key.key("serlith", "fish"); // Fish - Rebrand
+ 
+     /**
+      * Gets the {@code ServerBuildInfo}.
