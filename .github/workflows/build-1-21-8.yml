@@ -58,7 +58,7 @@ jobs:
       - name: Release Fish
         uses: softprops/action-gh-release@master
         with:
-          name: "❄️ Fish 1.21.8 (Build ${{ env.BUILD_NUMBER }})"
+          name: "🐟 Fish 1.21.8 (Build ${{ env.BUILD_NUMBER }})"
           tag_name: "ver-1.21.8"
           files: |
             ./fish-server/build/libs/fish-paperclip-1.21.8-R0.1-SNAPSHOT-mojmap.jar
