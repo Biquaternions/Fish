@@ -17,7 +17,7 @@ public class WorldExecutorThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(@NotNull final Runnable r) {
-        Thread tickThread = new WorldTickThread(r, String.format("Fish [%s] Tick Thread", worldName));
+        Thread tickThread = new WorldTickThread(r, String.format("Fish Level [%s] Tick Thread", worldName));
         tickThread.setDaemon(false);
         tickThread.setPriority(Thread.NORM_PRIORITY);
         tickThread.setUncaughtExceptionHandler((t, e) -> this.logger.fatal("An exception was thrown while ticking {}", t.getName(), e));

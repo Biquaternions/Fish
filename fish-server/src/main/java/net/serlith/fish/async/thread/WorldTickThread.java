@@ -9,10 +9,6 @@ public class WorldTickThread extends TickThread {
 
     private @Nullable ServerLevel tickingWorld = null;
 
-    public WorldTickThread(String name) {
-        super(name);
-    }
-
     public WorldTickThread(Runnable r, String name) {
         super(r, name);
     }

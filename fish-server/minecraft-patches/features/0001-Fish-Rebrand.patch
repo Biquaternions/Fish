@@ -21,24 +21,18 @@ diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
 index fd3553bdc1c3cdbf6aa3dc00e0a4987f8eaa4fb8..c16475818be31d68cbe72216ca124fdaf527b56c 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
-@@ -154,6 +154,23 @@ public class Main {
+@@ -154,6 +154,17 @@ public class Main {
                  return;
              }
  
 +            // Fish start - Rebrand, we just love ascii arts
 +            LOGGER.info("");
-+            LOGGER.info("            .                     :  .    .");
-+            LOGGER.info("                   .          .      :    .   .");
-+            LOGGER.info("            :      :    .         |       :");
-+            LOGGER.info("        .   :                 : .    |        |");
-+            LOGGER.info("        :          :          : . |  :    |       :");
-+            LOGGER.info("        :   |      ;    |_____,-+-!  :    :   :");
-+            LOGGER.info("     ___,---!______,----'       !-'  :____:       .         ╔═╗┬ ┬┬─┐┌─┐┬─┐┌─┐");
-+            LOGGER.info("                         .       `---'    `---.___,-----    ╠═╣│ │├┬┘│ │├┬┘├─┤");
-+            LOGGER.info("   .     .|,      .           .       .                     ╩ ╩└─┘┴└─└─┘┴└─┴ ┴");
-+            LOGGER.info("         -*-                                 *        .");
-+            LOGGER.info("    *    '|`             *           .");
-+            LOGGER.info("               *    .            .             .    *");
++            LOGGER.info("         /`·.¸");
++            LOGGER.info("        /¸...¸`:·");
++            LOGGER.info("    ¸.·´  ¸   `·.¸.·´)   ╔═╗┬┌─┐┬ ┬");
++            LOGGER.info("   : © ):´;      ¸  {    ╠╣ │└─┐├─┤");
++            LOGGER.info("    `·.¸ `·  ¸.·´\\`·¸)   ╚  ┴└─┘┴ ┴");
++            LOGGER.info("        `\\\\´´\\¸.·´");
 +            LOGGER.info("");
 +            // Fish end - Rebrand, we just love ascii arts
 +

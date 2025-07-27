@@ -40,7 +40,7 @@ index 3643f7eac770782d3dc4e9fbc776c89de3dd14fa..b3170a6616e05b18b13e5c266e319d93
      private static final int DISTANCE_ERROR = -1;
      private static final int DISTANCE_UNKNOWN = -2;
 -    private static final String DOWNLOAD_PAGE = "https://github.com/SerlithNetwork/Puffernot"; // Pufferfish - Rebrand
-+    private static final String DOWNLOAD_PAGE = "https://github.com/SerlithNetwork/Fish"; // Pufferfish - Rebrand // Fish - Rebrand
++    private static final String DOWNLOAD_PAGE = "https://github.com/Biquaternions/Fish"; // Pufferfish - Rebrand // Fish - Rebrand
  
      @Override
      public long getCacheTime() {

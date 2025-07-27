@@ -12,7 +12,7 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..c5b911a9acc76165f96d230f8fd1323c
  public class TickThread extends Thread {
  
      private static final Logger LOGGER = LoggerFactory.getLogger(TickThread.class);
-+    private static final boolean HARD_THROW = !Boolean.getBoolean("dont.tick.throw");
++    private static final boolean HARD_THROW = !Boolean.getBoolean("fish.dontHardThrow"); // SparklyPaper - parallel world ticking
  
      private static String getThreadContext() {
          return "thread=" + Thread.currentThread().getName();
@@ -20,7 +20,7 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..c5b911a9acc76165f96d230f8fd1323c
      public static void ensureTickThread(final String reason) {
          if (!isTickThread()) {
              LOGGER.error("Thread failed main thread check: " + reason + ", context=" + getThreadContext(), new Throwable());
-+            if (HARD_THROW)
++            if (HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(reason);
          }
      }
@@ -31,7 +31,7 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..c5b911a9acc76165f96d230f8fd1323c
 -                               reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", block_pos=" + pos;
 +                               reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", block_pos=" + pos + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
-+            if (HARD_THROW)
++            if (HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -42,7 +42,7 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..c5b911a9acc76165f96d230f8fd1323c
 -                reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", block_pos=" + pos + ", block_radius=" + blockRadius;
 +                reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", block_pos=" + pos + ", block_radius=" + blockRadius + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
-+            if (HARD_THROW)
++            if (HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -53,7 +53,7 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..c5b911a9acc76165f96d230f8fd1323c
 -                reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", chunk_pos=" + pos;
 +                reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", chunk_pos=" + pos + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
-+            if (HARD_THROW)
++            if (HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -64,7 +64,7 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..c5b911a9acc76165f96d230f8fd1323c
 -                reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", chunk_pos=" + new ChunkPos(chunkX, chunkZ);
 +                reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", chunk_pos=" + new ChunkPos(chunkX, chunkZ) + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
-+            if (HARD_THROW)
++            if (HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -75,7 +75,7 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..c5b911a9acc76165f96d230f8fd1323c
 -                reason + ", context=" + getThreadContext() + ", entity=" + EntityUtil.dumpEntity(entity);
 +                reason + ", context=" + getThreadContext() + ", entity=" + EntityUtil.dumpEntity(entity) + " - " + TickThread.getTickThreadInformation(entity.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
-+            if (HARD_THROW)
++            if (HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -86,18 +86,18 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..c5b911a9acc76165f96d230f8fd1323c
 -                reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", aabb=" + aabb;
 +                reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", aabb=" + aabb + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
-+            if (HARD_THROW)
++            if (HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
-@@ -87,12 +95,70 @@ public class TickThread extends Thread {
+@@ -87,12 +95,71 @@ public class TickThread extends Thread {
      public static void ensureTickThread(final Level world, final double blockX, final double blockZ, final String reason) {
          if (!isTickThreadFor(world, blockX, blockZ)) {
              final String ex = "Thread failed main thread check: " +
 -                reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", block_pos=" + new Vec3(blockX, 0.0, blockZ);
 +                reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", block_pos=" + new Vec3(blockX, 0.0, blockZ) + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
-+            if (HARD_THROW)
++            if (HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -158,6 +158,7 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..c5b911a9acc76165f96d230f8fd1323c
 +    public static boolean isWorldTickThread() {
 +        return Thread.currentThread() instanceof net.serlith.fish.async.thread.WorldTickThread;
 +    }
++    // SparklyPaper end
 +
      public final int id; /* We don't override getId as the spec requires that it be unique (with respect to all other threads) */
  
@@ -167,52 +168,52 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..c5b911a9acc76165f96d230f8fd1323c
  
      public static boolean isTickThreadFor(final Level world, final BlockPos pos) {
 -        return isTickThread();
-+        return isTickThreadFor(world);
++        return isTickThreadFor(world); // SparklyPaper - parallel world ticking
      }
  
      public static boolean isTickThreadFor(final Level world, final BlockPos pos, final int blockRadius) {
 -        return isTickThread();
-+        return isTickThreadFor(world);
++        return isTickThreadFor(world); // SparklyPaper - parallel world ticking
      }
  
      public static boolean isTickThreadFor(final Level world, final ChunkPos pos) {
 -        return isTickThread();
-+        return isTickThreadFor(world);
++        return isTickThreadFor(world); // SparklyPaper - parallel world ticking
      }
  
      public static boolean isTickThreadFor(final Level world, final Vec3 pos) {
 -        return isTickThread();
-+        return isTickThreadFor(world);
++        return isTickThreadFor(world); // SparklyPaper - parallel world ticking
      }
  
      public static boolean isTickThreadFor(final Level world, final int chunkX, final int chunkZ) {
 -        return isTickThread();
-+        return isTickThreadFor(world);
++        return isTickThreadFor(world); // SparklyPaper - parallel world ticking
      }
  
      public static boolean isTickThreadFor(final Level world, final AABB aabb) {
 -        return isTickThread();
-+        return isTickThreadFor(world);
++        return isTickThreadFor(world); // SparklyPaper - parallel world ticking
      }
  
      public static boolean isTickThreadFor(final Level world, final double blockX, final double blockZ) {
 -        return isTickThread();
-+        return isTickThreadFor(world);
++        return isTickThreadFor(world); // SparklyPaper - parallel world ticking
      }
  
      public static boolean isTickThreadFor(final Level world, final Vec3 position, final Vec3 deltaMovement, final int buffer) {
 -        return isTickThread();
-+        return isTickThreadFor(world);
++        return isTickThreadFor(world); // SparklyPaper - parallel world ticking
      }
  
      public static boolean isTickThreadFor(final Level world, final int fromChunkX, final int fromChunkZ, final int toChunkX, final int toChunkZ) {
 -        return isTickThread();
-+        return isTickThreadFor(world);
++        return isTickThreadFor(world); // SparklyPaper - parallel world ticking
      }
  
      public static boolean isTickThreadFor(final Level world, final int chunkX, final int chunkZ, final int radius) {
 -        return isTickThread();
-+        return isTickThreadFor(world);
++        return isTickThreadFor(world); // SparklyPaper - parallel world ticking
      }
  
      public static boolean isTickThreadFor(final Entity entity) {
@@ -237,7 +238,7 @@ index 68351e47609ae06f0a1641b4ad2013ce6261ae4e..be2e2ce2f70a718c739bfcaa5c230eef
  
      private boolean unloadChunk0(int x, int z, boolean save) {
 -        org.spigotmc.AsyncCatcher.catchOp("chunk unload"); // Spigot
-+        org.spigotmc.AsyncCatcher.catchWorldOp(this.world, x, z, "chunk unload");
++        org.spigotmc.AsyncCatcher.catchWorldOp(this.world, x, z, "chunk unload"); // SparklyPaper - parallel world ticking
          if (!this.isChunkLoaded(x, z)) {
              return true;
          }
@@ -254,7 +255,7 @@ index 68351e47609ae06f0a1641b4ad2013ce6261ae4e..be2e2ce2f70a718c739bfcaa5c230eef
      @Override
      public boolean loadChunk(int x, int z, boolean generate) {
 -        org.spigotmc.AsyncCatcher.catchOp("chunk load"); // Spigot
-+        org.spigotmc.AsyncCatcher.catchWorldOp(this.getHandle(), x, z, "chunk load"); // Spigot
++        org.spigotmc.AsyncCatcher.catchWorldOp(this.getHandle(), x, z, "chunk load"); // Spigot // SparklyPaper - parallel world ticking
          warnUnsafeChunk("loading a faraway chunk", x, z); // Paper
          ChunkAccess chunk = this.world.getChunkSource().getChunk(x, z, generate || isChunkGenerated(x, z) ? ChunkStatus.FULL : ChunkStatus.EMPTY, true); // Paper
  
@@ -372,17 +373,16 @@ index 6809f9dcf8510c714145d99d250eb69f98d9bf27..da85bd95fe6131cfea390364981e0c55
          Direction direction = CraftBlock.blockFaceToNotch(face);
          BlockFertilizeEvent event = null;
          ServerLevel world = this.getCraftWorld().getHandle();
-@@ -559,8 +568,8 @@ public class CraftBlock implements Block {
+@@ -559,7 +568,8 @@ public class CraftBlock implements Block {
          world.captureTreeGeneration = false;
  
          if (!world.capturedBlockStates.isEmpty()) {
 -            TreeType treeType = SaplingBlock.treeType;
--            SaplingBlock.treeType = null;
-+            TreeType treeType = SaplingBlock.treeType; // Atomic Reference
-+            SaplingBlock.treeType = null; // Atomic Reference
++            TreeType treeType = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? SaplingBlock.treeTypeTL.get() : SaplingBlock.treeType; // SparklyPaper - parallel world ticking
++            if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) SaplingBlock.treeTypeTL.remove(); else // SparklyPaper - parallel world ticking
+             SaplingBlock.treeType = null;
              List<BlockState> states = new ArrayList<>(world.capturedBlockStates.values());
              world.capturedBlockStates.clear();
-             StructureGrowEvent structureEvent = null;
 @@ -599,6 +608,7 @@ public class CraftBlock implements Block {
      @Override
      public Collection<ItemStack> getDrops(ItemStack item, Entity entity) {
@@ -423,7 +423,7 @@ index 5d4faad9df4824cfd61abfd4df011c006f114424..53e922037f7e147413055ab6e5a18e0b
      private final T snapshot;
      public boolean snapshotDisabled; // Paper
      public static boolean DISABLE_SNAPSHOT = false; // Paper
-+    public static ThreadLocal<Boolean> DISABLE_SNAPSHOT_TL = ThreadLocal.withInitial(() -> Boolean.FALSE);
++    public static ThreadLocal<Boolean> DISABLE_SNAPSHOT_TL = ThreadLocal.withInitial(() -> Boolean.FALSE); // SparklyPaper - parallel world ticking
  
      public CraftBlockEntityState(World world, T blockEntity) {
          super(world, blockEntity.getBlockPos(), blockEntity.getBlockState());
@@ -433,8 +433,8 @@ index 5d4faad9df4824cfd61abfd4df011c006f114424..53e922037f7e147413055ab6e5a18e0b
          // Paper start
 -        this.snapshotDisabled = DISABLE_SNAPSHOT;
 -        if (DISABLE_SNAPSHOT) {
-+        this.snapshotDisabled = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? DISABLE_SNAPSHOT_TL.get() : DISABLE_SNAPSHOT;
-+        if (this.snapshotDisabled) {
++        this.snapshotDisabled = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? DISABLE_SNAPSHOT_TL.get() : DISABLE_SNAPSHOT; // SparklyPaper - parallel world ticking
++        if (this.snapshotDisabled) { // SparklyPaper - parallel world ticking
              this.snapshot = this.blockEntity;
          } else {
              this.snapshot = this.createSnapshot(blockEntity);
@@ -467,15 +467,15 @@ index 3c9131ac3cfb4f758e76830ca48813feb321e4c6..ddb3a68d02126b844e9691036345aaaf
          net.minecraft.world.level.block.state.BlockState state = craftBlock.getNMS();
          BlockEntity blockEntity = craftBlock.getHandle().getBlockEntity(pos);
 -        boolean prev = CraftBlockEntityState.DISABLE_SNAPSHOT;
-+        boolean prev = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? CraftBlockEntityState.DISABLE_SNAPSHOT_TL.get() : CraftBlockEntityState.DISABLE_SNAPSHOT;
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) CraftBlockEntityState.DISABLE_SNAPSHOT_TL.set(!useSnapshot); else
++        boolean prev = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? CraftBlockEntityState.DISABLE_SNAPSHOT_TL.get() : CraftBlockEntityState.DISABLE_SNAPSHOT; // SparklyPaper - parallel world ticking
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) CraftBlockEntityState.DISABLE_SNAPSHOT_TL.set(!useSnapshot); else // SparklyPaper - parallel world ticking
          CraftBlockEntityState.DISABLE_SNAPSHOT = !useSnapshot;
          try {
              CraftBlockState blockState = CraftBlockStates.getBlockState(world, pos, state, blockEntity);
              blockState.setWorldHandle(craftBlock.getHandle()); // Inject the block's generator access
              return blockState;
          } finally {
-+            if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) CraftBlockEntityState.DISABLE_SNAPSHOT_TL.set(prev); else
++            if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) CraftBlockEntityState.DISABLE_SNAPSHOT_TL.set(prev); else // SparklyPaper - parallel world ticking
              CraftBlockEntityState.DISABLE_SNAPSHOT = prev;
          }
      }
@@ -487,7 +487,7 @@ index 183d83f023644c9c5dba0702ba2464566e74ad32..1b37b0814146ff997f36ddd39ee3511d
      }
  
      public static BlockPos sourceBlockOverride = null; // SPIGOT-7068: Add source block override, not the most elegant way but better than passing down a BlockPos up to five methods deep.
-+    public static ThreadLocal<BlockPos> sourceBlockOverrideTL = ThreadLocal.withInitial(() -> null);
++    public static ThreadLocal<BlockPos> sourceBlockOverrideTL = new ThreadLocal<>(); // SparklyPaper - parallel world ticking
  
      public static boolean handleBlockSpreadEvent(LevelAccessor world, BlockPos source, BlockPos target, net.minecraft.world.level.block.state.BlockState state, int flags) {
          return handleBlockSpreadEvent(world, source, target, state, flags, false);
@@ -504,11 +504,12 @@ diff --git a/src/main/java/org/spigotmc/AsyncCatcher.java b/src/main/java/org/sp
 index 7e7a0ed944961af5ab7a49bc659da2862d2e2c82..3d251a0cca3ecbc5c8552fb214a08cf515366b71 100644
 --- a/src/main/java/org/spigotmc/AsyncCatcher.java
 +++ b/src/main/java/org/spigotmc/AsyncCatcher.java
-@@ -10,4 +10,13 @@ public class AsyncCatcher {
+@@ -10,4 +10,15 @@ public class AsyncCatcher {
              throw new IllegalStateException("Asynchronous " + reason + "!");
          }
      }
 +
++    // Fish start - Async world catcher
 +    public static void catchWorldOp(net.minecraft.server.level.ServerLevel world, int chunkX, int chunkZ, String reason) {
 +        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
 +            ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(world, chunkX, chunkZ, "Asynchronous " + reason + "!");
@@ -516,5 +517,6 @@ index 7e7a0ed944961af5ab7a49bc659da2862d2e2c82..3d251a0cca3ecbc5c8552fb214a08cf5
 +            AsyncCatcher.catchOp(reason);
 +        }
 +    }
++    // Fish end - Async world catcher
 +
  }
