@@ -56,16 +56,6 @@
      implementation("ca.spottedleaf:concurrentutil:0.0.3")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -193,6 +_,9 @@
- 
-     implementation("net.serlith:Flare:4.0.3") // Pufferfish - Flare
-     implementation("net.serlith.ConfigAPI:ConfigAPI-core:1.2.2.2") // Pufferfish - Config API
-+    implementation("io.netty.incubator:netty-incubator-transport-native-io_uring:0.0.26.Final:linux-x86_64") // Fish - IO Uring (Until netty gets updated
-+    implementation("com.github.luben:zstd-jni:1.5.7-1") // LinearPaper
-+    implementation("org.lz4:lz4-java:1.8.0") // LinearPaper
- 
-     testImplementation("io.github.classgraph:classgraph:4.8.179") // For mob goal test
-     testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
 @@ -229,14 +_,14 @@
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
