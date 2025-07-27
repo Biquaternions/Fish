@@ -7,9 +7,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.serlith.fish.FishConfig;
 import net.serlith.fish.async.thread.WorldTickThread;
-import java.util.ArrayDeque;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 import java.util.function.BooleanSupplier;
 
@@ -19,7 +19,7 @@ public class AsyncWorldTicking {
 
     @SuppressWarnings("ConstantConditions")
     public static void tickWorlds(Iterable<ServerLevel> worlds, BooleanSupplier hasTimeLeft) {
-        ArrayDeque<Future<ServerLevel>> tasks = new ArrayDeque<>();
+        Queue<CompletableFuture<Void>> tasks = new ConcurrentLinkedQueue<>();
         try {
             for (ServerLevel serverLevel : worlds) {
                 serverLevel.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
@@ -28,7 +28,7 @@ public class AsyncWorldTicking {
                 net.minecraft.world.level.block.entity.HopperBlockEntity.skipHopperEvents = serverLevel.paperConfig().hopper.disableMoveEvent || org.bukkit.event.inventory.InventoryMoveItemEvent.getHandlerList().getRegisteredListeners().length == 0; // Paper - Perf: Optimize Hoppers
 
                 SEMAPHORE.acquire();
-                tasks.add(serverLevel.tickExecutor.submit(() -> {
+                tasks.offer(CompletableFuture.runAsync(() -> {
                     try {
                         WorldTickThread currentThread = (WorldTickThread) Thread.currentThread();
                         currentThread.setTickingWorld(serverLevel);
@@ -43,21 +43,18 @@ public class AsyncWorldTicking {
                         serverLevel.tickTimes60s._fish_add(tickCount, duration);
 
                     } catch (Throwable var7) {
-                        CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world");
+                        CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world [" + serverLevel.getWorld().getName() + "]");
                         serverLevel.fillReportDetails(crashReport);
                         throw new ReportedException(crashReport);
                     } finally {
                         SEMAPHORE.release();
                     }
-                }, serverLevel));
+                }, serverLevel.tickExecutor));
                 serverLevel.explosionDensityCache.clear(); // Paper - Optimize explosions
             }
+            CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
 
-            while (!tasks.isEmpty()) {
-                tasks.pop().get();
-            }
-
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
