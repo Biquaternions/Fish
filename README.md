@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/fish-banner.png" alt="Jellyfish" width="600">
+
 ## 🐟 Fish 🐟
 Fish is a [Paper](https://github.com/PaperMC/Paper)/[Pufferfish](https://github.com/pufferfish-gg/Pufferfish/) fork designed for **performance**.
 
