@@ -17,6 +17,7 @@ public class AsyncWorldTicking {
 
     private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.ASYNC.WORLD_TICKING._THREADS);
 
+    @SuppressWarnings("ConstantConditions")
     public static void tickWorlds(Iterable<ServerLevel> worlds, BooleanSupplier hasTimeLeft) {
         ArrayDeque<Future<ServerLevel>> tasks = new ArrayDeque<>();
         try {
@@ -37,9 +38,9 @@ public class AsyncWorldTicking {
                         long duration = Util.getNanos() - start;
 
                         int tickCount = MinecraftServer.getServer().getTickCount();
-                        serverLevel.tickTimes5s.add(tickCount, duration);
-                        serverLevel.tickTimes10s.add(tickCount, duration);
-                        serverLevel.tickTimes60s.add(tickCount, duration);
+                        serverLevel.tickTimes5s._fish_add(tickCount, duration);
+                        serverLevel.tickTimes10s._fish_add(tickCount, duration);
+                        serverLevel.tickTimes60s._fish_add(tickCount, duration);
 
                     } catch (Throwable var7) {
                         CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world");

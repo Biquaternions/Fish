@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Sat, 26 Jul 2025 23:01:18 -0500
+Subject: [PATCH] SparklyPaper Parallel World Ticking MSPT Tracking
+
+
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index 56fe16cc7c56c12185cdb3e04dcd3cc0a7f58936..1f0107181a82c3147a9a804931c5ac5c860ada4c 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -2886,6 +2886,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             times = new long[length];
+         }
+ 
++        public void _fish_add(int index, long time) { this.add(index, time); } // Fish - Expose add
+         void add(int index, long time) {
+             times[index % times.length] = time;
+         }
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index cc4d52ca9957e9ad118ded4eb6a16c0f8248b7b6..3c653412352b0ac6395657876cae35281b0ed6af 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -566,6 +566,10 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+     }
+     // Paper end - chunk tick iteration
+ 
++    public final MinecraftServer.TickTimes tickTimes5s = new MinecraftServer.TickTimes(100);
++    public final MinecraftServer.TickTimes tickTimes10s = new MinecraftServer.TickTimes(200);
++    public final MinecraftServer.TickTimes tickTimes60s = new MinecraftServer.TickTimes(1200);
++
+     public ServerLevel(
+         MinecraftServer server,
+         Executor dispatcher,

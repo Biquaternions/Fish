@@ -6,18 +6,9 @@ Fish is a [Paper](https://github.com/PaperMC/Paper)/[Pufferfish](https://github.
 
 </div>
 
-<div align="center">
-
-### This project is in very EARLY stages of development, no builds will be provided.
-### If you use it anyway feedback will be appreciated.
-
-</div>
-
-## Usage
-For Fish config file `fish.yml`, startup flags and development API, check [USAGE.md](USAGE.md).
-
-## Idea
-Save some performance using the best (and less breaking) patches from other forks until we learn enough knowledge on Minecraft internals to make our own patches.
+> [!WARNING]
+> This was a meme \
+> Please don't use, I won't provide support
 
 ## License
 All patches are licensed under the MIT license.
@@ -52,12 +43,10 @@ will be placed under `fish-api/build/libs` and `fish-server/build/libs`.
 To compile a server-ready paperclip jar, run `./gradlew createMojmapBundlerJar`.
 To install the `fish-api` and `fish` dependencies to your local Maven repo, run `./gradlew publishToMavenLocal`. The compiled paperclip jar will be in `fish-server/build/libs`.
 
-# Support
-This project is designed for Serlith Network, so support is currently not guaranteed until we can find someone to properly maintain the project.
-
 # Credits:
 
 1. PaperMC Team.
 2. Pufferfish Host.
-3. PurpurMC Team, for their paperweight project setup and both Inventory and Villager patches.
-4. Winds-Studio, for their async and performance patches.
+3. PurpurMC Team, for their paperweight project setup.
+4. Winds-Studio, for their auto release script.
+5. SparklyPower, for their Parallel World Ticking patch.
