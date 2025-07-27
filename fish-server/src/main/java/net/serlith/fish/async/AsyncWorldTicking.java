@@ -7,9 +7,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.serlith.fish.FishConfig;
 import net.serlith.fish.async.thread.WorldTickThread;
+import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 import java.util.function.BooleanSupplier;
 
@@ -19,7 +19,7 @@ public class AsyncWorldTicking {
 
     @SuppressWarnings("ConstantConditions")
     public static void tickWorlds(Iterable<ServerLevel> worlds, BooleanSupplier hasTimeLeft) {
-        Queue<CompletableFuture<Void>> tasks = new ConcurrentLinkedQueue<>();
+        Queue<CompletableFuture<Void>> tasks = new ArrayDeque<>();
         try {
             for (ServerLevel serverLevel : worlds) {
                 serverLevel.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
