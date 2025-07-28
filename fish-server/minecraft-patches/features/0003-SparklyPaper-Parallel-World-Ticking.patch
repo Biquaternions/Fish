@@ -5,7 +5,7 @@ Subject: [PATCH] SparklyPaper Parallel World Ticking
 
 
 diff --git a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
-index 6ce4a98e4d3b633e3c87944c23b6b3f0ff58f159..639ae6130196c44449374db63a78517fd06c9464 100644
+index 6ce4a98e4d3b633e3c87944c23b6b3f0ff58f159..20b5725fea406754be2adee5cc44274a0652f87e 100644
 --- a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
 +++ b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
 @@ -1142,7 +1142,7 @@ public final class ChunkHolderManager {
@@ -36,7 +36,7 @@ index 6ce4a98e4d3b633e3c87944c23b6b3f0ff58f159..639ae6130196c44449374db63a78517f
          if (!PlatformHooks.get().allowAsyncTicketUpdates() && isTickThread) {
              TickThread.ensureTickThread("Cannot asynchronously process ticket updates");
 diff --git a/net/minecraft/core/dispenser/DispenseItemBehavior.java b/net/minecraft/core/dispenser/DispenseItemBehavior.java
-index ca02c4c71a0a5a1a0ae8bbb40f0b1b7eac64e6fd..4f52f0d21e73c9613ee2d7ddbea9bb4d2eacf8be 100644
+index ca02c4c71a0a5a1a0ae8bbb40f0b1b7eac64e6fd..e61bb92ad979e8cc40b45c289454b6fb7feb638d 100644
 --- a/net/minecraft/core/dispenser/DispenseItemBehavior.java
 +++ b/net/minecraft/core/dispenser/DispenseItemBehavior.java
 @@ -401,7 +401,8 @@ public interface DispenseItemBehavior {
@@ -50,7 +50,7 @@ index ca02c4c71a0a5a1a0ae8bbb40f0b1b7eac64e6fd..4f52f0d21e73c9613ee2d7ddbea9bb4d
                      org.bukkit.Location location = org.bukkit.craftbukkit.util.CraftLocation.toBukkit(blockPos, level.getWorld());
                      List<org.bukkit.block.BlockState> states = new java.util.ArrayList<>(level.capturedBlockStates.values());
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 1bdd7a5628197d5c2634f42575f0bd19092835c7..56fe16cc7c56c12185cdb3e04dcd3cc0a7f58936 100644
+index 1bdd7a5628197d5c2634f42575f0bd19092835c7..eec9cfa15bc35837946d63264879a9a0a5ec9e38 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -1711,6 +1711,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -82,7 +82,7 @@ index 69d7e2422b58613030a9c5c5af442be25af7e845..fcc965f4d5e8ef2e6879033eae891b8a
                  continue;
              }
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 071824d3f3e67b1cf8c6205ca0ff664fff9d3ebc..3e9bfe493e46c2cfccc1d32fe45b8deb976407e0 100644
+index 071824d3f3e67b1cf8c6205ca0ff664fff9d3ebc..2b51dfebc03a788e57c9f74555d1393f521e6ec9 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -182,7 +182,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
@@ -160,7 +160,7 @@ index 071824d3f3e67b1cf8c6205ca0ff664fff9d3ebc..3e9bfe493e46c2cfccc1d32fe45b8deb
          entity.generation = false; // Paper - Don't fire sync event during generation; Reset flag if it was added during a ServerLevel generation process
          // Paper start - extra debug info
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index 37c0a84758a1526791913898358659de202fa19f..44ad07b9d0f16bd9c328483f02fcc97629463128 100644
+index 37c0a84758a1526791913898358659de202fa19f..8eacfcde7b507c945227ff6b3ac51846c8222c68 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
 @@ -737,8 +737,10 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
@@ -196,7 +196,7 @@ index 37c0a84758a1526791913898358659de202fa19f..44ad07b9d0f16bd9c328483f02fcc976
                  this.containerMenu = abstractContainerMenu; // Moved up
                  if (!this.isImmobile())
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index 2c2015bf19d5b30e945118661b7a9b474a1bddc8..6b5175dd519c620441d4a40f9b0225a26946f676 100644
+index 2c2015bf19d5b30e945118661b7a9b474a1bddc8..8c3dfd30e0c4a235a101df4964da536ddd9c5ae5 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
 @@ -149,6 +149,7 @@ public abstract class PlayerList {
@@ -220,7 +220,7 @@ index 2c2015bf19d5b30e945118661b7a9b474a1bddc8..6b5175dd519c620441d4a40f9b0225a2
          player.stopRiding(); // CraftBukkit
          this.players.remove(player);
          this.playersByName.remove(player.getScoreboardName().toLowerCase(java.util.Locale.ROOT)); // Spigot
-@@ -687,6 +692,7 @@ public abstract class PlayerList {
+@@ -687,6 +694,7 @@ public abstract class PlayerList {
          Level fromWorld = player.level();
          player.wonGame = false;
          // CraftBukkit end
@@ -271,7 +271,7 @@ index 79dcc62c6e2ae2f1fb668e6e82897b48b54a9984..7f4a3695742ec0cb78d9aac2610e3709
          List<Entity> list = new ArrayList<>(passengers.size());
          this.ejectPassengers();
 diff --git a/net/minecraft/world/item/ItemStack.java b/net/minecraft/world/item/ItemStack.java
-index da16f4831c875e07c25d7ed041bed493db614658..78dd75bcf10ed0b37825374e1df06c7d8c747a38 100644
+index da16f4831c875e07c25d7ed041bed493db614658..fd2af1cf4c211acd7f3181e8dea68fd1c95efcc6 100644
 --- a/net/minecraft/world/item/ItemStack.java
 +++ b/net/minecraft/world/item/ItemStack.java
 @@ -398,7 +398,8 @@ public final class ItemStack implements DataComponentHolder {
@@ -285,7 +285,7 @@ index da16f4831c875e07c25d7ed041bed493db614658..78dd75bcf10ed0b37825374e1df06c7d
                  List<org.bukkit.craftbukkit.block.CraftBlockState> blocks = new java.util.ArrayList<>(serverLevel.capturedBlockStates.values());
                  serverLevel.capturedBlockStates.clear();
 diff --git a/net/minecraft/world/level/Level.java b/net/minecraft/world/level/Level.java
-index abc7293c9b846d89e9a05c0a9702b010e318d6a6..4c54e239f6b02589b0c709619251a103e1d621a8 100644
+index abc7293c9b846d89e9a05c0a9702b010e318d6a6..67debc5ddf6ae3bff175e30a1d0fe39cd6e1d514 100644
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
 @@ -160,6 +160,7 @@ public abstract class Level implements LevelAccessor, UUIDLookup<Entity>, AutoCl
@@ -354,7 +354,7 @@ index abc7293c9b846d89e9a05c0a9702b010e318d6a6..4c54e239f6b02589b0c709619251a103
          int i = this.randValue >> 2;
          return new BlockPos(x + (i & 15), y + (i >> 16 & yMask), z + (i >> 8 & 15));
 diff --git a/net/minecraft/world/level/block/FungusBlock.java b/net/minecraft/world/level/block/FungusBlock.java
-index 9711efb088bd0da9168e9bcd0496bd7caddd2974..5152794b88a480b9236356704c06f7f315ec24c6 100644
+index 9711efb088bd0da9168e9bcd0496bd7caddd2974..3961f65b1d1e2e54739515db05615240c559df13 100644
 --- a/net/minecraft/world/level/block/FungusBlock.java
 +++ b/net/minecraft/world/level/block/FungusBlock.java
 @@ -76,8 +76,10 @@ public class FungusBlock extends VegetationBlock implements BonemealableBlock {
@@ -369,7 +369,7 @@ index 9711efb088bd0da9168e9bcd0496bd7caddd2974..5152794b88a480b9236356704c06f7f3
                  }
                  return value;
 diff --git a/net/minecraft/world/level/block/MushroomBlock.java b/net/minecraft/world/level/block/MushroomBlock.java
-index d306f5f524dc64618df94c9783c2168dc561a5e3..3a8d4d199c3d6f0db45f710c4722c61a3d112fc5 100644
+index d306f5f524dc64618df94c9783c2168dc561a5e3..15a1fec64ee3109a060791d86c6f624768bec7bb 100644
 --- a/net/minecraft/world/level/block/MushroomBlock.java
 +++ b/net/minecraft/world/level/block/MushroomBlock.java
 @@ -93,6 +93,7 @@ public class MushroomBlock extends VegetationBlock implements BonemealableBlock
@@ -381,7 +381,7 @@ index d306f5f524dc64618df94c9783c2168dc561a5e3..3a8d4d199c3d6f0db45f710c4722c61a
              if (optional.get().value().place(level, level.getChunkSource().getGenerator(), random, pos)) {
                  return true;
 diff --git a/net/minecraft/world/level/block/RedStoneWireBlock.java b/net/minecraft/world/level/block/RedStoneWireBlock.java
-index 1943a6aad888647953e2d9dbbeedb0bd81c6f9df..e4aa353cd6fb89e316cbb4b33b4fabe19959448d 100644
+index 1943a6aad888647953e2d9dbbeedb0bd81c6f9df..9be65fd218ce02edd167a224f7dbbe9c6501cd88 100644
 --- a/net/minecraft/world/level/block/RedStoneWireBlock.java
 +++ b/net/minecraft/world/level/block/RedStoneWireBlock.java
 @@ -283,6 +283,7 @@ public class RedStoneWireBlock extends Block {
@@ -401,7 +401,7 @@ index 1943a6aad888647953e2d9dbbeedb0bd81c6f9df..e4aa353cd6fb89e316cbb4b33b4fabe1
                  }
              }
 diff --git a/net/minecraft/world/level/block/SaplingBlock.java b/net/minecraft/world/level/block/SaplingBlock.java
-index a22cb810622e0ae97bc2a0d6390d026d9482b783..ffbd0522083cf2a2741b58a78601ed1f3a33ac01 100644
+index a22cb810622e0ae97bc2a0d6390d026d9482b783..84e7ef57688df676e9024b09b89f7d22d6b6248b 100644
 --- a/net/minecraft/world/level/block/SaplingBlock.java
 +++ b/net/minecraft/world/level/block/SaplingBlock.java
 @@ -26,6 +26,7 @@ public class SaplingBlock extends VegetationBlock implements BonemealableBlock {
@@ -440,7 +440,7 @@ index 5a094257a31f0500278a706a418e1697f8810ffb..876c8b459366804b57a6016a19efb281
              final org.bukkit.block.Block block = org.bukkit.craftbukkit.block.CraftBlock.at(blockEntity.getLevel(), blockEntity.getBlockPos());
              net.kyori.adventure.text.Component lockedMessage = net.kyori.adventure.text.Component.translatable("container.isLocked", io.papermc.paper.adventure.PaperAdventure.asAdventure(displayName));
 diff --git a/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java b/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
-index 0a94670dc20bb9c521b0395633eb100393895f6a..a1a1dd9ff006791dfdd65a8ead3f1fd1b4ac616c 100644
+index 0a94670dc20bb9c521b0395633eb100393895f6a..6c1531ce401e0e0fe26ef65510a4edda37395f94 100644
 --- a/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
 @@ -43,8 +43,10 @@ public class SculkCatalystBlockEntity extends BlockEntity implements GameEventLi
@@ -455,7 +455,7 @@ index 0a94670dc20bb9c521b0395633eb100393895f6a..a1a1dd9ff006791dfdd65a8ead3f1fd1
      }
  
 diff --git a/net/minecraft/world/level/block/grower/TreeGrower.java b/net/minecraft/world/level/block/grower/TreeGrower.java
-index d23f255de9208f42125fa358a9e8194c984fe4d3..c2f5cf9205664dcee230467de24fb0d6266b99ae 100644
+index d23f255de9208f42125fa358a9e8194c984fe4d3..cc75fe312f99eede9d9fb5feb3e265673cdc5f33 100644
 --- a/net/minecraft/world/level/block/grower/TreeGrower.java
 +++ b/net/minecraft/world/level/block/grower/TreeGrower.java
 @@ -203,55 +203,58 @@ public final class TreeGrower {

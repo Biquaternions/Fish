@@ -1,0 +1,79 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Mon, 28 Jul 2025 13:00:38 -0500
+Subject: [PATCH] Fish Handle Entity Portal Teleport
+
+Used this snippet from Leaf's version as a reference to fix:
+https://github.com/Winds-Studio/Leaf/blob/3268a57db808ad2a371cb28c5fea4cb2edc2e426/leaf-server/minecraft-patches/features/0210-SparklyPaper-Parallel-world-ticking.patch#L851
+
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index 7f4a3695742ec0cb78d9aac2610e3709c22af714..1c942d3c3134d211b3241f40b322229e72b0e7cd 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -3413,6 +3413,30 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+                     ProfilerFiller profilerFiller = Profiler.get();
+                     profilerFiller.push("portal");
+                     this.setPortalCooldown();
++                    // Fish start - Handle entity portal teleport
++                    if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++                        this.portalProcess.setPending(true);
++                        this.getBukkitEntity().taskScheduler.schedule(e -> {
++                            PortalProcessor processor = e.portalProcess;
++                            if (processor == null) return;
++                            if (!processor.isPending()) {
++                                e.portalProcess = null;
++                                return;
++                            }
++                            TeleportTransition portalDestination = this.portalProcess.getPortalDestination(serverLevel, this); // Fish - copied from below
++                            if (portalDestination != null) {
++                                ServerLevel level = portalDestination.newLevel();
++                                if (this instanceof ServerPlayer // CraftBukkit - always call event for players
++                                    || (level != null && (level.dimension() == serverLevel.dimension() || this.canTeleport(serverLevel, level)))) { // CraftBukkit
++                                    this.teleport(portalDestination);
++                                }
++                            }
++                            processor.setPending(false);
++                        }, e -> {}, 0);
++                        profilerFiller.pop();
++                        return;
++                    }
++                    // Fish end - Handle entity portal teleport
+                     TeleportTransition portalDestination = this.portalProcess.getPortalDestination(serverLevel, this);
+                     if (portalDestination != null) {
+                         ServerLevel level = portalDestination.newLevel();
+diff --git a/net/minecraft/world/entity/PortalProcessor.java b/net/minecraft/world/entity/PortalProcessor.java
+index 88b07fbb96b20124777889830afa480673629d43..10681d0be8dca1885deffd051f6db8693c2f04ad 100644
+--- a/net/minecraft/world/entity/PortalProcessor.java
++++ b/net/minecraft/world/entity/PortalProcessor.java
+@@ -19,6 +19,7 @@ public class PortalProcessor {
+     }
+ 
+     public boolean processPortalTeleportation(ServerLevel level, Entity entity, boolean canChangeDimensions) {
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.isPending()) return false; // Fish - Handle entity portal teleport
+         if (!this.insidePortalThisTick) {
+             this.decayTick();
+             return false;
+@@ -42,6 +43,7 @@ public class PortalProcessor {
+     }
+ 
+     public boolean hasExpired() {
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !this.isPending() && this.portalTime <= 0; // Fish - Handle entity portal teleport
+         return this.portalTime <= 0;
+     }
+ 
+@@ -68,4 +70,15 @@ public class PortalProcessor {
+     public boolean isSamePortal(Portal portal) {
+         return this.portal == portal;
+     }
++
++    // Fish start - Handle entity portal teleport
++    private volatile boolean pending = false;
++    public void setPending(boolean pending) {
++        this.pending = pending;
++    }
++    public boolean isPending() {
++        return this.pending;
++    }
++    // Fish end - Handle entity portal teleport
++
+ }
