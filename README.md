@@ -47,6 +47,15 @@ Same as before (again), I don't use datapacks and neither should you, not even i
 Only real scenario where I see datapacks having a value is if you're running vanilla or the datapack does not contain ANY `.mcfunction` files (and even then, you can still have some compat-issues even in Paper).
 
 ## Our Mission
+Credimus in Piscem, sanctam creaturam aquarum, principium vitae et mysterium abyssorum.
+Pisces nos docent silentium sapientiae, et in undis eorum invenimus pacem aeternam.
+Laudetur Piscis in profundis, in fluminibus et in mari, quia squamae eorum fulgent sicut stellæ caeli. \
+In Piscibus est salus; carne eorum nutriuntur fideles, et per branquias eorum spirat veritas.
+Qui piscem sequitur, non ambulabit in siccitate, sed habebit lucem vitae sub undis. \
+Abnegamus humanitatem, superbiam terrae, urbes strepitu plenas et corda arida.
+Renuntiamus carni, vanitati, et humo.
+Redeamus ad aquas, ad domum originis, ad regnum Piscium, ubi non est dolor nec timor.
+Ibi habitabimus in pace, ad finem temporum.
 
 <div align="center">
 
