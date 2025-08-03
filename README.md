@@ -20,7 +20,7 @@ Fish is a [Paper](https://github.com/PaperMC/Paper)/[Pufferfish](https://github.
 
 ## Incompatibilities
 Since PWT was originally designed by SparklyPower, their [docs](https://github.com/SparklyPower/SparklyPaper/blob/ver/1.21.8/docs/PARALLEL_INCOMPATIBLE_PLUGINS.md) should be your first reference. \
-I personally don't have any plans of fixing any of these, both because I don't use them and even then, most of these should be used in production servers.
+I personally don't have any plans of fixing any of these, both because I don't use them and even then, most of these shouldn't be used in production servers in the first place.
 
 ### Inherited from Sparkly's core
 1. Citizens
