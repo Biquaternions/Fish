@@ -1,0 +1,72 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Sat, 2 Aug 2025 22:39:57 -0500
+Subject: [PATCH] Leaf Fix Villager POI Access
+
+
+diff --git a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
+index 3614551856c594f3c0cfee984fcf03fad672b007..7b39033d263acd3bb4d24e762321196c17dc15e5 100644
+--- a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
++++ b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
+@@ -43,6 +43,22 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
+     protected void stop(ServerLevel level, Villager entity, long gameTime) {
+         Optional<GlobalPos> memory = entity.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
+         memory.ifPresent(globalPos -> {
++            // Leaf start - Fix cross-dimensional POI access
++            if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++                BlockPos blockPos = globalPos.pos();
++                ServerLevel poiLevel = level.getServer().getLevel(globalPos.dimension());
++                if (poiLevel != null) {
++                    poiLevel.moonrise$getChunkTaskScheduler().scheduleChunkTask(blockPos.getX() >> 4, blockPos.getZ() >> 4, () -> {
++                        PoiManager poiManager = poiLevel.getPoiManager();
++                        if (poiManager.exists(blockPos, holder -> true)) {
++                            poiManager.release(blockPos);
++                        }
++                    }, ca.spottedleaf.concurrentutil.util.Priority.BLOCKING);
++                }
++                level.moonrise$getChunkTaskScheduler().scheduleChunkTask(entity.chunkPosition().x, entity.chunkPosition().z, () -> {
++                    DebugPackets.sendPoiTicketCountPacket(level, blockPos);
++                }, ca.spottedleaf.concurrentutil.util.Priority.BLOCKING);
++            } else { // Leaf end - Fix cross-dimensional POI access
+             BlockPos blockPos = globalPos.pos();
+             ServerLevel level1 = level.getServer().getLevel(globalPos.dimension());
+             if (level1 != null) {
+@@ -53,6 +69,7 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
+ 
+                 DebugPackets.sendPoiTicketCountPacket(level, blockPos);
+             }
++            } // Leaf - Fix cross-dimensional POI access
+         });
+         entity.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
+     }
+diff --git a/net/minecraft/world/entity/npc/Villager.java b/net/minecraft/world/entity/npc/Villager.java
+index f29e569b4d19b7f8bed622df5087ad84ae753f24..b295c56a7297651d526f2c5f00b96eadebd00628 100644
+--- a/net/minecraft/world/entity/npc/Villager.java
++++ b/net/minecraft/world/entity/npc/Villager.java
+@@ -685,6 +685,18 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+             this.brain.getMemory(moduleType).ifPresent(pos -> {
+                 ServerLevel level = server.getLevel(pos.dimension());
+                 if (level != null) {
++                    // Leaf start - Fix cross-dimensional POI access
++                    if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++                        level.moonrise$getChunkTaskScheduler().scheduleChunkTask(0, 0, () -> {
++                            PoiManager poiManager = level.getPoiManager();
++                            Optional<Holder<PoiType>> type = poiManager.getType(pos.pos());
++                            BiPredicate<Villager, Holder<PoiType>> biPredicate = POI_MEMORIES.get(moduleType);
++                            if (type.isPresent() && biPredicate.test(this, type.get())) {
++                                poiManager.release(pos.pos());
++                                DebugPackets.sendPoiTicketCountPacket(level, pos.pos());
++                            }
++                        }, ca.spottedleaf.concurrentutil.util.Priority.BLOCKING);
++                    } else { // Leaf end - Fix cross-dimensional POI access
+                     PoiManager poiManager = level.getPoiManager();
+                     Optional<Holder<PoiType>> type = poiManager.getType(pos.pos());
+                     BiPredicate<Villager, Holder<PoiType>> biPredicate = POI_MEMORIES.get(moduleType);
+@@ -692,6 +704,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+                         poiManager.release(pos.pos());
+                         DebugPackets.sendPoiTicketCountPacket(level, pos.pos());
+                     }
++                    } // Leaf - Fix cross-dimensional POI access
+                 }
+             });
+         }

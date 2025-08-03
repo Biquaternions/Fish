@@ -12,6 +12,11 @@ Fish is a [Paper](https://github.com/PaperMC/Paper)/[Pufferfish](https://github.
 > This was a meme \
 > Please don't use, I won't provide support
 
+> [!WARNING]
+> This meme has been turned into a playground for PWT \
+> Stuff here _might be_ highly unstable \
+> Again, please don't use
+
 ## License
 All patches are licensed under the MIT license.
 
