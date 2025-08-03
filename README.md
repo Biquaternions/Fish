@@ -46,6 +46,23 @@ Based on how the logic of PWT works, I highly suspect it will also be incompatib
 Same as before (again), I don't use datapacks and neither should you, not even in friends-only-servers. \
 Only real scenario where I see datapacks having a value is if you're running vanilla or the datapack does not contain ANY `.mcfunction` files (and even then, you can still have some compat-issues even in Paper).
 
+## Our Mission
+
+<div align="center">
+
+<img src="assets/wisdom.jpg" alt="Jellyfish" width="360">
+
+</div>
+
+
+## Our Vision
+
+<div align="center">
+
+<img src="assets/wisdom2.jpg" alt="Jellyfish" width="452">
+
+</div>
+
 ## License
 All patches are licensed under the MIT license.
 
