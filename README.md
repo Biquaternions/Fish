@@ -20,14 +20,14 @@ Fish is a [Paper](https://github.com/PaperMC/Paper)/[Pufferfish](https://github.
 
 ## Incompatibilities
 Since PWT was originally designed by SparklyPower, their [docs](https://github.com/SparklyPower/SparklyPaper/blob/ver/1.21.8/docs/PARALLEL_INCOMPATIBLE_PLUGINS.md) should be your first reference. \
-I personally don't have any plans of fixing any of these, both because I don't use them and even then, most of these shouldn't be used in production servers in the first place.
+I personally don't have any plans of fixing any of these, because I don't use them and even then, most of these shouldn't be used in production servers in the first place.
 
 ### Inherited from Sparkly's core
 1. Citizens
 2. MyPet
 3. NoCheatPlus
 
-I don't use any of those plugins, so I won't even try to fix ~~for NPC there's better alternatives, and for Citizens... it shouldn't even be used anymore honestly, even in Paper~~. \
+I don't use any of those plugins, so I won't even try to fix ~~for NCP there's better alternatives, and for Citizens... it shouldn't even be used anymore honestly, even in Paper~~. \
 MyPet you're fine, but sadly I don't use you, so I won't fix it for you :(
 
 ### Known from external sources
@@ -37,7 +37,7 @@ Since both implementations branch from Sparkly, I assume it will be the same her
 2. Denizen
 
 Same as before, I don't use any of these and neither should you, specially not in a production server. \
-I get the idea of giving a lower barrier of entry to MC development, but their usage shouldn't go past testing or friends-only-servers.
+I get the idea of giving a lower barrier of entry to MC development, but their usage shouldn't go past testing, prototyping or (at most) friends-only-servers.
 
 ### Probably incompatible
 Based on how the logic of PWT works, I highly suspect it will also be incompatible with:
