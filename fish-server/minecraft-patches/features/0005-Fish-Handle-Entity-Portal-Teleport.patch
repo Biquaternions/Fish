@@ -10,6 +10,14 @@ diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity
 index 7f4a3695742ec0cb78d9aac2610e3709c22af714..1c942d3c3134d211b3241f40b322229e72b0e7cd 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
+@@ -837,7 +837,6 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     // CraftBukkit start
+     public void postTick() {
+         // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
+-        if (!net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
+         if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
+             this.handlePortal();
+         }
 @@ -3413,6 +3413,30 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
                      ProfilerFiller profilerFiller = Profiler.get();
                      profilerFiller.push("portal");

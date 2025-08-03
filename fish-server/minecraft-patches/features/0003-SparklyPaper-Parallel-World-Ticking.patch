@@ -90,7 +90,7 @@ index 071824d3f3e67b1cf8c6205ca0ff664fff9d3ebc..2b51dfebc03a788e57c9f74555d1393f
      public final net.minecraft.world.level.storage.PrimaryLevelData serverLevelData; // CraftBukkit - type
      private int lastSpawnChunkRadius;
 -    final EntityTickList entityTickList = new EntityTickList();
-+    final EntityTickList entityTickList = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? new net.serlith.fish.util.WorldEntityTickList(this)  : new EntityTickList(); // SparklyPaper - parallel world ticking
++    final EntityTickList entityTickList = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? new net.serlith.fish.util.WorldEntityTickList(this) : new EntityTickList(); // SparklyPaper - parallel world ticking
      private final ServerWaypointManager waypointManager;
      // Paper - rewrite chunk system
      private final GameEventDispatcher gameEventDispatcher;
