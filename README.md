@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/fish-banner.png" alt="Jellyfish" width="600">
+<img src="assets/fish-banner.png" alt="Fish" width="600">
 
 ## 🐟 Fish 🐟
 Fish is a [Paper](https://github.com/PaperMC/Paper)/[Pufferfish](https://github.com/pufferfish-gg/Pufferfish/) fork designed for **the memes**.
@@ -59,7 +59,7 @@ Ibi habitabimus in pace, ad finem temporum._
 
 <div align="center">
 
-<img src="assets/wisdom.jpg" alt="Jellyfish" width="360">
+<img src="assets/wisdom.jpg" alt="Fish" width="360">
 
 </div>
 
@@ -68,7 +68,7 @@ Ibi habitabimus in pace, ad finem temporum._
 
 <div align="center">
 
-<img src="assets/wisdom2.jpg" alt="Jellyfish" width="452">
+<img src="assets/wisdom2.jpg" alt="Fish" width="452">
 
 </div>
 

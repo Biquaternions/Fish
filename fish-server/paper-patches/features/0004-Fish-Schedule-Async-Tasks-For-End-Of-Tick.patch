@@ -3,6 +3,11 @@ From: Biquaternions <biquaternions@serlith.net>
 Date: Sun, 3 Aug 2025 13:19:51 -0500
 Subject: [PATCH] Fish Schedule Async Tasks In For End Of Tick
 
+This is a half-solution for the plugins that try to read a world or block async.
+This forces the async thread to wait until the world is done ticking (and is now safe to access), but also forces the "request" to be run in the world thread.
+If I were to re-design this (which I will), I'll make it so async accesses are allowed while the level is not ticking (and therefore should be equivalent to Paper's).
+Still, if an async access is done while the world is ticking, it will still have to schedule the "request" and wait.
+
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 index f9c8180b9ac7d47877d3ccecf0a1a3ba91167c85..4bda8330a6cff89f7a7ee35e3feabd810c46fe3b 100644
