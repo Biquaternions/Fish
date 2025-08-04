@@ -70,7 +70,7 @@ The first point has some drawbacks:
 
 General drawbacks:
 1. Say bye-bye to `/spark profilar start`, from now own you HAVE to use at least `/spark profiler start --thread ^Fish Level.* --regex`
-
+2. Async plugin that directly access NMS async will still be broken (none should, but who knows)
 
 # Wow, you really read everything
 
