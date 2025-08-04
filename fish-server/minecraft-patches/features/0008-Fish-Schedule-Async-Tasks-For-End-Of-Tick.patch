@@ -3,16 +3,18 @@ From: Biquaternions <biquaternions@serlith.net>
 Date: Sun, 3 Aug 2025 20:38:56 -0500
 Subject: [PATCH] Fish Schedule Async Tasks For End Of Tick
 
-This is a half-solution for the plugins that try to read a world or block async.
-This forces the async thread to wait until the world is done ticking (and is now safe to access), but also forces the "request" to be run in the world thread.
-If I were to re-design this (which I will), I'll make it so async accesses are allowed while the level is not ticking (and therefore should be equivalent to Paper's).
-Still, if an async access is done while the world is ticking, it will still have to schedule the "request" and wait.
+This implementation allows async threads to still do async operations as long as the world is not ticking.
+If the world ticking, the "request" will be scheduled to be ran sync at the end of the tick.
+  * Not doing this, means that if the world is always ticking (mspt > 50) there's a chance that the async thread will sleep indefinitely.
+If the world is not ticking, the "request" will be performed async by the calling thread.
+If the world is about to tick, but the async "request" is not done yet, the world will wait until its done and every new "request" will be scheduled.
+This scheduling logic is very performant as long as none of the plugins is spamming world/block requests.
 
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
 index 9d5c20282f88ed30db16cd6757e1bd3877957612..f369185156820a902fb3530c2ae6165bec77a695 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -842,7 +842,14 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -842,7 +842,15 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
          profilerFiller.push("entityManagement");
          // Paper - rewrite chunk system
          profilerFiller.pop();
@@ -24,6 +26,7 @@ index 9d5c20282f88ed30db16cd6757e1bd3877957612..f369185156820a902fb3530c2ae6165b
 +        // Fish end - Schedule tasks for end of tick
      }
 +    public final java.util.Queue<Runnable> _fish_endOfTickTasks = new java.util.concurrent.ConcurrentLinkedQueue<>(); // Fish - Schedule tasks for end of tick
++    public final java.util.concurrent.locks.ReentrantReadWriteLock lock = new java.util.concurrent.locks.ReentrantReadWriteLock();
  
      @Override
      public boolean shouldTickBlocksAt(long chunkPos) {

@@ -32,6 +32,7 @@ public class AsyncWorldTicking {
 
                 SEMAPHORE.acquire();
                 tasks.offer(CompletableFuture.runAsync(() -> {
+                    serverLevel.lock.writeLock().lock();
                     try {
                         WorldTickThread currentThread = (WorldTickThread) Thread.currentThread();
                         currentThread.setTickingWorld(serverLevel);
@@ -50,6 +51,7 @@ public class AsyncWorldTicking {
                         serverLevel.fillReportDetails(crashReport);
                         throw new ReportedException(crashReport);
                     } finally {
+                        serverLevel.lock.writeLock().unlock();
                         SEMAPHORE.release();
                     }
                 }, serverLevel.tickExecutor));
@@ -64,15 +66,36 @@ public class AsyncWorldTicking {
 
     // In theory, the same method can just be called recursively
     // It shouldn't enter a recursive loop since it will no longer be off-main to pass the second condition
+    // TODO: Now the task cannot be called recursively, I need to change that
 
     public static <T> T scheduleForEndOfWorldTick(ServerLevel level, Callable<T> callable) {
-        WorldTask<T> task = new WorldTask<>(callable);
-        level._fish_endOfTickTasks.offer(task);
-        return task.get();
+        if (level.lock.readLock().tryLock()) {
+            try {
+                return callable.call();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            } finally {
+                level.lock.readLock().unlock();
+            }
+        } else {
+            WorldTask<T> task = new WorldTask<>(callable);
+            level._fish_endOfTickTasks.offer(task);
+            return task.get();
+        }
     }
 
     public static void scheduleVoidForEndOfWorldTick(ServerLevel level, Runnable runnable) {
-        level._fish_endOfTickTasks.offer(runnable);
+        if (level.lock.readLock().tryLock()) {
+            try {
+                runnable.run();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            } finally {
+                level.lock.readLock().unlock();
+            }
+        } else {
+            level._fish_endOfTickTasks.offer(runnable);
+        }
     }
 
 }
