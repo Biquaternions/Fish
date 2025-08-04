@@ -110,5 +110,11 @@ To install the `fish-api` and `fish` dependencies to your local Maven repo, run 
 1. PaperMC Team.
 2. Pufferfish Host.
 3. PurpurMC Team, for their paperweight project setup.
-4. Winds-Studio, for their auto release script.
+4. Winds-Studio, for their auto release script and PWT fixes.
 5. SparklyPower, for their Parallel World Ticking patch.
+
+<div align="center">
+
+<img src="assets/fish.jpg" alt="Fish" width="590">
+
+</div>
