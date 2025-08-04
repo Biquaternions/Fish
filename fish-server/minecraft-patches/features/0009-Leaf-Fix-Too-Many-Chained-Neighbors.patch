@@ -5,20 +5,22 @@ Subject: [PATCH] Leaf Fix Too Many Chained Neighbors
 
 
 diff --git a/io/papermc/paper/redstone/RedstoneWireTurbo.java b/io/papermc/paper/redstone/RedstoneWireTurbo.java
-index ff747a1ecdf3c888bca0d69de4f85dcd810b6139..ef62244239d1bae02d15471a500fd4e2a1515a60 100644
+index ff747a1ecdf3c888bca0d69de4f85dcd810b6139..093188014e652610325564adf756f22c32cd0520 100644
 --- a/io/papermc/paper/redstone/RedstoneWireTurbo.java
 +++ b/io/papermc/paper/redstone/RedstoneWireTurbo.java
-@@ -829,6 +829,7 @@ public final class RedstoneWireTurbo {
+@@ -829,14 +829,16 @@ public final class RedstoneWireTurbo {
          j = getMaxCurrentStrength(upd, j);
          int l = 0;
  
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) wire.getBlockSignal(worldIn, upd.self); else { // Leaf - Fix too many chained neighbors
++        final int k; if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) k = wire.getBlockSignal(worldIn, upd.self); else {
          wire.shouldSignal = false;
          // Unfortunately, World.isBlockIndirectlyGettingPowered is complicated,
          // and I'm not ready to try to replicate even more functionality from
-@@ -837,6 +838,7 @@ public final class RedstoneWireTurbo {
+         // elsewhere in Minecraft into this accelerator.  So sadly, we must
+         // suffer the performance hit of this very expensive call.  If there
          // is consistency to what this call returns, we may be able to cache it.
-         final int k = worldIn.getBestNeighborSignal(upd.self);
+-        final int k = worldIn.getBestNeighborSignal(upd.self);
++        k = worldIn.getBestNeighborSignal(upd.self);
          wire.shouldSignal = true;
 +        } // Leaf - Fix too many chained neighbors
  
