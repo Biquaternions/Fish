@@ -81,7 +81,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..ba2d25469324af1867b08ce05631c697
  
      public static boolean setBlockState(LevelAccessor world, BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, boolean applyPhysics) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, pos, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.setBlockState(world, pos, oldState, newState, applyPhysics));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> setBlockState(world, pos, oldState, newState, applyPhysics));
          // SPIGOT-611: need to do this to prevent glitchiness. Easier to handle this here (like /setblock) than to fix weirdness in block entity cleanup
          if (oldState.hasBlockEntity() && newState.getBlock() != oldState.getBlock()) { // SPIGOT-3725 remove old block entity if block changes
              // SPIGOT-4612: faster - just clear tile
