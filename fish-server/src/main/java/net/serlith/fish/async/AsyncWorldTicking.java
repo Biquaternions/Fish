@@ -58,6 +58,7 @@ public class AsyncWorldTicking {
             }
             CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
 
+            // There's no more async access at this point
             Runnable task;
             while ((task = END_OF_TICK_TASKS.poll()) != null) {
                 task.run();
@@ -68,6 +69,8 @@ public class AsyncWorldTicking {
         }
     }
 
+    // In theory, the same method can just be called recursively
+    // It shouldn't enter a recursive loop since it will no longer be off-main to pass the second condition
     public static <T> T scheduleForEndOfTick(Callable<T> callable) {
         WorldTask<T> task = new WorldTask<>(callable);
         END_OF_TICK_TASKS.offer(task);
@@ -76,6 +79,16 @@ public class AsyncWorldTicking {
 
     public static void scheduleVoidForEndOfTick(Runnable runnable) {
         END_OF_TICK_TASKS.offer(runnable);
+    }
+
+    public static <T> T scheduleForEndOfWorldTick(ServerLevel level, Callable<T> callable) {
+        WorldTask<T> task = new WorldTask<>(callable);
+        level._fish_endOfTickTasks.offer(task);
+        return task.get();
+    }
+
+    public static void scheduleVoidForEndOfWorldTick(ServerLevel level, Runnable runnable) {
+        level._fish_endOfTickTasks.offer(runnable);
     }
 
 }

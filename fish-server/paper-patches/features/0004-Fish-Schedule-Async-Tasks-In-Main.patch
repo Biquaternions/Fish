@@ -156,7 +156,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
  
      private void setData(final byte data, int flags) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel) { net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.setData(data, flags)); return; }
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) { net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTick(serverLevel, () -> this.setData(data, flags)); return; }
          this.world.setBlock(this.position, CraftMagicNumbers.getBlock(this.getType(), data), flags);
      }
  
@@ -165,7 +165,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
  
      public static boolean setBlockState(LevelAccessor world, BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, boolean applyPhysics) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, pos, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && world instanceof ServerLevel) return setBlockState(world, pos, oldState, newState, applyPhysics);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.setBlockState(world, pos, oldState, newState, applyPhysics));
          // SPIGOT-611: need to do this to prevent glitchiness. Easier to handle this here (like /setblock) than to fix weirdness in block entity cleanup
          if (oldState.hasBlockEntity() && newState.getBlock() != oldState.getBlock()) { // SPIGOT-3725 remove old block entity if block changes
              // SPIGOT-4612: faster - just clear tile
@@ -174,7 +174,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
      @Override
      public Biome getBiome() {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfTick(this::getBiome);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof  ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, this::getBiome);
          return this.getWorld().getBiome(this.getX(), this.getY(), this.getZ());
      }
  
@@ -182,7 +182,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
      @Override
      public Biome getComputedBiome() {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfTick(this::getComputedBiome);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof  ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, this::getComputedBiome);
          return this.getWorld().getComputedBiome(this.getX(), this.getY(), this.getZ());
      }
      // Paper end
@@ -190,7 +190,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
      @Override
      public void setBiome(Biome bio) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel) { net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.setBiome(bio)); return; }
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) { net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTick(serverLevel, () -> this.setBiome(bio)); return; }
          this.getWorld().setBiome(this.getX(), this.getY(), this.getZ(), bio);
      }
  
@@ -199,7 +199,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
      @Override
      public boolean isBlockIndirectlyPowered() {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfTick(this::isBlockIndirectlyPowered);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof  ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, this::isBlockIndirectlyPowered);
          return this.world.getMinecraftWorld().hasNeighborSignal(this.position);
      }
  
@@ -208,7 +208,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
      @Override
      public int getBlockPower(BlockFace face) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfTick(() -> this.getBlockPower(face));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof  ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.getBlockPower(face));
          int power = 0;
          net.minecraft.world.level.Level world = this.world.getMinecraftWorld();
          int x = this.getX();
@@ -217,7 +217,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
      @Override
      public boolean breakNaturally(ItemStack item, boolean triggerEffect, boolean dropExperience, boolean forceEffect) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfTick(() -> this.breakNaturally(item, triggerEffect, dropExperience, forceEffect));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof  ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.breakNaturally(item, triggerEffect, dropExperience, forceEffect));
          // Paper end
          // Order matters here, need to drop before setting to air so skulls can get their data
          net.minecraft.world.level.block.state.BlockState state = this.getNMS();
@@ -226,7 +226,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
      @Override
      public boolean applyBoneMeal(BlockFace face) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfTick(() -> this.applyBoneMeal(face));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof  ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.applyBoneMeal(face));
          Direction direction = CraftBlock.blockFaceToNotch(face);
          BlockFertilizeEvent event = null;
          ServerLevel world = this.getCraftWorld().getHandle();
@@ -235,7 +235,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
      public Collection<ItemStack> getDrops(ItemStack item, Entity entity) {
          net.minecraft.world.level.block.state.BlockState state = this.getNMS();
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfTick(() -> this.getDrops(item, entity));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof  ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.getDrops(item, entity));
          net.minecraft.world.item.ItemStack nms = CraftItemStack.asNMSCopy(item);
  
          // Modelled off Player#hasCorrectToolForDrops
@@ -244,7 +244,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
      @Override
      public RayTraceResult rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfTick(() -> this.rayTrace(start, direction, maxDistance, fluidCollisionMode));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof  ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.rayTrace(start, direction, maxDistance, fluidCollisionMode));
          Preconditions.checkArgument(start != null, "Location start cannot be null");
          Preconditions.checkArgument(this.getWorld().equals(start.getWorld()), "Location start cannot be a different world");
          start.checkFinite();
@@ -253,7 +253,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..775a1d178336b42ee62196b9e87b85be
      @Override
      public boolean canPlace(BlockData data) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfTick(() -> this.canPlace(data));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof  ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.canPlace(data));
          Preconditions.checkArgument(data != null, "BlockData cannot be null");
          net.minecraft.world.level.block.state.BlockState iblockdata = ((CraftBlockData) data).getState();
          net.minecraft.world.level.Level world = this.world.getMinecraftWorld();
