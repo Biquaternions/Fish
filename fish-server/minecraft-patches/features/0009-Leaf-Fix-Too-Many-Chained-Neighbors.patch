@@ -1,0 +1,75 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Taiyou06 <kaandindar21@gmail.com>
+Date: Sun, 3 Aug 2025 22:59:22 -0500
+Subject: [PATCH] Leaf Fix Too Many Chained Neighbors
+
+
+diff --git a/io/papermc/paper/redstone/RedstoneWireTurbo.java b/io/papermc/paper/redstone/RedstoneWireTurbo.java
+index ff747a1ecdf3c888bca0d69de4f85dcd810b6139..ef62244239d1bae02d15471a500fd4e2a1515a60 100644
+--- a/io/papermc/paper/redstone/RedstoneWireTurbo.java
++++ b/io/papermc/paper/redstone/RedstoneWireTurbo.java
+@@ -829,6 +829,7 @@ public final class RedstoneWireTurbo {
+         j = getMaxCurrentStrength(upd, j);
+         int l = 0;
+ 
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) wire.getBlockSignal(worldIn, upd.self); else { // Leaf - Fix too many chained neighbors
+         wire.shouldSignal = false;
+         // Unfortunately, World.isBlockIndirectlyGettingPowered is complicated,
+         // and I'm not ready to try to replicate even more functionality from
+@@ -837,6 +838,7 @@ public final class RedstoneWireTurbo {
+         // is consistency to what this call returns, we may be able to cache it.
+         final int k = worldIn.getBestNeighborSignal(upd.self);
+         wire.shouldSignal = true;
++        } // Leaf - Fix too many chained neighbors
+ 
+         // The variable 'k' holds the maximum redstone power value of any adjacent blocks.
+         // If 'k' has the highest level of all neighbors, then the power level of this
+diff --git a/net/minecraft/world/level/block/RedStoneWireBlock.java b/net/minecraft/world/level/block/RedStoneWireBlock.java
+index 9be65fd218ce02edd167a224f7dbbe9c6501cd88..d66953dd633d73054abbfc31a4bde559ecb0f958 100644
+--- a/net/minecraft/world/level/block/RedStoneWireBlock.java
++++ b/net/minecraft/world/level/block/RedStoneWireBlock.java
+@@ -66,6 +66,7 @@ public class RedStoneWireBlock extends Block {
+     private final BlockState crossState;
+     private final RedstoneWireEvaluator evaluator = new DefaultRedstoneWireEvaluator(this);
+     public boolean shouldSignal = true;
++    private final ThreadLocal<Boolean> shouldSignalTL = ThreadLocal.withInitial(() -> true);
+ 
+     @Override
+     public MapCodec<RedStoneWireBlock> codec() {
+@@ -330,6 +331,12 @@ public class RedStoneWireBlock extends Block {
+     }
+ 
+     public int getBlockSignal(Level level, BlockPos pos) {
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++            this.shouldSignalTL.set(false);
++            int bestNeighborSignal = level.getBestNeighborSignal(pos);
++            this.shouldSignalTL.set(true);
++            return bestNeighborSignal;
++        }
+         this.shouldSignal = false;
+         int bestNeighborSignal = level.getBestNeighborSignal(pos);
+         this.shouldSignal = true;
+@@ -424,12 +431,14 @@ public class RedStoneWireBlock extends Block {
+ 
+     @Override
+     protected int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !this.shouldSignalTL.get() ? 0 : blockState.getSignal(blockAccess, pos, side);
+         return !this.shouldSignal ? 0 : blockState.getSignal(blockAccess, pos, side);
+     }
+ 
+     @Override
+     protected int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+-        if (this.shouldSignal && side != Direction.DOWN) {
++        boolean _shouldSignal = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? this.shouldSignalTL.get() : this.shouldSignal;
++        if (_shouldSignal && side != Direction.DOWN) {
+             int powerValue = blockState.getValue(POWER);
+             if (powerValue == 0) {
+                 return 0;
+@@ -461,6 +470,7 @@ public class RedStoneWireBlock extends Block {
+ 
+     @Override
+     protected boolean isSignalSource(BlockState state) {
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return this.shouldSignalTL.get();
+         return this.shouldSignal;
+     }
+ 

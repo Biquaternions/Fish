@@ -53,9 +53,9 @@ public class FishConfig extends StaticConfig {
                 "This option refers to how many worlds (threads) can work at the same time, to not stress the CPU",
                 "If this value is lower than the amount of worlds, the remaining worlds will wait until others are done"
             })
-            public static int THREADS = 3;
+            public static int THREADS = 8;
             @Ignore
-            public static int _THREADS = 3;
+            public static int _THREADS = 8;
 
         }
     }
