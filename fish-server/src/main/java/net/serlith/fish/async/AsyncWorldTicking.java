@@ -18,6 +18,7 @@ import java.util.function.BooleanSupplier;
 public class AsyncWorldTicking {
 
     private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.ASYNC.WORLD_TICKING._THREADS);
+    private static final CompletableFuture<?>[] EMPTY_ARRAY = new CompletableFuture[0];
 
     @SuppressWarnings("ConstantConditions")
     public static void tickWorlds(Iterable<ServerLevel> worlds, BooleanSupplier hasTimeLeft) {
@@ -54,7 +55,7 @@ public class AsyncWorldTicking {
                 }, serverLevel.tickExecutor));
                 serverLevel.explosionDensityCache.clear(); // Paper - Optimize explosions
             }
-            CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
+            CompletableFuture.allOf(tasks.toArray(EMPTY_ARRAY)).join();
 
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
