@@ -12,14 +12,12 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 import java.util.function.BooleanSupplier;
 
 public class AsyncWorldTicking {
 
     private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.ASYNC.WORLD_TICKING._THREADS);
-    private static final Queue<Runnable> END_OF_TICK_TASKS = new ConcurrentLinkedQueue<>();
 
     @SuppressWarnings("ConstantConditions")
     public static void tickWorlds(Iterable<ServerLevel> worlds, BooleanSupplier hasTimeLeft) {
@@ -58,12 +56,6 @@ public class AsyncWorldTicking {
             }
             CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
 
-            // There's no more async access at this point
-            Runnable task;
-            while ((task = END_OF_TICK_TASKS.poll()) != null) {
-                task.run();
-            }
-
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -71,15 +63,6 @@ public class AsyncWorldTicking {
 
     // In theory, the same method can just be called recursively
     // It shouldn't enter a recursive loop since it will no longer be off-main to pass the second condition
-    public static <T> T scheduleForEndOfTick(Callable<T> callable) {
-        WorldTask<T> task = new WorldTask<>(callable);
-        END_OF_TICK_TASKS.offer(task);
-        return task.get();
-    }
-
-    public static void scheduleVoidForEndOfTick(Runnable runnable) {
-        END_OF_TICK_TASKS.offer(runnable);
-    }
 
     public static <T> T scheduleForEndOfWorldTick(ServerLevel level, Callable<T> callable) {
         WorldTask<T> task = new WorldTask<>(callable);

@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Sun, 3 Aug 2025 20:38:56 -0500
+Subject: [PATCH] Fish Schedule Async Tasks For End Of Tick
+
+
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index 9d5c20282f88ed30db16cd6757e1bd3877957612..f369185156820a902fb3530c2ae6165bec77a695 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -842,7 +842,14 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+         profilerFiller.push("entityManagement");
+         // Paper - rewrite chunk system
+         profilerFiller.pop();
++        // Fish start - Schedule tasks for end of tick
++        Runnable task;
++        while ((task = this._fish_endOfTickTasks.poll()) != null) {
++            task.run();
++        }
++        // Fish end - Schedule tasks for end of tick
+     }
++    public final java.util.Queue<Runnable> _fish_endOfTickTasks = new java.util.concurrent.ConcurrentLinkedQueue<>(); // Fish - Schedule tasks for end of tick
+ 
+     @Override
+     public boolean shouldTickBlocksAt(long chunkPos) {
