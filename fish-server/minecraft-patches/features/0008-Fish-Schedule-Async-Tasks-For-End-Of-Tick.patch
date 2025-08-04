@@ -26,7 +26,7 @@ index 9d5c20282f88ed30db16cd6757e1bd3877957612..f369185156820a902fb3530c2ae6165b
 +        // Fish end - Schedule tasks for end of tick
      }
 +    public final java.util.Queue<Runnable> _fish_endOfTickTasks = new java.util.concurrent.ConcurrentLinkedQueue<>(); // Fish - Schedule tasks for end of tick
-+    public final java.util.concurrent.locks.ReentrantReadWriteLock lock = new java.util.concurrent.locks.ReentrantReadWriteLock();
++    public final java.util.concurrent.locks.ReentrantReadWriteLock lock = new java.util.concurrent.locks.ReentrantReadWriteLock(true);
  
      @Override
      public boolean shouldTickBlocksAt(long chunkPos) {
