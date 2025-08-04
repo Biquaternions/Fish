@@ -28,7 +28,7 @@ I personally don't have any plans of fixing any of these, because I don't use th
 3. NoCheatPlus
 
 I don't use any of those plugins, so I won't even try to fix ~~for NCP there's better alternatives, and for Citizens... it shouldn't even be used anymore honestly, even in Paper~~. \
-MyPet you're fine, but sadly I don't use you, so I won't fix it for you :(
+MyPet you're fine, but sadly I don't use you, so I won't fix this for you :(
 
 ### Known from external sources
 Speaking with Leaf team, the following are known to be incompatible with **their** version of PWT. \
@@ -37,13 +37,13 @@ Since both implementations branch from Sparkly, I assume it will be the same her
 2. Denizen
 
 Same as before, I don't use any of these and neither should you, specially not in a production server. \
-I get the idea of giving a lower barrier of entry to MC development, but their usage shouldn't go past testing, prototyping or (at most) friends-only-servers.
+I get the idea of giving a lower barrier of entry to MC development, but their usage shouldn't go past testing, prototyping or (at most) friends-only servers.
 
 ### Probably incompatible
 Based on how the logic of PWT works, I highly suspect it will also be incompatible with:
 1. Any datapack
 
-Same as before (again), I don't use datapacks and neither should you, not even in friends-only-servers. \
+Same as before (again), I don't use datapacks and neither should you, not even in friends-only servers. \
 Only real scenario where I see datapacks having a value is if you're running vanilla or the datapack does not contain ANY `.mcfunction` files (and even then, you can still have some compat-issues even in Paper).
 
 ## Our Mission

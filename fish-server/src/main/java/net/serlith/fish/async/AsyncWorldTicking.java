@@ -64,10 +64,6 @@ public class AsyncWorldTicking {
         }
     }
 
-    // In theory, the same method can just be called recursively
-    // It shouldn't enter a recursive loop since it will no longer be off-main to pass the second condition
-    // TODO: Now the task cannot be called recursively, I need to change that
-
     public static <T> T scheduleForEndOfWorldTick(ServerLevel level, Callable<T> callable) {
         if (level.lock.readLock().tryLock()) {
             try {
