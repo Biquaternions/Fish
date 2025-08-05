@@ -91,3 +91,11 @@ I will personally keep four separate patches when I decide to merge this into my
 <img src="assets/fish-front.jpg" alt="Fish" width="720">
 
 </div>
+
+**MrPowerGamerBR** if you read this, I love you, I read your whole docs about PWT and fully understood the code, please don't banish me to the shadow realm.
+
+<div align="center">
+
+<img src="assets/shadow-realm.gif" alt="Fish" width="321">
+
+</div>

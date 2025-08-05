@@ -24,11 +24,11 @@ I personally don't have any plans of fixing any of these, because I don't use th
 
 ### Inherited from Sparkly's core
 1. Citizens
-2. MyPet
+2. ~~MyPet~~
 3. NoCheatPlus
 
 I don't use any of those plugins, so I won't even try to fix ~~for NCP there's better alternatives, and for Citizens... it shouldn't even be used anymore honestly, even in Paper~~. \
-MyPet you're fine, but sadly I don't use you, so I won't fix this for you :(
+MyPet was fixed a long while apparently.
 
 ### Known from external sources
 Speaking with Leaf team, the following are known to be incompatible with **their** version of PWT. \
