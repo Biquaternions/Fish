@@ -1,5 +1,14 @@
 --- a/pufferfish-server/build.gradle.kts
 +++ b/pufferfish-server/build.gradle.kts
+@@ -18,7 +_,7 @@
+ 
+ dependencies {
+     mache("io.papermc:mache:1.21.8+build.2")
+-    paperclip("io.papermc:paperclip:3.0.3")
++    paperclip("com.github.Biquaternions:Fishclip:1.0")
+     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+ }
+ 
 @@ -35,9 +_,26 @@
              outputDir = rootDirectory.dir("paper-server")
          }
