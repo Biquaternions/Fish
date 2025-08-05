@@ -4,7 +4,7 @@ Date: Mon, 4 Aug 2025 13:36:48 -0500
 Subject: [PATCH] Fish Schedule Async Tasks For End Of Tick
 
 This implementation allows async threads to still do async operations as long as the world is not ticking.
-If the world ticking, the "request" will be scheduled to be ran sync at the end of the tick.
+If the world is ticking, the "request" will be scheduled to be run sync at the end of the tick.
   * Not doing this, means that if the world is always ticking (mspt > 50) there's a chance that the async thread will sleep indefinitely.
 If the world is not ticking, the "request" will be performed async by the calling thread.
 If the world is about to tick, but the async "request" is not done yet, the world will wait until its done and every new "request" will be scheduled.
