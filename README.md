@@ -28,7 +28,7 @@ I personally don't have any plans of fixing any of these, because I don't use th
 3. NoCheatPlus
 
 I don't use any of those plugins, so I won't even try to fix ~~for NCP there's better alternatives, and for Citizens... it shouldn't even be used anymore honestly, even in Paper~~. \
-MyPet was fixed a long while apparently.
+MyPet was fixed a long while ago, apparently.
 
 ### Known from external sources
 Speaking with Leaf team, the following are known to be incompatible with **their** version of PWT. \
