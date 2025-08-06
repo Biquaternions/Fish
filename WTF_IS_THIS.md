@@ -63,14 +63,35 @@ To achieve this extra layer of compatibility I followed this approach:
 
 The first point has some drawbacks:
 1. If a plugin accesses these API functions async, the whole thread will wait until it's done
-2. The async access is now forced to be run sync at the end of the thread, which means it will take a part of the world's tick
+2. The async access is now forced to be run sync at the end of the world thread, which means it will take a part of the world's tick
 3. If a plugin abuses its accesses (constantly access those in a loop) there's a chance it will have every thread waiting
 4. If a plugin abuses its accesses, all tasks will accumulate and most likely take a lot of the tick's time.
 5. Schedule task = More allocations = More GC pauses 🐟 (it shouldn't be noticeable tbh)
+6. While this means, that a server that is not under stress (most of its time is not ticking worlds), will still perform most of the async accesses can still be async. This also means that a server that is under a lot of stress (most of its time is ticking worlds), will schedule most of the async accesses to be run in the world thread, and therefore, will contribute to the stress even more.
 
 General drawbacks:
 1. Say bye-bye to `/spark profilar start`, from now own you HAVE to use at least `/spark profiler start --thread ^Fish Level.* --regex`
 2. Async plugin that directly access NMS async will still be broken (none should, but who knows)
+
+## Developing
+
+As mentioned above, the additional layer of compatibility added by Fish shouldn't be abused, you have to minimize (or completely eliminate) the async accesses to World/Block APIs. \
+While Fish will not throw an exception to prevent accessing these methods, it can optionally throw a stacktrace to let you know which plugin is accessing each method, and how often. \
+Even if you develop your own plugins or just download plugins from others, this is extremely useful as it lets you select plugins based on the number of async accesses they make to these methods.
+
+To log these async accesses, you can add the option `log-async-accesses: true` to the `fish.yml` file. \
+Here's an example:
+```yml
+
+async:
+    world-ticking:
+        enabled: true
+        threads: 8
+        log-async-accesses: true # This option will not be present by default, you have to add it manually
+
+```
+
+After extensive testing (all your possible scenarios where your plugins will be used), you can either set `log-async-accesses` to `false` or just delete the option again to disable it.
 
 # Wow, you really read everything
 

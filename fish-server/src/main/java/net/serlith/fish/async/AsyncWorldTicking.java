@@ -8,6 +8,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.serlith.fish.FishConfig;
 import net.serlith.fish.async.thread.WorldTickThread;
 import net.serlith.fish.util.WorldTask;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -17,6 +19,7 @@ import java.util.function.BooleanSupplier;
 
 public class AsyncWorldTicking {
 
+    private static final Logger LOGGER = LogManager.getLogger("World Ticking");
     private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.ASYNC.WORLD_TICKING._THREADS);
     private static final CompletableFuture<?>[] EMPTY_ARRAY = new CompletableFuture[0];
 
@@ -65,6 +68,7 @@ public class AsyncWorldTicking {
     }
 
     public static <T> T scheduleForEndOfWorldTick(ServerLevel level, Callable<T> callable) {
+        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         if (level.lock.readLock().tryLock()) {
             try {
                 return callable.call();
@@ -81,6 +85,7 @@ public class AsyncWorldTicking {
     }
 
     public static void scheduleVoidForEndOfWorldTick(ServerLevel level, Runnable runnable) {
+        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         if (level.lock.readLock().tryLock()) {
             try {
                 runnable.run();
@@ -91,6 +96,14 @@ public class AsyncWorldTicking {
             }
         } else {
             level._fish_endOfTickTasks.offer(runnable);
+        }
+    }
+
+    private static void logAsyncAccess() {
+        Thread thread = Thread.currentThread();
+        LOGGER.warn("A plugin tried accessing world/block data asynchronously from thread \"{}\".", thread.getName());
+        for (StackTraceElement stackTraceElement : thread.getStackTrace()) {
+            LOGGER.warn("\tat {}", stackTraceElement.toString());
         }
     }
 

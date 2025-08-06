@@ -57,6 +57,9 @@ public class FishConfig extends StaticConfig {
             @Ignore
             public static int _THREADS = 8;
 
+            @Hidden
+            public static boolean LOG_ASYNC_ACCESSES = false;
+
         }
     }
 
