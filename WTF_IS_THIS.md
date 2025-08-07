@@ -68,6 +68,7 @@ The first point has some drawbacks:
 4. If a plugin abuses its accesses, all tasks will accumulate and most likely take a lot of the tick's time.
 5. Schedule task = More allocations = More GC pauses 🐟 (it shouldn't be noticeable tbh)
 6. While this means, that a server that is not under stress (most of its time is not ticking worlds), will still perform most of the async accesses can still be async. This also means that a server that is under a lot of stress (most of its time is ticking worlds), will schedule most of the async accesses to be run in the world thread, and therefore, will contribute to the stress even more.
+7. Functions that require ServerChunkCache::syncLoad will always be scheduled on the main thread. A possible alternative would've been to make ServerChunkCache::syncLoad always return null if called from an async thread, but I chose this approach for compatibility purposes.
 
 General drawbacks:
 1. Say bye-bye to `/spark profilar start`, from now own you HAVE to use at least `/spark profiler start --thread ^Fish Level.* --regex`

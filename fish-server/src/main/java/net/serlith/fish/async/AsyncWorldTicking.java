@@ -19,7 +19,7 @@ import java.util.function.BooleanSupplier;
 
 public class AsyncWorldTicking {
 
-    private static final Logger LOGGER = LogManager.getLogger("World Ticking");
+    private static final Logger LOGGER = LogManager.getLogger("Fish Async World Ticking");
     private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.ASYNC.WORLD_TICKING._THREADS);
     private static final CompletableFuture<?>[] EMPTY_ARRAY = new CompletableFuture[0];
 
@@ -97,6 +97,22 @@ public class AsyncWorldTicking {
         } else {
             level._fish_endOfTickTasks.offer(runnable);
         }
+    }
+
+    /*
+     * Some tasks (like loading chunks), have a chance of doing it sync, which can cause a deadlock.
+     * These method guarantees that these potentially dangerous tasks are always enqueued instead.
+     * The recommendation is to never call these methods async with PWT, it is only left here for compatibility
+     *   purposes with the few scenarios where this cannot be avoided.
+     *
+     * Known scenarios:
+     *   1. CraftWorld::getHighestBlockYAt <- Common for Random Teleport plugins
+     */
+    public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
+        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
+        WorldTask<T> task = new WorldTask<>(callable);
+        level._fish_endOfTickTasks.offer(task);
+        return task.get();
     }
 
     private static void logAsyncAccess() {

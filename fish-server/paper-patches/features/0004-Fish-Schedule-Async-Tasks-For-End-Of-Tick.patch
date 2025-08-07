@@ -4,7 +4,7 @@ Date: Mon, 4 Aug 2025 13:36:48 -0500
 Subject: [PATCH] Fish Schedule Async Tasks For End Of Tick
 
 This implementation allows async threads to still do async operations as long as the world is not ticking.
-If the world ticking, the "request" will be scheduled to be ran sync at the end of the tick.
+If the world is ticking, the "request" will be scheduled to be run sync at the end of the tick.
   * Not doing this, means that if the world is always ticking (mspt > 50) there's a chance that the async thread will sleep indefinitely.
 If the world is not ticking, the "request" will be performed async by the calling thread.
 If the world is about to tick, but the async "request" is not done yet, the world will wait until its done and every new "request" will be scheduled.
@@ -55,7 +55,7 @@ index 8aa179b374516e73bc26dc369df341e4ab8afd00..32a39f2456f40290d58ce4a24d1f6b0b
      @Override
      public int getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, x >> 4, z >> 4, "Cannot retrieve chunk asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(this.world, () -> this._fish_getHighestBlockYAt(x, z, heightMap));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(this.world, () -> this._fish_getHighestBlockYAt(x, z, heightMap));
 +        else return this._fish_getHighestBlockYAt(x, z, heightMap);
 +    }
 +    private int _fish_getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
