@@ -35,13 +35,17 @@ public class AsyncWorldTicking {
 
                 SEMAPHORE.acquire();
                 tasks.offer(CompletableFuture.runAsync(() -> {
-                    serverLevel.lock.writeLock().lock();
+                    serverLevel._fish_lock.writeLock().lock();
                     try {
                         WorldTickThread currentThread = (WorldTickThread) Thread.currentThread();
                         currentThread.setTickingWorld(serverLevel);
 
                         long start = Util.getNanos();
                         serverLevel.tick(hasTimeLeft);
+                        Runnable task;
+                        while ((task = serverLevel._fish_endOfTickTasks.poll()) != null) {
+                            task.run();
+                        }
                         long duration = Util.getNanos() - start;
 
                         int tickCount = MinecraftServer.getServer().getTickCount();
@@ -54,7 +58,7 @@ public class AsyncWorldTicking {
                         serverLevel.fillReportDetails(crashReport);
                         throw new ReportedException(crashReport);
                     } finally {
-                        serverLevel.lock.writeLock().unlock();
+                        serverLevel._fish_lock.writeLock().unlock();
                         SEMAPHORE.release();
                     }
                 }, serverLevel.tickExecutor));
@@ -69,13 +73,13 @@ public class AsyncWorldTicking {
 
     public static <T> T scheduleForEndOfWorldTick(ServerLevel level, Callable<T> callable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        if (level.lock.readLock().tryLock()) {
+        if (level._fish_lock.readLock().tryLock()) {
             try {
                 return callable.call();
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             } finally {
-                level.lock.readLock().unlock();
+                level._fish_lock.readLock().unlock();
             }
         } else {
             WorldTask<T> task = new WorldTask<>(callable);
@@ -86,13 +90,13 @@ public class AsyncWorldTicking {
 
     public static void scheduleVoidForEndOfWorldTick(ServerLevel level, Runnable runnable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        if (level.lock.readLock().tryLock()) {
+        if (level._fish_lock.readLock().tryLock()) {
             try {
                 runnable.run();
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             } finally {
-                level.lock.readLock().unlock();
+                level._fish_lock.readLock().unlock();
             }
         } else {
             level._fish_endOfTickTasks.offer(runnable);
@@ -117,7 +121,7 @@ public class AsyncWorldTicking {
 
     private static void logAsyncAccess() {
         Thread thread = Thread.currentThread();
-        LOGGER.warn("A plugin tried accessing world/block data asynchronously from thread \"{}\".", thread.getName());
+        LOGGER.warn("A plugin accessed world/block data asynchronously from thread \"{}\".", thread.getName());
         for (StackTraceElement stackTraceElement : thread.getStackTrace()) {
             LOGGER.warn("\tat {}", stackTraceElement.toString());
         }

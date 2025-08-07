@@ -39,9 +39,11 @@ public class FishConfig extends StaticConfig {
     public static class ASYNC {
 
         @Comment({
-            "\uD83D\uDD03 Ticks each world/level in a separate thread",
-            "Regardless of the name given here, it's actually Parallel World Ticking rather than fully async",
-            "Worlds do not tick independently, they have to wait until all worlds are done with the current tick to continue"
+            "\uD83D\uDD03 While it is located here in the async section, this is instead Parallel World Ticking",
+            "Every world will tick in a different thread, but each will have to wait until all are done ticking to continue",
+            "This is not magical raw performance, the server has to be designed (both technically and psychologically) with this feature in mind",
+            "Plugin compatibility is not guaranteed, and extensive testing is needed before even enabling this feature",
+            "Known incompatibilities: Citizens, NoCheatPlus, MyPet, Skript, Denizen and any datapack"
         })
         public static class WORLD_TICKING {
             public static boolean ENABLED = true;
@@ -49,15 +51,21 @@ public class FishConfig extends StaticConfig {
             public static boolean _ENABLED = true;
 
             @Comment({
-                "Each world will have its own thread, which means 20 worlds = 20 threads",
-                "This option refers to how many worlds (threads) can work at the same time, to not stress the CPU",
-                "If this value is lower than the amount of worlds, the remaining worlds will wait until others are done"
+                "\uD83D\uDD03 Maximum number of threads that can be executed at the same time",
+                "Every world will have its own thread, which means 3 worlds = 3 threads",
+                "This is the number of threads that can be executed in parallel before having to wait for one to complete its tasks",
+                "If the value is set to 0, it automatically uses 1/2 of the number of CPU cores and no less than 1"
             })
             public static int THREADS = 8;
             @Ignore
             public static int _THREADS = 8;
 
             @Hidden
+            @Comment({
+                "\uD83D\uDD25 Prints an stacktrace when a plugin attempts to access a protected function",
+                "Servers with Parallel World Ticking should be designed with that feature in mind, as such, these accesses should be as minimal as possible",
+                "Use this option to identify which plugins are accessing these functions, this will require extensive testing to identify most if not all possible scenarios"
+            })
             public static boolean LOG_ASYNC_ACCESSES = false;
 
         }

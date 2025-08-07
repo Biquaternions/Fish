@@ -14,19 +14,12 @@ diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/
 index 9d5c20282f88ed30db16cd6757e1bd3877957612..f369185156820a902fb3530c2ae6165bec77a695 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -842,7 +842,15 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
-         profilerFiller.push("entityManagement");
-         // Paper - rewrite chunk system
-         profilerFiller.pop();
-+        // Fish start - Schedule tasks for end of tick
-+        Runnable task;
-+        while ((task = this._fish_endOfTickTasks.poll()) != null) {
-+            task.run();
-+        }
-+        // Fish end - Schedule tasks for end of tick
-     }
+@@ -215,6 +216,8 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+     public boolean hasPhysicsEvent = true; // Paper - BlockPhysicsEvent
+     public boolean hasEntityMoveEvent; // Paper - Add EntityMoveEvent
+     private final alternate.current.wire.WireHandler wireHandler = new alternate.current.wire.WireHandler(this); // Paper - optimize redstone (Alternate Current)
 +    public final java.util.Queue<Runnable> _fish_endOfTickTasks = new java.util.concurrent.ConcurrentLinkedQueue<>(); // Fish - Schedule tasks for end of tick
-+    public final java.util.concurrent.locks.ReentrantReadWriteLock lock = new java.util.concurrent.locks.ReentrantReadWriteLock(true);
++    public final java.util.concurrent.locks.ReentrantReadWriteLock _fish_lock = new java.util.concurrent.locks.ReentrantReadWriteLock(true);
  
      @Override
-     public boolean shouldTickBlocksAt(long chunkPos) {
+     public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
