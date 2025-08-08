@@ -145,6 +145,7 @@ public class AsyncWorldTicking {
      *
      */
     public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
+        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         level._fish_endOfTickTasks.offer(runnable);
     }
 
