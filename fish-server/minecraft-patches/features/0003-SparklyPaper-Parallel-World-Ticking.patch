@@ -50,7 +50,7 @@ index ca02c4c71a0a5a1a0ae8bbb40f0b1b7eac64e6fd..e61bb92ad979e8cc40b45c289454b6fb
                      org.bukkit.Location location = org.bukkit.craftbukkit.util.CraftLocation.toBukkit(blockPos, level.getWorld());
                      List<org.bukkit.block.BlockState> states = new java.util.ArrayList<>(level.capturedBlockStates.values());
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 1bdd7a5628197d5c2634f42575f0bd19092835c7..eec9cfa15bc35837946d63264879a9a0a5ec9e38 100644
+index e477ee38c6de6a01e663dc90c91acf0d8e8e95bc..c9d17de4e1281cb64e2a68ce118da0f00553762f 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -1711,6 +1711,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -82,7 +82,7 @@ index 69d7e2422b58613030a9c5c5af442be25af7e845..fcc965f4d5e8ef2e6879033eae891b8a
                  continue;
              }
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 071824d3f3e67b1cf8c6205ca0ff664fff9d3ebc..2b51dfebc03a788e57c9f74555d1393f521e6ec9 100644
+index 071824d3f3e67b1cf8c6205ca0ff664fff9d3ebc..93fcf1f43087ac66ce6ee6d715fdb6d704f528ff 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -182,7 +182,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
@@ -160,7 +160,7 @@ index 071824d3f3e67b1cf8c6205ca0ff664fff9d3ebc..2b51dfebc03a788e57c9f74555d1393f
          entity.generation = false; // Paper - Don't fire sync event during generation; Reset flag if it was added during a ServerLevel generation process
          // Paper start - extra debug info
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index 37c0a84758a1526791913898358659de202fa19f..8eacfcde7b507c945227ff6b3ac51846c8222c68 100644
+index 8f94c963f2c59668d72d162f46f7505d6a6b06a5..01df99b570f0639489e64f2c261c90c9baff3ddf 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
 @@ -737,8 +737,10 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
@@ -174,7 +174,7 @@ index 37c0a84758a1526791913898358659de202fa19f..8eacfcde7b507c945227ff6b3ac51846
          // CraftBukkit start
          if (this.joining) {
              this.joining = false;
-@@ -1402,6 +1404,7 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+@@ -1406,6 +1408,7 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
                  teleportTransition.postTeleportTransition().onTransition(this);
                  return this;
              } else {
@@ -182,7 +182,7 @@ index 37c0a84758a1526791913898358659de202fa19f..8eacfcde7b507c945227ff6b3ac51846
                  // CraftBukkit start
                  /*
                  this.isChangingDimension = true;
-@@ -1738,6 +1741,12 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+@@ -1742,6 +1745,12 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
  
                  return OptionalInt.empty();
              } else {
@@ -196,7 +196,7 @@ index 37c0a84758a1526791913898358659de202fa19f..8eacfcde7b507c945227ff6b3ac51846
                  this.containerMenu = abstractContainerMenu; // Moved up
                  if (!this.isImmobile())
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index 2c2015bf19d5b30e945118661b7a9b474a1bddc8..8c3dfd30e0c4a235a101df4964da536ddd9c5ae5 100644
+index e1fd699b33832c0f01b14023db7cc2b9d6797227..3dcc5d9ed62270780b5eef55070c296fbcda8288 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
 @@ -149,6 +149,7 @@ public abstract class PlayerList {
@@ -207,7 +207,7 @@ index 2c2015bf19d5b30e945118661b7a9b474a1bddc8..8c3dfd30e0c4a235a101df4964da536d
          player.isRealPlayer = true; // Paper
          player.loginTime = System.currentTimeMillis(); // Paper - Replace OfflinePlayer#getLastPlayed
          GameProfile gameProfile = player.getGameProfile();
-@@ -676,6 +677,12 @@ public abstract class PlayerList {
+@@ -674,6 +675,12 @@ public abstract class PlayerList {
      }
  
      public ServerPlayer respawn(ServerPlayer player, boolean keepInventory, Entity.RemovalReason reason, @Nullable org.bukkit.event.player.PlayerRespawnEvent.RespawnReason eventReason, @Nullable org.bukkit.Location location) {
@@ -220,7 +220,7 @@ index 2c2015bf19d5b30e945118661b7a9b474a1bddc8..8c3dfd30e0c4a235a101df4964da536d
          player.stopRiding(); // CraftBukkit
          this.players.remove(player);
          this.playersByName.remove(player.getScoreboardName().toLowerCase(java.util.Locale.ROOT)); // Spigot
-@@ -687,6 +694,7 @@ public abstract class PlayerList {
+@@ -685,6 +692,7 @@ public abstract class PlayerList {
          Level fromWorld = player.level();
          player.wonGame = false;
          // CraftBukkit end

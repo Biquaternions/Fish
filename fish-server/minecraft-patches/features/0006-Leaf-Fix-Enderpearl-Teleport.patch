@@ -5,7 +5,7 @@ Subject: [PATCH] Leaf Fix Enderpearl Teleport
 
 
 diff --git a/net/minecraft/world/entity/projectile/ThrownEnderpearl.java b/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
-index 4b04ca7d50d7a85827bd89fff24434e603e99579..f2970c240e01f6ac2bd8a0a66286ad371187ac94 100644
+index 5aa63c90e1c0605faef76588efdc7c3903be4605..38df4aa1e76f2a57d2865d3190d719d60cabf5ee 100644
 --- a/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
 +++ b/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
 @@ -119,6 +119,33 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
@@ -40,9 +40,9 @@ index 4b04ca7d50d7a85827bd89fff24434e603e99579..f2970c240e01f6ac2bd8a0a66286ad37
 +                        } else {
 +                        // Leaf end - Fix teleport cross-dimension
                          // CraftBukkit start
-                         ServerPlayer serverPlayer1 = serverPlayer.teleport(new TeleportTransition(serverLevel, vec3, Vec3.ZERO, 0.0F, 0.0F, Relative.union(Relative.ROTATION, Relative.DELTA), TeleportTransition.DO_NOTHING, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PEARL));
-                         if (serverPlayer1 == null) {
-@@ -152,6 +179,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
+                         // Store pre teleportation position as the teleport has been moved up.
+                         final double preTeleportX = serverPlayer.getX(), preTeleportY = serverPlayer.getY(), preTeleportZ = serverPlayer.getZ();
+@@ -155,6 +182,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                          }
  
                          this.playSound(serverLevel, vec3);
