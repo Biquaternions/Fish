@@ -66,7 +66,7 @@ index 8aa179b374516e73bc26dc369df341e4ab8afd00..32a39f2456f40290d58ce4a24d1f6b0b
  
      @Override
      public void setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTick(this.world, () -> this._fish_setBiome(x, y, z, bb));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(this.world, () -> this._fish_setBiome(x, y, z, bb));
 +        else this._fish_setBiome(x, y, z, bb);
 +    }
 +    private void _fish_setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {

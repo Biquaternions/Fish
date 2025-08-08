@@ -118,9 +118,9 @@ public class AsyncWorldTicking {
      * And some others may result in try to spawn entities (xp orbs) async.
      *
      * Known scenarios:
-     *   1. CraftBlock#setBlockState <- Internally calls Level::setBlock
-     *   2. CraftBlock#breakNaturally <- Internally calls Block::dropResources
-     *   3. CraftBlock#applyBoneMeal <- Calls StructureGrowEvent
+     *   1. CraftBlock#setBlockState <- Internally calls Level#setBlock
+     *   2. CraftBlock#breakNaturally <- Internally calls Block#dropResources and Level#setBlock
+     *   3. CraftBlock#applyBoneMeal <- Calls StructureGrowEvent and algo could use ThreadLocal variables on which PWT depends
      *
      */
     public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
@@ -131,10 +131,16 @@ public class AsyncWorldTicking {
     }
 
     /*
-     * Temporary method to schedule async tasks.
-     * This method guarantees that these async tasks are always enqueued.
+     * Some tasks (like loading chunks), have a chance of doing it sync, which can cause a deadlock.
+     * This method guarantees that these potentially dangerous tasks are always enqueued instead.
      * Compared to AsyncWorldTicking#scheduleForEndOfWorldTickDirect this method will only
      *   exist until I have enough free time to verify if no plugins actually call protected methods async (none should).
+     *
+     * Known scenarios:
+     *   1. CraftWorld#setBiome <- Probably used in FAWE (I'm not sure)
+     *
+     * Some other tasks call NMS functions that have been protected from async reads.
+     *   1. CraftBlock#setData <- Internally calls Level#setBlock
      *
      */
     public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
