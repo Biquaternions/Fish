@@ -110,7 +110,7 @@ public class AsyncWorldTicking {
      *   purposes with the few scenarios where this cannot be avoided.
      *
      * Known scenarios:
-     *   1. CraftWorld#getHighestBlockYAt <- Common for Random Teleport plugins
+     *   1. CraftWorld#getHighestBlockYAt <- Common for Random Teleport plugins.
      *
      * Some other tasks call NMS functions that have been protected from async reads.
      * To respect the protected code, these tasks will be enqueued anyway.
@@ -118,9 +118,10 @@ public class AsyncWorldTicking {
      * And some others may result in try to spawn entities (xp orbs) async.
      *
      * Known scenarios:
-     *   1. CraftBlock#setBlockState <- Internally calls Level#setBlock
-     *   2. CraftBlock#breakNaturally <- Internally calls Block#dropResources and Level#setBlock
-     *   3. CraftBlock#applyBoneMeal <- Calls StructureGrowEvent and algo could use ThreadLocal variables on which PWT depends
+     *   1. CraftBlock#setBlockState <- Internally calls Level#setBlock.
+     *   2. CraftBlock#breakNaturally <- Internally calls Block#dropResources and Level#setBlock.
+     *   3. CraftBlock#applyBoneMeal <- Calls StructureGrowEvent, BlockFertilizeEvent and also could use ThreadLocal
+     *        variables on which PWT depends. This one could be directly blocked instead of enqueued.
      *
      */
     public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
@@ -137,10 +138,10 @@ public class AsyncWorldTicking {
      *   exist until I have enough free time to verify if no plugins actually call protected methods async (none should).
      *
      * Known scenarios:
-     *   1. CraftWorld#setBiome <- Probably used in FAWE (I'm not sure)
+     *   1. CraftWorld#setBiome <- Probably used in FAWE (I'm not sure).
      *
      * Some other tasks call NMS functions that have been protected from async reads.
-     *   1. CraftBlock#setData <- Internally calls Level#setBlock
+     *   1. CraftBlock#setData <- Internally calls Level#setBlock.
      *
      */
     public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
