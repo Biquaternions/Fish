@@ -96,7 +96,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
  
      private void setData(final byte data, int flags) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTick(serverLevel, () -> this._fish_setData(data, flags));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(serverLevel, () -> this._fish_setData(data, flags));
 +        else this._fish_setData(data, flags);
 +    }
 +    private void _fish_setData(final byte data, int flags) {

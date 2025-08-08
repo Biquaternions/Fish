@@ -105,12 +105,12 @@ public class AsyncWorldTicking {
 
     /*
      * Some tasks (like loading chunks), have a chance of doing it sync, which can cause a deadlock.
-     * These method guarantees that these potentially dangerous tasks are always enqueued instead.
+     * This method guarantees that these potentially dangerous tasks are always enqueued instead.
      * The recommendation is to never call these methods async with PWT, it is only left here for compatibility
      *   purposes with the few scenarios where this cannot be avoided.
      *
      * Known scenarios:
-     *   1. CraftWorld::getHighestBlockYAt <- Common for Random Teleport plugins
+     *   1. CraftWorld#getHighestBlockYAt <- Common for Random Teleport plugins
      *
      * Some other tasks call NMS functions that have been protected from async reads.
      * To respect the protected code, these tasks will be enqueued anyway.
@@ -118,9 +118,9 @@ public class AsyncWorldTicking {
      * And some others may result in try to spawn entities (xp orbs) async.
      *
      * Known scenarios:
-     *   1. CraftBlock::setBlockState <- Internally calls Level::setBlock
-     *   2. CraftBlock::breakNaturally <- Internally calls Block::dropResources
-     *   3. CraftBlock::applyBoneMeal <- Calls StructureGrowEvent
+     *   1. CraftBlock#setBlockState <- Internally calls Level::setBlock
+     *   2. CraftBlock#breakNaturally <- Internally calls Block::dropResources
+     *   3. CraftBlock#applyBoneMeal <- Calls StructureGrowEvent
      *
      */
     public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
@@ -128,6 +128,17 @@ public class AsyncWorldTicking {
         WorldTask<T> task = new WorldTask<>(callable);
         level._fish_endOfTickTasks.offer(task);
         return task.get();
+    }
+
+    /*
+     * Temporary method to schedule async tasks.
+     * This method guarantees that these async tasks are always enqueued.
+     * Compared to AsyncWorldTicking#scheduleForEndOfWorldTickDirect this method will only
+     *   exist until I have enough free time to verify if no plugins actually call protected methods async (none should).
+     *
+     */
+    public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
+        level._fish_endOfTickTasks.offer(runnable);
     }
 
     private static void logAsyncAccess() {
