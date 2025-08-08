@@ -108,7 +108,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
  
      public static boolean setBlockState(LevelAccessor world, BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, boolean applyPhysics) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, pos, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> _fish_setBlockState(world, pos, oldState, newState, applyPhysics));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> _fish_setBlockState(world, pos, oldState, newState, applyPhysics));
 +        else return _fish_setBlockState(world, pos, oldState, newState, applyPhysics);
 +    }
 +    private static boolean _fish_setBlockState(LevelAccessor world, BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, boolean applyPhysics) {
@@ -178,7 +178,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
      @Override
      public boolean breakNaturally(ItemStack item, boolean triggerEffect, boolean dropExperience, boolean forceEffect) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this._fish_breakNaturally(item, triggerEffect, dropExperience, forceEffect));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> this._fish_breakNaturally(item, triggerEffect, dropExperience, forceEffect));
 +        else return this._fish_breakNaturally(item, triggerEffect, dropExperience, forceEffect);
 +    }
 +    private boolean _fish_breakNaturally(ItemStack item, boolean triggerEffect, boolean dropExperience, boolean forceEffect) {
@@ -190,7 +190,7 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
      @Override
      public boolean applyBoneMeal(BlockFace face) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this._fish_applyBoneMeal(face));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> this._fish_applyBoneMeal(face));
 +        else return this._fish_applyBoneMeal(face);
 +    }
 +    private boolean _fish_applyBoneMeal(BlockFace face) {

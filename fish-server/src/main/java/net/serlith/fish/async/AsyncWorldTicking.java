@@ -111,6 +111,17 @@ public class AsyncWorldTicking {
      *
      * Known scenarios:
      *   1. CraftWorld::getHighestBlockYAt <- Common for Random Teleport plugins
+     *
+     * Some other tasks call NMS functions that have been protected from async reads.
+     * To respect the protected code, these tasks will be enqueued anyway.
+     * Other tasks call events that are meant to be sync anyway, those are (for now) also enqueued.
+     * And some others may result in try to spawn entities (xp orbs) async.
+     *
+     * Known scenarios:
+     *   1. CraftBlock::setBlockState <- Internally calls Level::setBlock
+     *   2. CraftBlock::breakNaturally <- Internally calls Block::dropResources
+     *   3. CraftBlock::applyBoneMeal <- Calls StructureGrowEvent
+     *
      */
     public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
