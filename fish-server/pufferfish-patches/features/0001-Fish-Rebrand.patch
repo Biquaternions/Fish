@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Sat, 9 Aug 2025 17:35:49 -0500
+Subject: [PATCH] Fish Rebrand
+
+
+diff --git a/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java b/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
+index d9e03f2d5c26e3759311925a5d2e6d3a5d823752..b2be8ec19d455b5d026c90a7ac77a0a0e591d784 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
++++ b/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
+@@ -24,7 +24,8 @@ public class ServerConfigurations {
+         "spigot.yml",
+         "config/paper-global.yml",
+         "config/paper-world-defaults.yml",
+-        "pufferfish.yml"
++        "pufferfish.yml",
++        "fish.yml"
+     };
+ 
+     private static final String[] hiddenConfigEntries = new String[]{
