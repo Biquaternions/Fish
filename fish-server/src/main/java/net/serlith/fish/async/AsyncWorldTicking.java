@@ -3,13 +3,19 @@ package net.serlith.fish.async;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.serlith.fish.FishConfig;
 import net.serlith.fish.async.thread.WorldTickThread;
 import net.serlith.fish.util.WorldTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bukkit.craftbukkit.CraftHeightMap;
+import org.bukkit.craftbukkit.CraftWorld;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -114,7 +120,7 @@ public class AsyncWorldTicking {
      *
      * Some other tasks call NMS functions that have been protected from async reads.
      * To respect the protected code, these tasks will be enqueued anyway.
-     * Other tasks call events that are meant to be sync anyway, those are (for now) also enqueued.
+     * Other tasks call events that are meant to be sync anyway so they will also be enqueued.
      * And some others may result in try to spawn entities (xp orbs) async.
      *
      * Known scenarios:
@@ -147,6 +153,66 @@ public class AsyncWorldTicking {
     public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         level._fish_endOfTickTasks.offer(runnable);
+    }
+
+    public static void scheduleWorldSetBiome(ServerLevel level, int x, int y, int z, Holder<Biome> bb) {
+        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
+        if (level._fish_lock.readLock().tryLock()) {
+            CompletableFuture<ChunkAccess> result = null;
+            try {
+                BlockPos pos = new BlockPos(x, 0, z);
+                if (level.hasChunkAt(pos)) {
+                    result = level.fish$getChunkAt(pos);
+                }
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            } finally {
+                level._fish_lock.readLock().unlock();
+            }
+            ChunkAccess chunk;
+            if (result != null && (chunk = result.join()) != null) {
+                chunk.setBiome(x >> 2, y >> 2, z >> 2, bb);
+                chunk.markUnsaved(); // SPIGOT-2890
+            }
+        } else {
+            level._fish_endOfTickTasks.offer(() -> {
+                BlockPos pos = new BlockPos(x, 0, z);
+                if (level.hasChunkAt(pos)) {
+                    net.minecraft.world.level.chunk.LevelChunk chunk = level.getChunkAt(pos);
+                    if (chunk != null) {
+                        chunk.setBiome(x >> 2, y >> 2, z >> 2, bb);
+                        chunk.markUnsaved(); // SPIGOT-2890
+                    }
+                }
+            });
+        }
+    }
+
+    public static int scheduleWorldGetHighestBlockYAt(ServerLevel level, int x, int z, org.bukkit.HeightMap heightMap) {
+        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
+        if (level._fish_lock.readLock().tryLock()) {
+            CompletableFuture<ChunkAccess> result;
+            try {
+                CraftWorld._fish_warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
+                result = level.fish$getChunk(x >> 4, z >> 4);
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            } finally {
+                level._fish_lock.readLock().unlock();
+            }
+            ChunkAccess chunkAccess = result.join();
+            if (chunkAccess == null) {
+                throw new IllegalStateException("Chunk not loaded when requested");
+            }
+            return chunkAccess.getHeight(CraftHeightMap.toNMS(heightMap), x, z);
+        } else {
+            WorldTask<Integer> task = new WorldTask<>(() -> {
+                CraftWorld._fish_warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
+                return level.getChunk(x >> 4, z >> 4).getHeight(CraftHeightMap.toNMS(heightMap), x, z);
+            });
+            level._fish_endOfTickTasks.offer(task);
+            return task.get();
+        }
     }
 
     private static void logAsyncAccess() {
