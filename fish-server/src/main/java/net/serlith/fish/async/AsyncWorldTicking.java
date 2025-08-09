@@ -43,7 +43,7 @@ public class AsyncWorldTicking {
 
                 SEMAPHORE.acquire();
                 tasks.offer(CompletableFuture.runAsync(() -> {
-                    serverLevel._fish_lock.writeLock().lock();
+                    serverLevel.fish$lock.writeLock().lock();
                     try {
                         WorldTickThread currentThread = (WorldTickThread) Thread.currentThread();
                         currentThread.setTickingWorld(serverLevel);
@@ -51,22 +51,22 @@ public class AsyncWorldTicking {
                         long start = Util.getNanos();
                         serverLevel.tick(hasTimeLeft);
                         Runnable task;
-                        while ((task = serverLevel._fish_endOfTickTasks.poll()) != null) {
+                        while ((task = serverLevel.fish$endOfTickTasks.poll()) != null) {
                             task.run();
                         }
                         long duration = Util.getNanos() - start;
 
                         int tickCount = MinecraftServer.getServer().getTickCount();
-                        serverLevel.tickTimes5s._fish_add(tickCount, duration);
-                        serverLevel.tickTimes10s._fish_add(tickCount, duration);
-                        serverLevel.tickTimes60s._fish_add(tickCount, duration);
+                        serverLevel.tickTimes5s.fish$add(tickCount, duration);
+                        serverLevel.tickTimes10s.fish$add(tickCount, duration);
+                        serverLevel.tickTimes60s.fish$add(tickCount, duration);
 
                     } catch (Throwable var7) {
                         CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world [" + serverLevel.getWorld().getName() + "]");
                         serverLevel.fillReportDetails(crashReport);
                         throw new ReportedException(crashReport);
                     } finally {
-                        serverLevel._fish_lock.writeLock().unlock();
+                        serverLevel.fish$lock.writeLock().unlock();
                         SEMAPHORE.release();
                     }
                 }, serverLevel.tickExecutor));
@@ -81,33 +81,33 @@ public class AsyncWorldTicking {
 
     public static <T> T scheduleForEndOfWorldTick(ServerLevel level, Callable<T> callable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        if (level._fish_lock.readLock().tryLock()) {
+        if (level.fish$lock.readLock().tryLock()) {
             try {
                 return callable.call();
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             } finally {
-                level._fish_lock.readLock().unlock();
+                level.fish$lock.readLock().unlock();
             }
         } else {
             WorldTask<T> task = new WorldTask<>(callable);
-            level._fish_endOfTickTasks.offer(task);
+            level.fish$endOfTickTasks.offer(task);
             return task.get();
         }
     }
 
     public static void scheduleVoidForEndOfWorldTick(ServerLevel level, Runnable runnable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        if (level._fish_lock.readLock().tryLock()) {
+        if (level.fish$lock.readLock().tryLock()) {
             try {
                 runnable.run();
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             } finally {
-                level._fish_lock.readLock().unlock();
+                level.fish$lock.readLock().unlock();
             }
         } else {
-            level._fish_endOfTickTasks.offer(runnable);
+            level.fish$endOfTickTasks.offer(runnable);
         }
     }
 
@@ -135,7 +135,7 @@ public class AsyncWorldTicking {
     public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         WorldTask<T> task = new WorldTask<>(callable);
-        level._fish_endOfTickTasks.offer(task);
+        level.fish$endOfTickTasks.offer(task);
         return task.get();
     }
 
@@ -154,7 +154,7 @@ public class AsyncWorldTicking {
      */
     public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        level._fish_endOfTickTasks.offer(runnable);
+        level.fish$endOfTickTasks.offer(runnable);
     }
 
     /*
@@ -177,7 +177,7 @@ public class AsyncWorldTicking {
     @SuppressWarnings("ConstantConditions")
     public static void scheduleWorldSetBiome(ServerLevel level, int x, int y, int z, Holder<Biome> bb) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        if (level._fish_lock.readLock().tryLock()) {
+        if (level.fish$lock.readLock().tryLock()) {
             CompletableFuture<ChunkAccess> result = null;
             try {
                 BlockPos pos = new BlockPos(x, 0, z);
@@ -197,7 +197,7 @@ public class AsyncWorldTicking {
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             } finally {
-                level._fish_lock.readLock().unlock();
+                level.fish$lock.readLock().unlock();
             }
 
             // If the future was waiting, wait outside the read lock.
@@ -205,21 +205,21 @@ public class AsyncWorldTicking {
             //   and only if the fallback also fails to read the chunk async.
             ChunkAccess chunk;
             if ((chunk = result.join()) != null) { // Too verbose to my taste, but has to be done
-                if (level._fish_lock.readLock().tryLock()) {
+                if (level.fish$lock.readLock().tryLock()) {
                     try {
                         AsyncWorldTicking.doSetChunkBiome(chunk, x, y, z, bb);
                     } catch (Exception e) {
                         throw new IllegalStateException(e);
                     } finally {
-                        level._fish_lock.readLock().unlock();
+                        level.fish$lock.readLock().unlock();
                     }
                 } else {
-                    level._fish_endOfTickTasks.offer(() -> AsyncWorldTicking.doSetChunkBiome(chunk, x, y, z, bb));
+                    level.fish$endOfTickTasks.offer(() -> AsyncWorldTicking.doSetChunkBiome(chunk, x, y, z, bb));
                 }
             }
 
         } else {
-            level._fish_endOfTickTasks.offer(() -> {
+            level.fish$endOfTickTasks.offer(() -> {
                 BlockPos pos = new BlockPos(x, 0, z);
                 if (level.hasChunkAt(pos)) {
                     LevelChunk chunk = level.getChunkAt(pos);
@@ -240,10 +240,10 @@ public class AsyncWorldTicking {
     @SuppressWarnings("ConstantConditions")
     public static int scheduleWorldGetHighestBlockYAt(ServerLevel level, int x, int z, HeightMap heightMap) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        if (level._fish_lock.readLock().tryLock()) {
+        if (level.fish$lock.readLock().tryLock()) {
             CompletableFuture<ChunkAccess> result;
             try {
-                CraftWorld._fish_warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
+                CraftWorld.fish$warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
                 result = level.fish$getChunk(x >> 4, z >> 4);
                 if (result == null) { // Early return
                     throw new IllegalStateException("Chunk not loaded when requested");
@@ -256,7 +256,7 @@ public class AsyncWorldTicking {
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             } finally {
-                level._fish_lock.readLock().unlock();
+                level.fish$lock.readLock().unlock();
             }
 
             // If the future was waiting, wait outside the read lock.
@@ -269,26 +269,26 @@ public class AsyncWorldTicking {
 
             // Sadly, this means the thread will have to compete for the lock again.
             // As stated above, this scenario is extremely rare.
-            if (level._fish_lock.readLock().tryLock()) { // Too verbose :(
+            if (level.fish$lock.readLock().tryLock()) { // Too verbose :(
                 try {
                     return AsyncWorldTicking.doGetHighestBlockYAt(chunk, x, z, heightMap);
                 } catch (Exception e) {
                     throw new IllegalStateException(e);
                 } finally {
-                    level._fish_lock.readLock().unlock();
+                    level.fish$lock.readLock().unlock();
                 }
             } else {
                 WorldTask<Integer> task = new WorldTask<>(() -> AsyncWorldTicking.doGetHighestBlockYAt(chunk, x, z, heightMap));
-                level._fish_endOfTickTasks.offer(task);
+                level.fish$endOfTickTasks.offer(task);
                 return task.get();
             }
 
         } else {
             WorldTask<Integer> task = new WorldTask<>(() -> {
-                CraftWorld._fish_warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
+                CraftWorld.fish$warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
                 return AsyncWorldTicking.doGetHighestBlockYAt(level.getChunk(x >> 4, z >> 4), x, z, heightMap);
             });
-            level._fish_endOfTickTasks.offer(task);
+            level.fish$endOfTickTasks.offer(task);
             return task.get();
         }
     }

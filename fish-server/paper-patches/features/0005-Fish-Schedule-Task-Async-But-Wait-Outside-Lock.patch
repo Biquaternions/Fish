@@ -22,7 +22,7 @@ index 9463647d3cddb1d5d0deaa250a959ee088186f3c..ce9d4836a208a600a8c0c24114b0b4a2
          }
      }
      // Paper end
-+    public static void _fish_warnUnsafeChunk(String reason, int x, int z) { warnUnsafeChunk(reason, x, z); }
++    public static void fish$warnUnsafeChunk(String reason, int x, int z) { warnUnsafeChunk(reason, x, z); }
  
      @Override
      public Chunk getChunkAt(int x, int z) {
@@ -30,17 +30,17 @@ index 9463647d3cddb1d5d0deaa250a959ee088186f3c..ce9d4836a208a600a8c0c24114b0b4a2
  
      @Override
      public int getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
--        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(this.world, () -> this._fish_getHighestBlockYAt(x, z, heightMap));
+-        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(this.world, () -> this.fish$getHighestBlockYAt(x, z, heightMap));
 +        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleWorldGetHighestBlockYAt(this.world, x, z, heightMap);
-         else return this._fish_getHighestBlockYAt(x, z, heightMap);
+         else return this.fish$getHighestBlockYAt(x, z, heightMap);
      }
-     private int _fish_getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
+     private int fish$getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
 @@ -1025,7 +1026,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {
--        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(this.world, () -> this._fish_setBiome(x, y, z, bb));
+-        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(this.world, () -> this.fish$setBiome(x, y, z, bb));
 +        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) net.serlith.fish.async.AsyncWorldTicking.scheduleWorldSetBiome(this.world, x, y, z, bb);
-         else this._fish_setBiome(x, y, z, bb);
+         else this.fish$setBiome(x, y, z, bb);
      }
-     private void _fish_setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {
+     private void fish$setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {

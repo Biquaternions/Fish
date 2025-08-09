@@ -19,10 +19,10 @@ index 8aa179b374516e73bc26dc369df341e4ab8afd00..32a39f2456f40290d58ce4a24d1f6b0b
      @Override
      public boolean refreshChunk(int x, int z) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, x, z, "May not sync load chunks asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(this.world, () -> this._fish_refreshChunk(x, z));
-+        else return this._fish_refreshChunk(x, z);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(this.world, () -> this.fish$refreshChunk(x, z));
++        else return this.fish$refreshChunk(x, z);
 +    }
-+    private boolean _fish_refreshChunk(int x, int z) {
++    private boolean fish$refreshChunk(int x, int z) {
          ChunkHolder playerChunk = this.world.getChunkSource().chunkMap.getVisibleChunkIfPresent(ChunkPos.asLong(x, z));
          if (playerChunk == null) return false;
  
@@ -31,10 +31,10 @@ index 8aa179b374516e73bc26dc369df341e4ab8afd00..32a39f2456f40290d58ce4a24d1f6b0b
      @Override
      public boolean generateTree(Location loc, TreeType type, BlockChangeDelegate delegate) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, loc.getX(), loc.getZ(), "Cannot generate tree asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(this.world, () -> this._fish_generateTree(loc, type, delegate));
-+        else return this._fish_generateTree(loc, type, delegate);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(this.world, () -> this.fish$generateTree(loc, type, delegate));
++        else return this.fish$generateTree(loc, type, delegate);
 +    }
-+    private boolean _fish_generateTree(Location loc, TreeType type, BlockChangeDelegate delegate) {
++    private boolean fish$generateTree(Location loc, TreeType type, BlockChangeDelegate delegate) {
          this.world.captureTreeGeneration = true;
          this.world.captureBlockStates = true;
          boolean grownTree = this.generateTree(loc, type);
@@ -43,10 +43,10 @@ index 8aa179b374516e73bc26dc369df341e4ab8afd00..32a39f2456f40290d58ce4a24d1f6b0b
      public boolean createExplosion(double x, double y, double z, float power, boolean setFire, boolean breakBlocks, Entity source, Consumer<net.minecraft.world.level.ServerExplosion> configurator) {
      // Paper end - expand explosion API
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, x, z, "Cannot create explosion asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(this.world, () -> this._fish_createExplosion(x, y, z, power, setFire, breakBlocks, source, configurator));
-+        else return this._fish_createExplosion(x, y, z, power, setFire, breakBlocks, source, configurator);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(this.world, () -> this.fish$createExplosion(x, y, z, power, setFire, breakBlocks, source, configurator));
++        else return this.fish$createExplosion(x, y, z, power, setFire, breakBlocks, source, configurator);
 +    }
-+    private boolean _fish_createExplosion(double x, double y, double z, float power, boolean setFire, boolean breakBlocks, Entity source, Consumer<net.minecraft.world.level.ServerExplosion> configurator) {
++    private boolean fish$createExplosion(double x, double y, double z, float power, boolean setFire, boolean breakBlocks, Entity source, Consumer<net.minecraft.world.level.ServerExplosion> configurator) {
          net.minecraft.world.level.Level.ExplosionInteraction explosionType;
          if (!breakBlocks) {
              explosionType = net.minecraft.world.level.Level.ExplosionInteraction.NONE; // Don't break blocks
@@ -55,10 +55,10 @@ index 8aa179b374516e73bc26dc369df341e4ab8afd00..32a39f2456f40290d58ce4a24d1f6b0b
      @Override
      public int getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, x >> 4, z >> 4, "Cannot retrieve chunk asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(this.world, () -> this._fish_getHighestBlockYAt(x, z, heightMap));
-+        else return this._fish_getHighestBlockYAt(x, z, heightMap);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(this.world, () -> this.fish$getHighestBlockYAt(x, z, heightMap));
++        else return this.fish$getHighestBlockYAt(x, z, heightMap);
 +    }
-+    private int _fish_getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
++    private int fish$getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
          warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
          // Transient load for this tick
          return this.world.getChunk(x >> 4, z >> 4).getHeight(CraftHeightMap.toNMS(heightMap), x, z);
@@ -66,10 +66,10 @@ index 8aa179b374516e73bc26dc369df341e4ab8afd00..32a39f2456f40290d58ce4a24d1f6b0b
  
      @Override
      public void setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(this.world, () -> this._fish_setBiome(x, y, z, bb));
-+        else this._fish_setBiome(x, y, z, bb);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(this.world, () -> this.fish$setBiome(x, y, z, bb));
++        else this.fish$setBiome(x, y, z, bb);
 +    }
-+    private void _fish_setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {
++    private void fish$setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {
          BlockPos pos = new BlockPos(x, 0, z);
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, pos, "Cannot retrieve chunk asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          if (this.world.hasChunkAt(pos)) {
@@ -80,10 +80,10 @@ index 8aa179b374516e73bc26dc369df341e4ab8afd00..32a39f2456f40290d58ce4a24d1f6b0b
      @Override
      public void sendGameEvent(Entity sourceEntity, org.bukkit.GameEvent gameEvent, Vector position) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, position.getX(), position.getZ(), "Cannot send game event asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTick(this.world, () -> this._fish_sendGameEvent(sourceEntity, gameEvent, position));
-+        else this._fish_sendGameEvent(sourceEntity, gameEvent, position);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTick(this.world, () -> this.fish$sendGameEvent(sourceEntity, gameEvent, position));
++        else this.fish$sendGameEvent(sourceEntity, gameEvent, position);
 +    }
-+    private void _fish_sendGameEvent(Entity sourceEntity, org.bukkit.GameEvent gameEvent, Vector position) {
++    private void fish$sendGameEvent(Entity sourceEntity, org.bukkit.GameEvent gameEvent, Vector position) {
          getHandle().gameEvent(sourceEntity != null ? ((CraftEntity) sourceEntity).getHandle(): null, net.minecraft.core.registries.BuiltInRegistries.GAME_EVENT.get(org.bukkit.craftbukkit.util.CraftNamespacedKey.toMinecraft(gameEvent.getKey())).orElseThrow(), org.bukkit.craftbukkit.util.CraftVector.toBlockPos(position));
      }
      // Paper end
@@ -96,10 +96,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
  
      private void setData(final byte data, int flags) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(serverLevel, () -> this._fish_setData(data, flags));
-+        else this._fish_setData(data, flags);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(serverLevel, () -> this.fish$setData(data, flags));
++        else this.fish$setData(data, flags);
 +    }
-+    private void _fish_setData(final byte data, int flags) {
++    private void fish$setData(final byte data, int flags) {
          this.world.setBlock(this.position, CraftMagicNumbers.getBlock(this.getType(), data), flags);
      }
  
@@ -108,10 +108,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
  
      public static boolean setBlockState(LevelAccessor world, BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, boolean applyPhysics) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, pos, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> _fish_setBlockState(world, pos, oldState, newState, applyPhysics));
-+        else return _fish_setBlockState(world, pos, oldState, newState, applyPhysics);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> fish$setBlockState(world, pos, oldState, newState, applyPhysics));
++        else return fish$setBlockState(world, pos, oldState, newState, applyPhysics);
 +    }
-+    private static boolean _fish_setBlockState(LevelAccessor world, BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, boolean applyPhysics) {
++    private static boolean fish$setBlockState(LevelAccessor world, BlockPos pos, net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState, boolean applyPhysics) {
          // SPIGOT-611: need to do this to prevent glitchiness. Easier to handle this here (like /setblock) than to fix weirdness in block entity cleanup
          if (oldState.hasBlockEntity() && newState.getBlock() != oldState.getBlock()) { // SPIGOT-3725 remove old block entity if block changes
              // SPIGOT-4612: faster - just clear tile
@@ -120,10 +120,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
      @Override
      public Biome getBiome() {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, this::_fish_getBiome);
-+        else return this._fish_getBiome();
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, this::fish$getBiome);
++        else return this.fish$getBiome();
 +    }
-+    private Biome _fish_getBiome() {
++    private Biome fish$getBiome() {
          return this.getWorld().getBiome(this.getX(), this.getY(), this.getZ());
      }
  
@@ -131,10 +131,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
      @Override
      public Biome getComputedBiome() {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, this::_fish_getComputedBiome);
-+        else return this._fish_getComputedBiome();
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, this::fish$getComputedBiome);
++        else return this.fish$getComputedBiome();
 +    }
-+    private Biome _fish_getComputedBiome() {
++    private Biome fish$getComputedBiome() {
          return this.getWorld().getComputedBiome(this.getX(), this.getY(), this.getZ());
      }
      // Paper end
@@ -142,10 +142,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
      @Override
      public void setBiome(Biome bio) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTick(serverLevel, () -> this._fish_setBiome(bio));
-+        else this._fish_setBiome(bio);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTick(serverLevel, () -> this.fish$setBiome(bio));
++        else this.fish$setBiome(bio);
 +    }
-+    private void _fish_setBiome(Biome bio) {
++    private void fish$setBiome(Biome bio) {
          this.getWorld().setBiome(this.getX(), this.getY(), this.getZ(), bio);
      }
  
@@ -154,10 +154,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
      @Override
      public boolean isBlockIndirectlyPowered() {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, this::_fish_isBlockIndirectlyPowered);
-+        else return this._fish_isBlockIndirectlyPowered();
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, this::fish$isBlockIndirectlyPowered);
++        else return this.fish$isBlockIndirectlyPowered();
 +    }
-+    private boolean _fish_isBlockIndirectlyPowered() {
++    private boolean fish$isBlockIndirectlyPowered() {
          return this.world.getMinecraftWorld().hasNeighborSignal(this.position);
      }
  
@@ -166,10 +166,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
      @Override
      public int getBlockPower(BlockFace face) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this._fish_getBlockPower(face));
-+        else return this._fish_getBlockPower(face);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.fish$getBlockPower(face));
++        else return this.fish$getBlockPower(face);
 +    }
-+    private int _fish_getBlockPower(BlockFace face) {
++    private int fish$getBlockPower(BlockFace face) {
          int power = 0;
          net.minecraft.world.level.Level world = this.world.getMinecraftWorld();
          int x = this.getX();
@@ -178,10 +178,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
      @Override
      public boolean breakNaturally(ItemStack item, boolean triggerEffect, boolean dropExperience, boolean forceEffect) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> this._fish_breakNaturally(item, triggerEffect, dropExperience, forceEffect));
-+        else return this._fish_breakNaturally(item, triggerEffect, dropExperience, forceEffect);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> this.fish$breakNaturally(item, triggerEffect, dropExperience, forceEffect));
++        else return this.fish$breakNaturally(item, triggerEffect, dropExperience, forceEffect);
 +    }
-+    private boolean _fish_breakNaturally(ItemStack item, boolean triggerEffect, boolean dropExperience, boolean forceEffect) {
++    private boolean fish$breakNaturally(ItemStack item, boolean triggerEffect, boolean dropExperience, boolean forceEffect) {
          // Paper end
          // Order matters here, need to drop before setting to air so skulls can get their data
          net.minecraft.world.level.block.state.BlockState state = this.getNMS();
@@ -190,10 +190,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
      @Override
      public boolean applyBoneMeal(BlockFace face) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> this._fish_applyBoneMeal(face));
-+        else return this._fish_applyBoneMeal(face);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> this.fish$applyBoneMeal(face));
++        else return this.fish$applyBoneMeal(face);
 +    }
-+    private boolean _fish_applyBoneMeal(BlockFace face) {
++    private boolean fish$applyBoneMeal(BlockFace face) {
          Direction direction = CraftBlock.blockFaceToNotch(face);
          BlockFertilizeEvent event = null;
          ServerLevel world = this.getCraftWorld().getHandle();
@@ -201,10 +201,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
  
      @Override
      public Collection<ItemStack> getDrops(ItemStack item, Entity entity) {
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this._fish_getDrops(item, entity));
-+        else return this._fish_getDrops(item, entity);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.fish$getDrops(item, entity));
++        else return this.fish$getDrops(item, entity);
 +    }
-+    private Collection<ItemStack> _fish_getDrops(ItemStack item, Entity entity) {
++    private Collection<ItemStack> fish$getDrops(ItemStack item, Entity entity) {
          net.minecraft.world.level.block.state.BlockState state = this.getNMS();
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
          net.minecraft.world.item.ItemStack nms = CraftItemStack.asNMSCopy(item);
@@ -215,10 +215,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
      @Override
      public RayTraceResult rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this._fish_rayTrace(start, direction, maxDistance, fluidCollisionMode));
-+        else return this._fish_rayTrace(start, direction, maxDistance, fluidCollisionMode);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.fish$rayTrace(start, direction, maxDistance, fluidCollisionMode));
++        else return this.fish$rayTrace(start, direction, maxDistance, fluidCollisionMode);
 +    }
-+    private RayTraceResult _fish_rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode) {
++    private RayTraceResult fish$rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode) {
          Preconditions.checkArgument(start != null, "Location start cannot be null");
          Preconditions.checkArgument(this.getWorld().equals(start.getWorld()), "Location start cannot be a different world");
          start.checkFinite();
@@ -227,10 +227,10 @@ index dbda39b659ed03a06f769e54d71b0bab198ec226..3bb84a25a39eb93585fef3a8fa2b6cc6
      @Override
      public boolean canPlace(BlockData data) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this._fish_canPlace(data));
-+        else return this._fish_canPlace(data);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.fish$canPlace(data));
++        else return this.fish$canPlace(data);
 +    }
-+    private boolean _fish_canPlace(BlockData data) {
++    private boolean fish$canPlace(BlockData data) {
          Preconditions.checkArgument(data != null, "BlockData cannot be null");
          net.minecraft.world.level.block.state.BlockState iblockdata = ((CraftBlockData) data).getState();
          net.minecraft.world.level.Level world = this.world.getMinecraftWorld();
@@ -243,10 +243,10 @@ index 7af61694607d01ffd8dcdbb8425950809996d284..28a85b9655f2aa129083e64e16d37701
      @Override
      public java.util.Collection<org.bukkit.inventory.ItemStack> getDrops(org.bukkit.inventory.ItemStack item, org.bukkit.entity.Entity entity) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world.getHandle(), position, "Cannot modify world asynchronously"); // SparklyPaper - parallel world ticking
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.getWorldHandle() instanceof net.minecraft.server.level.ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this._fish_getDrops(item, entity));
-+        else return this._fish_getDrops(item, entity);
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.getWorldHandle() instanceof net.minecraft.server.level.ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.fish$getDrops(item, entity));
++        else return this.fish$getDrops(item, entity);
 +    }
-+    private java.util.Collection<org.bukkit.inventory.ItemStack> _fish_getDrops(org.bukkit.inventory.ItemStack item, org.bukkit.entity.Entity entity) {
++    private java.util.Collection<org.bukkit.inventory.ItemStack> fish$getDrops(org.bukkit.inventory.ItemStack item, org.bukkit.entity.Entity entity) {
          this.requirePlaced();
          net.minecraft.world.item.ItemStack nms = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(item);
  
