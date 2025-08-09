@@ -9,11 +9,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.serlith.fish.FishConfig;
 import net.serlith.fish.async.thread.WorldTickThread;
 import net.serlith.fish.util.WorldTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bukkit.HeightMap;
 import org.bukkit.craftbukkit.CraftHeightMap;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.jetbrains.annotations.ApiStatus;
@@ -158,8 +160,9 @@ public class AsyncWorldTicking {
     /*
      * These functions below are EXPERIMENTAL functions meant to solve a possible deadlock situation
      *   without forcing the entire task to be executed sync.
-     * It is marked as experimental because I, personally, don't like having to lock twice.
-     * Both functions, after retrieving a chunk, still have tasks that are not safe to be executed async,
+     * It is marked as experimental because I, personally, don't like verbose functions or even worse,
+     *   having to compete for the lock twice.
+     * Both functions, after retrieving a chunk, still have tasks that might not be safe to be executed async,
      *   being ChunkAccess#setBiome and Heightmap#primeHeightmaps.
      * It is probably the best approach, since only the wait is done async and the rest can still be done async,
      *   however, I have the feeling the logic can still be simplified, since the current state makes it harder to
@@ -181,82 +184,129 @@ public class AsyncWorldTicking {
                 if (level.hasChunkAt(pos)) {
                     result = level.fish$getChunkAt(pos);
                 }
+                if (result == null) { // Early return
+                    throw new IllegalStateException("Chunk not loaded when requested");
+                }
+
+                // If the future is not waiting, keep going and return
+                ChunkAccess chunk;
+                if (result.isDone() && (chunk = result.join()) != null) {
+                    AsyncWorldTicking.doSetChunkBiome(chunk, x, y, z, bb);
+                    return;
+                }
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             } finally {
                 level._fish_lock.readLock().unlock();
             }
+
+            // If the future was waiting, wait outside the read lock.
+            // Most reads will never each this point, this will only happen is the chunks falls to load and has to fallback
+            //   and only if the fallback also fails to read the chunk async.
             ChunkAccess chunk;
-            if (result != null && (chunk = result.join()) != null) { // Too verbose to my taste, but has to be done
+            if ((chunk = result.join()) != null) { // Too verbose to my taste, but has to be done
                 if (level._fish_lock.readLock().tryLock()) {
                     try {
-                        chunk.setBiome(x >> 2, y >> 2, z >> 2, bb);
-                        chunk.markUnsaved(); // SPIGOT-2890
+                        AsyncWorldTicking.doSetChunkBiome(chunk, x, y, z, bb);
                     } catch (Exception e) {
                         throw new IllegalStateException(e);
                     } finally {
                         level._fish_lock.readLock().unlock();
                     }
                 } else {
-                    level._fish_endOfTickTasks.offer(() -> {
-                        chunk.setBiome(x >> 2, y >> 2, z >> 2, bb);
-                        chunk.markUnsaved(); // SPIGOT-2890
-                    });
+                    level._fish_endOfTickTasks.offer(() -> AsyncWorldTicking.doSetChunkBiome(chunk, x, y, z, bb));
                 }
             }
+
         } else {
             level._fish_endOfTickTasks.offer(() -> {
                 BlockPos pos = new BlockPos(x, 0, z);
                 if (level.hasChunkAt(pos)) {
-                    net.minecraft.world.level.chunk.LevelChunk chunk = level.getChunkAt(pos);
+                    LevelChunk chunk = level.getChunkAt(pos);
                     if (chunk != null) {
-                        chunk.setBiome(x >> 2, y >> 2, z >> 2, bb);
-                        chunk.markUnsaved(); // SPIGOT-2890
+                        AsyncWorldTicking.doSetChunkBiome(chunk, x, y, z, bb);
                     }
                 }
             });
         }
     }
 
+    private static void doSetChunkBiome(ChunkAccess chunk, int x, int y, int z, Holder<Biome> bb) {
+        chunk.setBiome(x >> 2, y >> 2, z >> 2, bb);
+        chunk.markUnsaved(); // SPIGOT-2890
+    }
+
     @ApiStatus.Experimental
-    public static int scheduleWorldGetHighestBlockYAt(ServerLevel level, int x, int z, org.bukkit.HeightMap heightMap) {
+    @SuppressWarnings("ConstantConditions")
+    public static int scheduleWorldGetHighestBlockYAt(ServerLevel level, int x, int z, HeightMap heightMap) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         if (level._fish_lock.readLock().tryLock()) {
             CompletableFuture<ChunkAccess> result;
             try {
                 CraftWorld._fish_warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
                 result = level.fish$getChunk(x >> 4, z >> 4);
+                if (result == null) { // Early return
+                    throw new IllegalStateException("Chunk not loaded when requested");
+                }
+
+                ChunkAccess chunk;
+                if (result.isDone() && (chunk = result.join()) != null) {
+                    return AsyncWorldTicking.doGetHighestBlockYAt(chunk, x, z, heightMap);
+                }
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             } finally {
                 level._fish_lock.readLock().unlock();
             }
-            ChunkAccess chunkAccess = result.join();
-            if (chunkAccess == null) {
+
+            // If the future was waiting, wait outside the read lock.
+            // Most reads will never each this point, this will only happen is the chunks falls to load and has to fallback
+            //   and only if the fallback also fails to read the chunk async.
+            ChunkAccess chunk = result.join();
+            if (chunk == null) { // Early return
                 throw new IllegalStateException("Chunk not loaded when requested");
             }
-            if (level._fish_lock.readLock().tryLock()) { // Too verbose :( I don't like locking twice :(
+
+            // Sadly, this means the thread will have to compete for the lock again.
+            // As stated above, this scenario is extremely rare.
+            if (level._fish_lock.readLock().tryLock()) { // Too verbose :(
                 try {
-                    return chunkAccess.getHeight(CraftHeightMap.toNMS(heightMap), x, z);
+                    return AsyncWorldTicking.doGetHighestBlockYAt(chunk, x, z, heightMap);
                 } catch (Exception e) {
                     throw new IllegalStateException(e);
                 } finally {
                     level._fish_lock.readLock().unlock();
                 }
             } else {
-                WorldTask<Integer> task = new WorldTask<>(() -> chunkAccess.getHeight(CraftHeightMap.toNMS(heightMap), x, z));
+                WorldTask<Integer> task = new WorldTask<>(() -> AsyncWorldTicking.doGetHighestBlockYAt(chunk, x, z, heightMap));
+                level._fish_endOfTickTasks.offer(task);
                 return task.get();
             }
+
         } else {
             WorldTask<Integer> task = new WorldTask<>(() -> {
                 CraftWorld._fish_warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
-                return level.getChunk(x >> 4, z >> 4).getHeight(CraftHeightMap.toNMS(heightMap), x, z);
+                return AsyncWorldTicking.doGetHighestBlockYAt(level.getChunk(x >> 4, z >> 4), x, z, heightMap);
             });
             level._fish_endOfTickTasks.offer(task);
             return task.get();
         }
     }
 
+    private static int doGetHighestBlockYAt(ChunkAccess chunk, int x, int z, HeightMap heightMap) {
+        return chunk.getHeight(CraftHeightMap.toNMS(heightMap), x, z);
+    }
+
+    /**
+     * Prints a stacktrace of the asynchronous access, but does not prevent it
+     * <br>
+     * The idea of this function is to help server designing by minimizing the number of async accesses if those cannot be avoided.
+     * Once the server is done and ready for production, this can be safely disabled.
+     * The server owner should be aware of the consequences of the async accesses left on the server.
+     * <br>
+     * A typical scenario where an async access cannot be avoided is on Random Teleport plugins, unless you're developing your own.
+     *
+     */
     private static void logAsyncAccess() {
         Thread thread = Thread.currentThread();
         LOGGER.warn("A plugin accessed world/block data asynchronously from thread \"{}\".", thread.getName());
