@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.craftbukkit.CraftHeightMap;
 import org.bukkit.craftbukkit.CraftWorld;
+import org.jetbrains.annotations.ApiStatus;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -29,7 +30,6 @@ public class AsyncWorldTicking {
     private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.ASYNC.WORLD_TICKING._THREADS);
     private static final CompletableFuture<?>[] EMPTY_ARRAY = new CompletableFuture[0];
 
-    @SuppressWarnings("ConstantConditions")
     public static void tickWorlds(Iterable<ServerLevel> worlds, BooleanSupplier hasTimeLeft) {
         Queue<CompletableFuture<Void>> tasks = new ArrayDeque<>();
         try {
@@ -155,6 +155,23 @@ public class AsyncWorldTicking {
         level._fish_endOfTickTasks.offer(runnable);
     }
 
+    /*
+     * These functions below are EXPERIMENTAL functions meant to solve a possible deadlock situation
+     *   without forcing the entire task to be executed sync.
+     * It is marked as experimental because I, personally, don't like having to lock twice.
+     * Both functions, after retrieving a chunk, still have tasks that are not safe to be executed async,
+     *   being ChunkAccess#setBiome and Heightmap#primeHeightmaps.
+     * It is probably the best approach, since only the wait is done async and the rest can still be done async,
+     *   however, I have the feeling the logic can still be simplified, since the current state makes it harder to
+     *   follow the logic up, which can make it less maintainable.
+     *
+     * The experimental annotation will be removed once I have enough time to play around with these functions
+     *   to find a way to abbreviate them, and make them easier to read.
+     *
+     */
+
+    @ApiStatus.Experimental
+    @SuppressWarnings("ConstantConditions")
     public static void scheduleWorldSetBiome(ServerLevel level, int x, int y, int z, Holder<Biome> bb) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         if (level._fish_lock.readLock().tryLock()) {
@@ -170,9 +187,22 @@ public class AsyncWorldTicking {
                 level._fish_lock.readLock().unlock();
             }
             ChunkAccess chunk;
-            if (result != null && (chunk = result.join()) != null) {
-                chunk.setBiome(x >> 2, y >> 2, z >> 2, bb);
-                chunk.markUnsaved(); // SPIGOT-2890
+            if (result != null && (chunk = result.join()) != null) { // Too verbose to my taste, but has to be done
+                if (level._fish_lock.readLock().tryLock()) {
+                    try {
+                        chunk.setBiome(x >> 2, y >> 2, z >> 2, bb);
+                        chunk.markUnsaved(); // SPIGOT-2890
+                    } catch (Exception e) {
+                        throw new IllegalStateException(e);
+                    } finally {
+                        level._fish_lock.readLock().unlock();
+                    }
+                } else {
+                    level._fish_endOfTickTasks.offer(() -> {
+                        chunk.setBiome(x >> 2, y >> 2, z >> 2, bb);
+                        chunk.markUnsaved(); // SPIGOT-2890
+                    });
+                }
             }
         } else {
             level._fish_endOfTickTasks.offer(() -> {
@@ -188,6 +218,7 @@ public class AsyncWorldTicking {
         }
     }
 
+    @ApiStatus.Experimental
     public static int scheduleWorldGetHighestBlockYAt(ServerLevel level, int x, int z, org.bukkit.HeightMap heightMap) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         if (level._fish_lock.readLock().tryLock()) {
@@ -204,7 +235,18 @@ public class AsyncWorldTicking {
             if (chunkAccess == null) {
                 throw new IllegalStateException("Chunk not loaded when requested");
             }
-            return chunkAccess.getHeight(CraftHeightMap.toNMS(heightMap), x, z);
+            if (level._fish_lock.readLock().tryLock()) { // Too verbose :( I don't like locking twice :(
+                try {
+                    return chunkAccess.getHeight(CraftHeightMap.toNMS(heightMap), x, z);
+                } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                } finally {
+                    level._fish_lock.readLock().unlock();
+                }
+            } else {
+                WorldTask<Integer> task = new WorldTask<>(() -> chunkAccess.getHeight(CraftHeightMap.toNMS(heightMap), x, z));
+                return task.get();
+            }
         } else {
             WorldTask<Integer> task = new WorldTask<>(() -> {
                 CraftWorld._fish_warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
