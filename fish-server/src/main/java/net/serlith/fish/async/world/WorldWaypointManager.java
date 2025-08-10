@@ -1,4 +1,4 @@
-package net.serlith.fish.util;
+package net.serlith.fish.async.world;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

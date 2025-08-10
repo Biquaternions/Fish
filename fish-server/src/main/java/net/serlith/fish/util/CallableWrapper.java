@@ -4,12 +4,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public class WorldTask<T> implements Runnable {
+public class CallableWrapper<T> implements Runnable {
 
     private final Callable<T> callable;
     private final CompletableFuture<T> future = new CompletableFuture<>();
 
-    public WorldTask(Callable<T> callable) {
+    public CallableWrapper(Callable<T> callable) {
         this.callable = callable;
     }
 

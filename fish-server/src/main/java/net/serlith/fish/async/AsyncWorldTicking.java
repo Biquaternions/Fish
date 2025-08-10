@@ -12,7 +12,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.serlith.fish.FishConfig;
 import net.serlith.fish.async.thread.WorldTickThread;
-import net.serlith.fish.util.WorldTask;
+import net.serlith.fish.util.CallableWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.HeightMap;
@@ -90,7 +90,7 @@ public class AsyncWorldTicking {
                 level.fish$lock.readLock().unlock();
             }
         } else {
-            WorldTask<T> task = new WorldTask<>(callable);
+            CallableWrapper<T> task = new CallableWrapper<>(callable);
             level.fish$endOfTickTasks.offer(task);
             return task.get();
         }
@@ -134,7 +134,7 @@ public class AsyncWorldTicking {
      */
     public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        WorldTask<T> task = new WorldTask<>(callable);
+        CallableWrapper<T> task = new CallableWrapper<>(callable);
         level.fish$endOfTickTasks.offer(task);
         return task.get();
     }
@@ -278,13 +278,13 @@ public class AsyncWorldTicking {
                     level.fish$lock.readLock().unlock();
                 }
             } else {
-                WorldTask<Integer> task = new WorldTask<>(() -> AsyncWorldTicking.doGetHighestBlockYAt(chunk, x, z, heightMap));
+                CallableWrapper<Integer> task = new CallableWrapper<>(() -> AsyncWorldTicking.doGetHighestBlockYAt(chunk, x, z, heightMap));
                 level.fish$endOfTickTasks.offer(task);
                 return task.get();
             }
 
         } else {
-            WorldTask<Integer> task = new WorldTask<>(() -> {
+            CallableWrapper<Integer> task = new CallableWrapper<>(() -> {
                 CraftWorld.fish$warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
                 return AsyncWorldTicking.doGetHighestBlockYAt(level.getChunk(x >> 4, z >> 4), x, z, heightMap);
             });

@@ -90,7 +90,7 @@ index 071824d3f3e67b1cf8c6205ca0ff664fff9d3ebc..93fcf1f43087ac66ce6ee6d715fdb6d7
      public final net.minecraft.world.level.storage.PrimaryLevelData serverLevelData; // CraftBukkit - type
      private int lastSpawnChunkRadius;
 -    final EntityTickList entityTickList = new EntityTickList();
-+    final EntityTickList entityTickList = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? new net.serlith.fish.util.WorldEntityTickList(this) : new EntityTickList(); // SparklyPaper - parallel world ticking
++    final EntityTickList entityTickList = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? new net.serlith.fish.async.world.WorldEntityTickList(this) : new EntityTickList(); // SparklyPaper - parallel world ticking
      private final ServerWaypointManager waypointManager;
      // Paper - rewrite chunk system
      private final GameEventDispatcher gameEventDispatcher;
@@ -107,7 +107,7 @@ index 071824d3f3e67b1cf8c6205ca0ff664fff9d3ebc..93fcf1f43087ac66ce6ee6d715fdb6d7
          this.gameEventDispatcher = new GameEventDispatcher(this);
          this.randomSequences = Objects.requireNonNullElseGet(randomSequences, () -> this.getDataStorage().computeIfAbsent(RandomSequences.TYPE));
 -        this.waypointManager = new ServerWaypointManager();
-+        this.waypointManager = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? new net.serlith.fish.util.WorldWaypointManager(this)  : new ServerWaypointManager(); // SparklyPaper - parallel world ticking
++        this.waypointManager = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? new net.serlith.fish.async.world.WorldWaypointManager(this)  : new ServerWaypointManager(); // SparklyPaper - parallel world ticking
          // Paper start - rewrite chunk system
          this.moonrise$setEntityLookup(new ca.spottedleaf.moonrise.patches.chunk_system.level.entity.server.ServerEntityLookup((ServerLevel)(Object)this, ((ServerLevel)(Object)this).new EntityCallbacks()));
          this.chunkTaskScheduler = new ca.spottedleaf.moonrise.patches.chunk_system.scheduling.ChunkTaskScheduler((ServerLevel)(Object)this);
