@@ -26,6 +26,10 @@ public class FishConfig extends StaticConfig {
     public FishConfig() {
         super(new File("fish.yml"), HANDLER);
         INSTANCE = this;
+
+        String configs = System.getProperty("spark.serverconfigs.extra", "");
+        System.setProperty("spark.serverconfigs.extra", configs.isBlank() ? "fish.yml" : configs + ",fish.yml");
+
     }
 
     @Order(1)
