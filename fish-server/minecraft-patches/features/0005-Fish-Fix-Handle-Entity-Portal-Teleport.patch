@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Biquaternions <biquaternions@serlith.net>
 Date: Mon, 28 Jul 2025 13:00:38 -0500
-Subject: [PATCH] Fish Handle Entity Portal Teleport
+Subject: [PATCH] Fish Fix Handle Entity Portal Teleport
 
 Used this snippet from Leaf's version as a reference to fix:
 https://github.com/Winds-Studio/Leaf/blob/3268a57db808ad2a371cb28c5fea4cb2edc2e426/leaf-server/minecraft-patches/features/0210-SparklyPaper-Parallel-world-ticking.patch#L851

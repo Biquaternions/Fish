@@ -1,5 +1,6 @@
-package net.serlith.fish.async.thread;
+package net.serlith.fish.async.thread.factory;
 
+import net.serlith.fish.async.thread.WorldTickThread;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

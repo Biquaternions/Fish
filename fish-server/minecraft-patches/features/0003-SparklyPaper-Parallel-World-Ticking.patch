@@ -115,7 +115,7 @@ index 071824d3f3e67b1cf8c6205ca0ff664fff9d3ebc..93fcf1f43087ac66ce6ee6d715fdb6d7
          this.chunkDataController = new ca.spottedleaf.moonrise.patches.chunk_system.io.datacontroller.ChunkDataController((ServerLevel)(Object)this, this.chunkTaskScheduler);
          // Paper end - rewrite chunk system
          this.getCraftServer().addWorld(this.getWorld()); // CraftBukkit
-+        this.tickExecutor = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? java.util.concurrent.Executors.newSingleThreadExecutor(new net.serlith.fish.async.thread.WorldExecutorThreadFactory(this.getWorld().getName())) : null; // SparklyPaper - parallel world ticking
++        this.tickExecutor = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? java.util.concurrent.Executors.newSingleThreadExecutor(new net.serlith.fish.async.thread.factory.WorldExecutorThreadFactory(this.getWorld().getName())) : null; // SparklyPaper - parallel world ticking
      }
  
      // Paper start
