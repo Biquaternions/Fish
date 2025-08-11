@@ -6,8 +6,8 @@ import java.util.concurrent.ExecutionException;
 
 public class CallableWrapper<T> implements Runnable {
 
-    private final Callable<T> callable;
     private final CompletableFuture<T> future = new CompletableFuture<>();
+    private final Callable<T> callable;
 
     public CallableWrapper(Callable<T> callable) {
         this.callable = callable;
