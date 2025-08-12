@@ -300,7 +300,7 @@ index aa0a61d7f3128543b698647663fa4a9af2a8255a..8aa179b374516e73bc26dc369df341e4
      }
      // Paper end
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
-index 6809f9dcf8510c714145d99d250eb69f98d9bf27..1551773501b3d0a7d572a18b1eb4c19ffea61b53 100644
+index 6809f9dcf8510c714145d99d250eb69f98d9bf27..5720580c3c0278ca06fccccf9d48f5f6abd95b6a 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 @@ -75,6 +75,7 @@ public class CraftBlock implements Block {
@@ -423,6 +423,14 @@ index 6809f9dcf8510c714145d99d250eb69f98d9bf27..1551773501b3d0a7d572a18b1eb4c19f
          final ServerLevel level = this.world.getMinecraftWorld();
          this.getNMS().tick(level, this.position, level.random);
      }
+@@ -737,6 +752,7 @@ public class CraftBlock implements Block {
+ 
+     @Override
+     public void fluidTick() {
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
+         this.getNMSFluid().tick(this.world.getMinecraftWorld(), this.position, this.getNMS());
+     }
+ 
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java
 index 5d4faad9df4824cfd61abfd4df011c006f114424..52f21202172789c7e463962eff4e6db9523e7f10 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java
