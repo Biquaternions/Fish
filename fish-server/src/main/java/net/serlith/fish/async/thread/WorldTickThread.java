@@ -18,7 +18,7 @@ public class WorldTickThread extends TickThread {
     }
 
     public @Nullable ServerLevel getTickingWorld() {
-        return tickingWorld;
+        return this.tickingWorld;
     }
 
 }
