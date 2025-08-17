@@ -32,13 +32,13 @@ public class FishConfig extends StaticConfig {
 
     }
 
-    @Order(1)
+    @Priority(1)
     @SuppressWarnings("unused")
     public static class INFO {
         public static String VERSION = "1.0";
     }
 
-    @Order(2)
+    @Priority(2)
     @Comment("Async features")
     public static class ASYNC {
 
