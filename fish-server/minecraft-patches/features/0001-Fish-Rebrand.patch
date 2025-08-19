@@ -5,7 +5,7 @@ Subject: [PATCH] Fish Rebrand
 
 
 diff --git a/net/minecraft/CrashReport.java b/net/minecraft/CrashReport.java
-index 606c8f4a47f3ea2dc223c2bc3cab543bc389f4ea..44acf9a60ccbd20336dd594ceb144223096acbeb 100644
+index 606c8f4a47f3ea2dc223c2bc3cab543bc389f4ea..e025dbdb857841d65f3cbc047e8e8f9dfb442f11 100644
 --- a/net/minecraft/CrashReport.java
 +++ b/net/minecraft/CrashReport.java
 @@ -30,7 +30,7 @@ public class CrashReport {
@@ -17,8 +17,21 @@ index 606c8f4a47f3ea2dc223c2bc3cab543bc389f4ea..44acf9a60ccbd20336dd594ceb144223
  
      public CrashReport(String title, Throwable exception) {
          io.papermc.paper.util.StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(exception); // Paper
+diff --git a/net/minecraft/server/Eula.java b/net/minecraft/server/Eula.java
+index 1f0413214f54e9a47f53c623484d6882c85f54c9..6b12c729f3bd3b107d77429d9abce87b8d5a178f 100644
+--- a/net/minecraft/server/Eula.java
++++ b/net/minecraft/server/Eula.java
+@@ -46,7 +46,7 @@ public class Eula {
+             try (OutputStream outputStream = Files.newOutputStream(this.file)) {
+                 Properties map = new Properties();
+                 map.setProperty("eula", "false");
+-                map.store(outputStream, "By changing the setting below to TRUE you are indicating your agreement to our EULA (" + CommonLinks.EULA + ").");
++                map.store(outputStream, "By changing the setting below to TRUE you are indicating your agreement to our EULA (" + CommonLinks.EULA + ").\nYou also agree to the fish supremacy.\nReject monke, return to FISH! 🐟");
+             } catch (Exception var6) {
+                 LOGGER.warn("Failed to save {}", this.file, var6);
+             }
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index fd3553bdc1c3cdbf6aa3dc00e0a4987f8eaa4fb8..c16475818be31d68cbe72216ca124fdaf527b56c 100644
+index fd3553bdc1c3cdbf6aa3dc00e0a4987f8eaa4fb8..37483c1ec46242ba3679abe96435300af60fad42 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
 @@ -154,6 +154,17 @@ public class Main {
@@ -40,7 +53,7 @@ index fd3553bdc1c3cdbf6aa3dc00e0a4987f8eaa4fb8..c16475818be31d68cbe72216ca124fda
              String awtException = io.papermc.paper.util.ServerEnvironment.awtDependencyCheck();
              if (awtException != null) {
 diff --git a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
-index 6ec80b0e865f37f3411ac7894e0007f56180f051..facafaff7c9bb1ac111762238ac45b4e1dc35821 100644
+index 6ec80b0e865f37f3411ac7894e0007f56180f051..5225107c5e90ce6a2b88ad24600194c3adbe2a13 100644
 --- a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 @@ -308,7 +308,7 @@ public class RegionFileStorage implements AutoCloseable, ca.spottedleaf.moonrise
