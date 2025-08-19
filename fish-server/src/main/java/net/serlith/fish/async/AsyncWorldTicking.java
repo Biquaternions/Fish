@@ -15,22 +15,21 @@ import net.serlith.fish.async.thread.WorldTickThread;
 import net.serlith.fish.util.CallableWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bukkit.HeightMap;
-import org.bukkit.craftbukkit.CraftHeightMap;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.jetbrains.annotations.ApiStatus;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 import java.util.function.BooleanSupplier;
 
 public class AsyncWorldTicking {
 
-    private static final Logger LOGGER = LogManager.getLogger("Fish Async World Ticking");
+    private static final Logger LOGGER = LogManager.getLogger("Fish World Ticking");
     private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.ASYNC.WORLD_TICKING._THREADS);
     private static final CompletableFuture<?>[] EMPTY_ARRAY = new CompletableFuture[0];
+    private static final Queue<Runnable> END_OF_TICK_TASKS = new ConcurrentLinkedQueue<>();
 
     public static void tickWorlds(Iterable<ServerLevel> worlds, BooleanSupplier hasTimeLeft) {
         Queue<CompletableFuture<Void>> tasks = new ArrayDeque<>();
@@ -50,10 +49,7 @@ public class AsyncWorldTicking {
 
                         long start = Util.getNanos();
                         serverLevel.tick(hasTimeLeft);
-                        Runnable task;
-                        while ((task = serverLevel.fish$endOfTickTasks.poll()) != null) {
-                            task.run();
-                        }
+                        AsyncWorldTicking.processScheduledWorldTasks(serverLevel);
                         long duration = Util.getNanos() - start;
 
                         int tickCount = MinecraftServer.getServer().getTickCount();
@@ -73,9 +69,24 @@ public class AsyncWorldTicking {
                 serverLevel.explosionDensityCache.clear(); // Paper - Optimize explosions
             }
             CompletableFuture.allOf(tasks.toArray(EMPTY_ARRAY)).join();
+            AsyncWorldTicking.processScheduledTasks();
 
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void processScheduledWorldTasks(ServerLevel level) {
+        Runnable task;
+        while ((task = level.fish$endOfTickTasks.poll()) != null) {
+            task.run();
+        }
+    }
+
+    private static void processScheduledTasks() {
+        Runnable task;
+        while ((task = END_OF_TICK_TASKS.poll()) != null) {
+            task.run();
         }
     }
 
@@ -112,16 +123,20 @@ public class AsyncWorldTicking {
     }
 
     /*
-     * Some tasks (like loading chunks), have a chance of doing it sync, which can cause a deadlock.
-     * This method guarantees that these potentially dangerous tasks are always enqueued instead.
-     * The recommendation is to never call these methods async with PWT, it is only left here for compatibility
-     *   purposes with the few scenarios where this cannot be avoided.
-     *
-     * Known scenarios:
-     *   1. CraftWorld#getHighestBlockYAt <- Common for Random Teleport plugins.
-     *
-     * Some other tasks call NMS functions that have been protected from async reads.
-     * To respect the protected code, these tasks will be enqueued anyway.
+     * Used to schedule tasks after all worlds are done ticking.
+     * Useful if an async task involves multiple worlds.
+     * Possible use for async respawn in practice plugins (shouldn't be async imo, but idk).
+     */
+    public static void scheduleVoidForEndOfTick(Runnable runnable) {
+        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
+        END_OF_TICK_TASKS.offer(runnable);
+    }
+
+    /*
+     * Some tasks call CraftBlock#getNMS which has a chance of scheduling sync Chunk load, which therefore
+     *   has a chance of causing a deadlock (at it will be loaded in the next tick, but will never leave this tick
+     *   due to holding the read lock).
+     * To prevent this scenario, these tasks will be enqueued directly.
      * Other tasks call events that are meant to be sync anyway so they will also be enqueued.
      * And some others may result in try to spawn entities (xp orbs) async.
      *
@@ -140,15 +155,11 @@ public class AsyncWorldTicking {
     }
 
     /*
-     * Some tasks (like loading chunks), have a chance of doing it sync, which can cause a deadlock.
-     * This method guarantees that these potentially dangerous tasks are always enqueued instead.
-     * Compared to AsyncWorldTicking#scheduleForEndOfWorldTickDirect this method will only
-     *   exist until I have enough free time to verify if no plugins actually call protected methods async (none should).
+     * Some tasks call NMS functions that have been protected from async reads.
+     * Internally also call the chunk system, which means this one has to be scheduled directly to
+     *   prevent deadlocks.
      *
      * Known scenarios:
-     *   1. CraftWorld#setBiome <- Probably used in FAWE (I'm not sure).
-     *
-     * Some other tasks call NMS functions that have been protected from async reads.
      *   1. CraftBlock#setData <- Internally calls Level#setBlock.
      *
      */
@@ -158,18 +169,14 @@ public class AsyncWorldTicking {
     }
 
     /*
-     * These functions below are EXPERIMENTAL functions meant to solve a possible deadlock situation
-     *   without forcing the entire task to be executed sync.
-     * It is marked as experimental because I, personally, don't like verbose functions or even worse,
-     *   having to compete for the lock twice.
-     * Both functions, after retrieving a chunk, still have tasks that might not be safe to be executed async,
-     *   being ChunkAccess#setBiome and Heightmap#primeHeightmaps.
-     * It is probably the best approach, since only the wait is done async and the rest can still be done async,
-     *   however, I have the feeling the logic can still be simplified, since the current state makes it harder to
-     *   follow the logic up, which can make it less maintainable.
-     *
-     * The experimental annotation will be removed once I have enough time to play around with these functions
-     *   to find a way to abbreviate them, and make them easier to read.
+     * The function below is marked as EXPERIMENTAL and is meant to still provide async access without
+     *   risking a potential deadlock.
+     * From all the functions guarded from the original Sparkly implementation, this is the only one
+     *   that can actually risk data corruption (due to being a write operation) but also with risk
+     *   of causing a deadlock (due to calling the chunk system).
+     * While I personally don't like this function due to being too verbose and hard to follow, I'll only
+     *   keep it here to provide plugin compatibility.
+     * HOWEVER, this function must be avoided AT ALL COSTS while using Parallel World Ticking.
      *
      */
 
@@ -234,67 +241,6 @@ public class AsyncWorldTicking {
     private static void doSetChunkBiome(ChunkAccess chunk, int x, int y, int z, Holder<Biome> bb) {
         chunk.setBiome(x >> 2, y >> 2, z >> 2, bb);
         chunk.markUnsaved(); // SPIGOT-2890
-    }
-
-    @ApiStatus.Experimental
-    @SuppressWarnings("ConstantConditions")
-    public static int scheduleWorldGetHighestBlockYAt(ServerLevel level, int x, int z, HeightMap heightMap) {
-        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        if (level.fish$lock.readLock().tryLock()) {
-            CompletableFuture<ChunkAccess> result;
-            try {
-                CraftWorld.fish$warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
-                result = level.fish$getChunk(x >> 4, z >> 4);
-                if (result == null) { // Early return
-                    throw new IllegalStateException("Chunk not loaded when requested");
-                }
-
-                ChunkAccess chunk;
-                if (result.isDone() && (chunk = result.join()) != null) {
-                    return AsyncWorldTicking.doGetHighestBlockYAt(chunk, x, z, heightMap);
-                }
-            } catch (Exception e) {
-                throw new IllegalStateException(e);
-            } finally {
-                level.fish$lock.readLock().unlock();
-            }
-
-            // If the future was waiting, wait outside the read lock.
-            // Most reads will never each this point, this will only happen is the chunks falls to load and has to fallback
-            //   and only if the fallback also fails to read the chunk async.
-            ChunkAccess chunk = result.join();
-            if (chunk == null) { // Early return
-                throw new IllegalStateException("Chunk not loaded when requested");
-            }
-
-            // Sadly, this means the thread will have to compete for the lock again.
-            // As stated above, this scenario is extremely rare.
-            if (level.fish$lock.readLock().tryLock()) { // Too verbose :(
-                try {
-                    return AsyncWorldTicking.doGetHighestBlockYAt(chunk, x, z, heightMap);
-                } catch (Exception e) {
-                    throw new IllegalStateException(e);
-                } finally {
-                    level.fish$lock.readLock().unlock();
-                }
-            } else {
-                CallableWrapper<Integer> task = new CallableWrapper<>(() -> AsyncWorldTicking.doGetHighestBlockYAt(chunk, x, z, heightMap));
-                level.fish$endOfTickTasks.offer(task);
-                return task.get();
-            }
-
-        } else {
-            CallableWrapper<Integer> task = new CallableWrapper<>(() -> {
-                CraftWorld.fish$warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
-                return AsyncWorldTicking.doGetHighestBlockYAt(level.getChunk(x >> 4, z >> 4), x, z, heightMap);
-            });
-            level.fish$endOfTickTasks.offer(task);
-            return task.get();
-        }
-    }
-
-    private static int doGetHighestBlockYAt(ChunkAccess chunk, int x, int z, HeightMap heightMap) {
-        return chunk.getHeight(CraftHeightMap.toNMS(heightMap), x, z);
     }
 
     /**
