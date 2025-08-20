@@ -3,19 +3,13 @@ package net.serlith.fish.async;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.serlith.fish.FishConfig;
 import net.serlith.fish.async.thread.WorldTickThread;
 import net.serlith.fish.util.CallableWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.ApiStatus;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -166,81 +160,6 @@ public class AsyncWorldTicking {
     public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         level.fish$endOfTickTasks.offer(runnable);
-    }
-
-    /*
-     * The function below is marked as EXPERIMENTAL and is meant to still provide async access without
-     *   risking a potential deadlock.
-     * From all the functions guarded from the original Sparkly implementation, this is the only one
-     *   that can actually risk data corruption (due to being a write operation) but also with risk
-     *   of causing a deadlock (due to calling the chunk system).
-     * While I personally don't like this function due to being too verbose and hard to follow, I'll only
-     *   keep it here to provide plugin compatibility.
-     * HOWEVER, this function must be avoided AT ALL COSTS while using Parallel World Ticking.
-     *
-     */
-
-    @ApiStatus.Experimental
-    @SuppressWarnings("ConstantConditions")
-    public static void scheduleWorldSetBiome(ServerLevel level, int x, int y, int z, Holder<Biome> bb) {
-        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        if (level.fish$lock.readLock().tryLock()) {
-            CompletableFuture<ChunkAccess> result = null;
-            try {
-                BlockPos pos = new BlockPos(x, 0, z);
-                if (level.hasChunkAt(pos)) {
-                    result = level.fish$getChunkAt(pos);
-                }
-                if (result == null) { // Early return
-                    throw new IllegalStateException("Chunk not loaded when requested");
-                }
-
-                // If the future is not waiting, keep going and return
-                ChunkAccess chunk;
-                if (result.isDone() && (chunk = result.join()) != null) {
-                    AsyncWorldTicking.doSetChunkBiome(chunk, x, y, z, bb);
-                    return;
-                }
-            } catch (Exception e) {
-                throw new IllegalStateException(e);
-            } finally {
-                level.fish$lock.readLock().unlock();
-            }
-
-            // If the future was waiting, wait outside the read lock.
-            // Most reads will never each this point, this will only happen is the chunks falls to load and has to fallback
-            //   and only if the fallback also fails to read the chunk async.
-            ChunkAccess chunk;
-            if ((chunk = result.join()) != null) { // Too verbose to my taste, but has to be done
-                if (level.fish$lock.readLock().tryLock()) {
-                    try {
-                        AsyncWorldTicking.doSetChunkBiome(chunk, x, y, z, bb);
-                    } catch (Exception e) {
-                        throw new IllegalStateException(e);
-                    } finally {
-                        level.fish$lock.readLock().unlock();
-                    }
-                } else {
-                    level.fish$endOfTickTasks.offer(() -> AsyncWorldTicking.doSetChunkBiome(chunk, x, y, z, bb));
-                }
-            }
-
-        } else {
-            level.fish$endOfTickTasks.offer(() -> {
-                BlockPos pos = new BlockPos(x, 0, z);
-                if (level.hasChunkAt(pos)) {
-                    LevelChunk chunk = level.getChunkAt(pos);
-                    if (chunk != null) {
-                        AsyncWorldTicking.doSetChunkBiome(chunk, x, y, z, bb);
-                    }
-                }
-            });
-        }
-    }
-
-    private static void doSetChunkBiome(ChunkAccess chunk, int x, int y, int z, Holder<Biome> bb) {
-        chunk.setBiome(x >> 2, y >> 2, z >> 2, bb);
-        chunk.markUnsaved(); // SPIGOT-2890
     }
 
     /**

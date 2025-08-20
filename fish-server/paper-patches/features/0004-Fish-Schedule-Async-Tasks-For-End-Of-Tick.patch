@@ -142,7 +142,7 @@ index 5720580c3c0278ca06fccccf9d48f5f6abd95b6a..b55d3f143bd4550ae9c3be893a12cf3a
      @Override
      public void setBiome(Biome bio) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot modify world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTick(serverLevel, () -> this.fish$setBiome(bio));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) net.serlith.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(serverLevel, () -> this.fish$setBiome(bio));
 +        else this.fish$setBiome(bio);
 +    }
 +    private void fish$setBiome(Biome bio) {
@@ -195,7 +195,7 @@ index 5720580c3c0278ca06fccccf9d48f5f6abd95b6a..b55d3f143bd4550ae9c3be893a12cf3a
  
      @Override
      public Collection<ItemStack> getDrops(ItemStack item, Entity entity) {
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.fish$getDrops(item, entity));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> this.fish$getDrops(item, entity));
 +        else return this.fish$getDrops(item, entity);
 +    }
 +    private Collection<ItemStack> fish$getDrops(ItemStack item, Entity entity) {
@@ -221,7 +221,7 @@ index 5720580c3c0278ca06fccccf9d48f5f6abd95b6a..b55d3f143bd4550ae9c3be893a12cf3a
      @Override
      public boolean canPlace(BlockData data) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.world instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.fish$canPlace(data));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.world instanceof ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> this.fish$canPlace(data));
 +        else return this.fish$canPlace(data);
 +    }
 +    private boolean fish$canPlace(BlockData data) {
@@ -237,7 +237,7 @@ index 0130fd2c3c8b78999df8174064986cdfa9ad3f9a..25d26a4ed0241a2c359cbfe301cd9646
      @Override
      public java.util.Collection<org.bukkit.inventory.ItemStack> getDrops(org.bukkit.inventory.ItemStack item, org.bukkit.entity.Entity entity) {
 -        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world.getHandle(), this.position, "Cannot modify world asynchronously"); // SparklyPaper - parallel world ticking
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.getWorldHandle() instanceof net.minecraft.server.level.ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTick(serverLevel, () -> this.fish$getDrops(item, entity));
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread() && this.getWorldHandle() instanceof net.minecraft.server.level.ServerLevel serverLevel) return net.serlith.fish.async.AsyncWorldTicking.scheduleForEndOfWorldTickDirect(serverLevel, () -> this.fish$getDrops(item, entity));
 +        else return this.fish$getDrops(item, entity);
 +    }
 +    private java.util.Collection<org.bukkit.inventory.ItemStack> fish$getDrops(org.bukkit.inventory.ItemStack item, org.bukkit.entity.Entity entity) {
