@@ -26,7 +26,7 @@ index 1f0413214f54e9a47f53c623484d6882c85f54c9..6b12c729f3bd3b107d77429d9abce87b
                  Properties map = new Properties();
                  map.setProperty("eula", "false");
 -                map.store(outputStream, "By changing the setting below to TRUE you are indicating your agreement to our EULA (" + CommonLinks.EULA + ").");
-+                map.store(outputStream, "By changing the setting below to TRUE you are indicating your agreement to our EULA (" + CommonLinks.EULA + ").\nYou also agree to the fish supremacy.\nReject monke, return to FISH! 🐟");
++                map.store(outputStream, "By changing the setting below to TRUE you are indicating your agreement to our EULA (" + CommonLinks.EULA + ").\nYou also agree to the fish supremacy.\nReject monke, return to FISH!");
              } catch (Exception var6) {
                  LOGGER.warn("Failed to save {}", this.file, var6);
              }
