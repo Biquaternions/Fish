@@ -52,6 +52,56 @@ index fd3553bdc1c3cdbf6aa3dc00e0a4987f8eaa4fb8..37483c1ec46242ba3679abe96435300a
              // Paper start - Detect headless JRE
              String awtException = io.papermc.paper.util.ServerEnvironment.awtDependencyCheck();
              if (awtException != null) {
+diff --git a/net/minecraft/server/gui/MinecraftServerGui.java b/net/minecraft/server/gui/MinecraftServerGui.java
+index f262a7c5ae4e7d56f16f5c0f4f145a2e428abbe4..f102244871fd6e96ad113afe35439467db4222ab 100644
+--- a/net/minecraft/server/gui/MinecraftServerGui.java
++++ b/net/minecraft/server/gui/MinecraftServerGui.java
+@@ -79,11 +79,16 @@ public class MinecraftServerGui extends JComponent {
+         this.server = server;
+         this.setPreferredSize(new Dimension(854, 480));
+         this.setLayout(new BorderLayout());
++        // Fish start - 🐟
++        JPanel leftPanel = new JPanel(new BorderLayout());
+ 
+         try {
++            leftPanel.add(this.buildFishPanel(), "Center");
++            leftPanel.add(this.buildInfoPanel(), "South");
+             this.add(this.buildOnboardingPanel(), "North"); // Paper - Add onboarding message for initial server start
+             this.add(this.buildChatPanel(), "Center");
+-            this.add(this.buildInfoPanel(), "West");
++            this.add(leftPanel, "West");
++            // Fish end - 🐟
+         } catch (Exception var3) {
+             LOGGER.error("Couldn't build server GUI", (Throwable)var3);
+         }
+@@ -110,6 +115,27 @@ public class MinecraftServerGui extends JComponent {
+         return jScrollPane;
+     }
+ 
++    // Fish start - 🐟
++    private JComponent buildFishPanel() {
++        JPanel jPanel = new JPanel(new BorderLayout());
++        try {
++            javax.swing.ImageIcon fishIcon = new javax.swing.ImageIcon(
++                java.util.Objects.requireNonNull(
++                    MinecraftServerGui.class.getClassLoader().getResource("fish.gif")
++                )
++            );
++            javax.swing.JLabel fishLabel = new javax.swing.JLabel(fishIcon);
++            jPanel.add(fishLabel, BorderLayout.CENTER);
++        } catch (net.serlith.fish.exception.FishException betrayal) {
++            LOGGER.error("Fish has been betrayed.", betrayal);
++            System.exit(1);
++        }
++
++        jPanel.setBorder(new TitledBorder(new EtchedBorder(), "Fish"));
++        return jPanel;
++    }
++    // Fish end - 🐟
++
+     private JComponent buildChatPanel() {
+         JPanel jPanel = new JPanel(new BorderLayout());
+         JTextArea jTextArea = new JTextArea();
 diff --git a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 index 6ec80b0e865f37f3411ac7894e0007f56180f051..5225107c5e90ce6a2b88ad24600194c3adbe2a13 100644
 --- a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
