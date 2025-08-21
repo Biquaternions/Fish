@@ -36,6 +36,13 @@ async:
 4. Never schedule tasks and wait in the main/world thread.
 
 ## 6. Avoid incompatible plugins
+The following list contains plugins that are known to be incompatible. \
+It is very likely that you'll find more plugins like these. If you were to find a plugin that is incompatible,
+I highly encourage you to just not use it and look for an alternative. \
+Please, test the server extensively before releasing to the public, specially operations that involve teleportation across worlds,
+requesting block/entity information in another world, etc. \
+You can always report bugs in the [Issues tab](https://github.com/Biquaternions/Fish/issues) as there might be a chance that is
+something that can be fixed on Fish end, or in case it isn't, it will help expand this incompatible list:
 1. Denizen (will cause a deadlock 100%)
 2. Skript (will cause a deadlock probably)
 3. Citizens (if NPCs teleport to a different world... gg)
