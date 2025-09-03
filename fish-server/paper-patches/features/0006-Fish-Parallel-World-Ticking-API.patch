@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Tue, 2 Sep 2025 13:54:37 -0500
+Subject: [PATCH] Fish Parallel World Ticking API
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 32fe51b19323e3c4c56e7f9e621e6e808ee5fe38..2033b19dcd6e0439d0dd2d0165584431bcdd66f1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -3186,4 +3186,11 @@ public final class CraftServer implements Server {
+     public void allowPausing(final Plugin plugin, final boolean value) {
+         this.console.addPluginAllowingSleep(plugin.getName(), value);
+     }
++
++    // Fish start - Parallel World Ticking API
++    @Override
++    public boolean isParallelWorldTickingEnabled() {
++        return net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED;
++    }
++    // Fish end - Parallel World Ticking API
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+index 99d14c77f51180bec84d146c365482997c71a77b..935300dbe36b35a3abd6f6e2c2d83c0173a9fd47 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+@@ -2511,4 +2511,15 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+         return POINTERS_SUPPLIER.view(this);
+     }
+     // Paper end
++
++    // Fish start - Parallel World Ticking API
++    @Override
++    public long @NotNull [] getTickTimes() {
++        return this.world.tickTimes5s.getTimes();
++    }
++    @Override
++    public double getAverageTickTime() {
++        return this.world.tickTimes5s.getAverage();
++    }
++    // Fish end - Parallel World Ticking API
+ }

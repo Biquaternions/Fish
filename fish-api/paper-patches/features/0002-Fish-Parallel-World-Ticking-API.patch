@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Tue, 2 Sep 2025 13:55:30 -0500
+Subject: [PATCH] Fish Parallel World Ticking API
+
+
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index 9bab00ab10c78908090c8a1a12d4c84e9324b08b..88f1ad74f7b16ef926ecf077005a59342848b261 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -2723,4 +2723,15 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+      */
+     void allowPausing(@NotNull org.bukkit.plugin.Plugin plugin, boolean value);
+     // Paper end - API to check if the server is sleeping
++
++    // Fish start - Parallel World Ticking API
++    /**
++     * Returns whether the software has the Parallel World Ticking feature enabled
++     *
++     * @return If the Parallel World Ticking feature is enabled
++     */
++    public default boolean isParallelWorldTickingEnabled() {
++        return false;
++    }
++    // Fish end - Parallel World Ticking API
+ }
+diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
+index ae342a5cebf12b0c6fea3171d8035b75bc7a00e8..2b5c7489d2fef625ebb1acf439226010ced7fd63 100644
+--- a/src/main/java/org/bukkit/World.java
++++ b/src/main/java/org/bukkit/World.java
+@@ -4414,6 +4414,25 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+     @NotNull
+     public Collection<GeneratedStructure> getStructures(int x, int z, @NotNull Structure structure);
+ 
++    // Fish start - Parallel World Ticking API
++    /**
++     * Get a sample of the world last tick times (in nanos)
++     *
++     * @return A sample of the world last tick times (in nanos)
++     */
++    public default long @NotNull [] getTickTimes() {
++        return new long[0];
++    }
++    /**
++     * Get the world's average tick time (in millis)
++     *
++     * @return World's local average tick time (in millis)
++     */
++    public default double getAverageTickTime () {
++        return 0.0;
++    }
++    // Fish end - Parallel World Ticking API
++
+     /**
+      * Represents various map environment types that a world may be
+      */
