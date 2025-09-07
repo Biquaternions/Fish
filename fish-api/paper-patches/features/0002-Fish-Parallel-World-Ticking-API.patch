@@ -3,6 +3,14 @@ From: Biquaternions <biquaternions@serlith.net>
 Date: Tue, 2 Sep 2025 13:55:30 -0500
 Subject: [PATCH] Fish Parallel World Ticking API
 
+This patch provides an API for performance monitoring plugins like PurpurBars.
+A better approach would be to include an event when the world is done ticking,
+  which will allow to re-use the RollingAverage logic from Spark and Minecraft internals.
+However, since every fork developer will want to have said event into their own namespace,
+  it will be virtually impossible to provide a universal API.
+With this approach only new methods are added into already existing Bukkit API, and the same
+  naming conventions as Bukkit were used, which means there's a bigger chance of this API to
+  get standarized.
 
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
 index 9bab00ab10c78908090c8a1a12d4c84e9324b08b..88f1ad74f7b16ef926ecf077005a59342848b261 100644
