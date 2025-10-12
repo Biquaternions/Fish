@@ -3,21 +3,17 @@ package net.serlith.fish.async.thread;
 import ca.spottedleaf.moonrise.common.util.TickThread;
 import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class WorldTickThread extends TickThread {
 
-    private @Nullable ServerLevel tickingWorld = null;
+    private final @NotNull ServerLevel tickingWorld;
 
-    public WorldTickThread(Runnable r, String name) {
-        super(r, name);
+    public WorldTickThread(Runnable runnable, @NotNull ServerLevel world) {
+        super(runnable, String.format("Fish World [%s] Tick Thread", world.serverLevelData.getLevelName()));
+        this.tickingWorld = world;
     }
 
-    public void setTickingWorld(@NotNull ServerLevel tickingWorld) {
-        this.tickingWorld = tickingWorld;
-    }
-
-    public @Nullable ServerLevel getTickingWorld() {
+    public @NotNull ServerLevel getTickingWorld() {
         return this.tickingWorld;
     }
 

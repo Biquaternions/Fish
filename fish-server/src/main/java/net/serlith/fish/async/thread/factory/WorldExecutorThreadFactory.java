@@ -1,5 +1,6 @@
 package net.serlith.fish.async.thread.factory;
 
+import net.minecraft.server.level.ServerLevel;
 import net.serlith.fish.async.thread.WorldTickThread;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,21 +9,21 @@ import java.util.concurrent.ThreadFactory;
 
 public class WorldExecutorThreadFactory implements ThreadFactory {
 
-    private final String worldName;
     private final Logger logger;
+    private final ServerLevel world;
 
-    public WorldExecutorThreadFactory(String worldName) {
-        this.worldName = worldName;
-        this.logger = LogManager.getLogger(String.format("World %s", worldName));
+    public WorldExecutorThreadFactory(@NotNull ServerLevel world) {
+        this.world = world;
+        this.logger = LogManager.getLogger(String.format("World %s", this.world.serverLevelData.getLevelName()));
     }
 
     @Override
     public Thread newThread(@NotNull final Runnable r) {
-        Thread tickThread = new WorldTickThread(r, String.format("Fish Level [%s] Tick Thread", worldName));
-        tickThread.setDaemon(false);
-        tickThread.setPriority(Thread.NORM_PRIORITY);
-        tickThread.setUncaughtExceptionHandler((t, e) -> this.logger.fatal("An exception was thrown while ticking {}", t.getName(), e));
-        return tickThread;
+        Thread thread = new WorldTickThread(r, this.world);
+        thread.setDaemon(false);
+        thread.setPriority(Thread.NORM_PRIORITY + 1);
+        thread.setUncaughtExceptionHandler((t, e) -> this.logger.fatal("An exception was thrown while ticking {}", t.getName(), e));
+        return thread;
     }
 
 }

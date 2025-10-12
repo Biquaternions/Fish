@@ -4,7 +4,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.waypoints.ServerWaypointManager;
 import net.minecraft.world.waypoints.WaypointTransmitter;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
 public class WorldWaypointManager extends ServerWaypointManager {
 
     private final ServerLevel level;

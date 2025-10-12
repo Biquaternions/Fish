@@ -1,12 +1,13 @@
 package net.serlith.fish.async;
 
+import ca.spottedleaf.moonrise.common.time.TickTime;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerTickRateManager;
 import net.minecraft.server.level.ServerLevel;
 import net.serlith.fish.FishConfig;
-import net.serlith.fish.async.thread.WorldTickThread;
 import net.serlith.fish.util.CallableWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,9 +25,12 @@ public class AsyncWorldTicking {
     private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.ASYNC.WORLD_TICKING._THREADS);
     private static final CompletableFuture<?>[] EMPTY_ARRAY = new CompletableFuture[0];
     private static final Queue<Runnable> END_OF_TICK_TASKS = new ConcurrentLinkedQueue<>();
+    private static final ServerTickRateManager TICK_RATE_MANAGER = MinecraftServer.getServer().tickRateManager();
 
     public static void tickWorlds(Iterable<ServerLevel> worlds, BooleanSupplier hasTimeLeft) {
-        Queue<CompletableFuture<Void>> tasks = new ArrayDeque<>();
+
+        long tickInterval = TICK_RATE_MANAGER.isSprinting() ? 0 : TICK_RATE_MANAGER.nanosecondsPerTick();
+        final Queue<CompletableFuture<Void>> tasks = new ArrayDeque<>();
         try {
             for (ServerLevel serverLevel : worlds) {
                 serverLevel.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
@@ -38,18 +42,14 @@ public class AsyncWorldTicking {
                 tasks.offer(CompletableFuture.runAsync(() -> {
                     serverLevel.fish$lock.writeLock().lock();
                     try {
-                        WorldTickThread currentThread = (WorldTickThread) Thread.currentThread();
-                        currentThread.setTickingWorld(serverLevel);
+                        serverLevel.fish$currentTickStart = System.nanoTime();
+                        serverLevel.fish$tickSchedule.setNextPeriod(serverLevel.fish$currentTickStart, tickInterval);
+                        serverLevel.fish$nextTickTimeNanos = serverLevel.fish$tickSchedule.getDeadline(tickInterval);
 
-                        long start = Util.getNanos();
                         serverLevel.tick(hasTimeLeft);
                         AsyncWorldTicking.processScheduledWorldTasks(serverLevel);
-                        long duration = Util.getNanos() - start;
 
-                        int tickCount = MinecraftServer.getServer().getTickCount();
-                        serverLevel.tickTimes5s.fish$add(tickCount, duration);
-                        serverLevel.tickTimes10s.fish$add(tickCount, duration);
-                        serverLevel.tickTimes60s.fish$add(tickCount, duration);
+                        AsyncWorldTicking.recordEndOfTick(serverLevel);
 
                     } catch (Throwable var7) {
                         CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world [" + serverLevel.getWorld().getName() + "]");
@@ -59,7 +59,7 @@ public class AsyncWorldTicking {
                         serverLevel.fish$lock.writeLock().unlock();
                         SEMAPHORE.release();
                     }
-                }, serverLevel.tickExecutor));
+                }, serverLevel.fish$tickExecutor));
                 serverLevel.explosionDensityCache.clear(); // Paper - Optimize explosions
             }
             CompletableFuture.allOf(tasks.toArray(EMPTY_ARRAY)).join();
@@ -68,6 +68,37 @@ public class AsyncWorldTicking {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
+    }
+
+    private static void recordEndOfTick(final ServerLevel level) {
+        final long prevStart = level.fish$lastTickStart;
+        final long currStart = level.fish$currentTickStart;
+        level.fish$lastTickStart = level.fish$currentTickStart;
+        final long scheduledStart = level.fish$scheduledTickStart;
+        level.fish$scheduledTickStart = level.fish$nextTickTimeNanos; // set scheduledStart for next tick
+
+        final long now = Util.getNanos();
+
+        final ca.spottedleaf.moonrise.common.time.TickTime time = new ca.spottedleaf.moonrise.common.time.TickTime(
+            prevStart,
+            scheduledStart,
+            currStart,
+            0L,
+            now,
+            0L,
+            false,
+            true
+        );
+
+        AsyncWorldTicking.addTickTime(level, time);
+    }
+
+    private static void addTickTime(final ServerLevel level, final TickTime time) {
+        level.fish$tickTimes5s.addDataFrom(time);
+        level.fish$tickReport5s = level.fish$tickTimes5s.generateTickReport(null, System.nanoTime(), TICK_RATE_MANAGER.nanosecondsPerTick());
+        level.fish$tickTimes10s.addDataFrom(time);
+        level.fish$tickTimes60s.addDataFrom(time);
     }
 
     private static void processScheduledWorldTasks(ServerLevel level) {
@@ -119,7 +150,19 @@ public class AsyncWorldTicking {
     /*
      * Used to schedule tasks after all worlds are done ticking.
      * Useful if an async task involves multiple worlds.
-     * Possible use for async respawn in practice plugins (shouldn't be async imo, but idk).
+     * Possible use for teams plugins.
+     */
+    public static <T> T scheduleForEndOfTick(Callable<T> callable) {
+        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
+        CallableWrapper<T> task = new CallableWrapper<>(callable);
+        END_OF_TICK_TASKS.offer(task);
+        return task.get();
+    }
+
+    /*
+     * Used to schedule tasks after all worlds are done ticking.
+     * Useful if an async task involves multiple worlds.
+     * Possible use for async respawn in practice plugins (those calls shouldn't be async imo, but IDK).
      */
     public static void scheduleVoidForEndOfTick(Runnable runnable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
