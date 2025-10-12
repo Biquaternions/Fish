@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-CURRENT_TAG="ver-1.21.8"
+CURRENT_TAG="ver-1.21.10"
 RELEASE_NOTES="RELEASE.md"
 
 # Branch name
@@ -42,7 +42,7 @@ echo "" >> $RELEASE_NOTES
 } >> $RELEASE_NOTES
 
 # Get checksums
-file="./fish-server/build/libs/fish-paperclip-1.21.8-R0.1-SNAPSHOT-mojmap.jar"
+file="./fish-server/build/libs/fish-paperclip-1.21.10-R0.1-SNAPSHOT-mojmap.jar"
 if [ -f $file ]; then
   SHA256=$(sha256sum $file | awk '{ print $1 }')
   SHA512=$(sha512sum $file | awk '{ print $1 }')
