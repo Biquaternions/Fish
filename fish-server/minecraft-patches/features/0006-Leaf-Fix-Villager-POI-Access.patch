@@ -5,10 +5,10 @@ Subject: [PATCH] Leaf Fix Villager POI Access
 
 
 diff --git a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
-index 3614551856c594f3c0cfee984fcf03fad672b007..7b39033d263acd3bb4d24e762321196c17dc15e5 100644
+index 6adf1b2250234ede6e6f498ed0990ab523f09b8e..7f01d7c7d5e930ade3a60d56288a2355cff922cf 100644
 --- a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
 +++ b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
-@@ -43,6 +43,22 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
+@@ -42,6 +42,22 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
      protected void stop(ServerLevel level, Villager entity, long gameTime) {
          Optional<GlobalPos> memory = entity.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
          memory.ifPresent(globalPos -> {
@@ -25,22 +25,22 @@ index 3614551856c594f3c0cfee984fcf03fad672b007..7b39033d263acd3bb4d24e762321196c
 +                    }, ca.spottedleaf.concurrentutil.util.Priority.BLOCKING);
 +                }
 +                level.moonrise$getChunkTaskScheduler().scheduleChunkTask(entity.chunkPosition().x, entity.chunkPosition().z, () -> {
-+                    DebugPackets.sendPoiTicketCountPacket(level, blockPos);
++                    level.debugSynchronizers().updatePoi(blockPos);
 +                }, ca.spottedleaf.concurrentutil.util.Priority.BLOCKING);
 +            } else { // Leaf end - Fix cross-dimensional POI access
              BlockPos blockPos = globalPos.pos();
              ServerLevel level1 = level.getServer().getLevel(globalPos.dimension());
              if (level1 != null) {
-@@ -53,6 +69,7 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
+@@ -52,6 +68,7 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
  
-                 DebugPackets.sendPoiTicketCountPacket(level, blockPos);
+                 level.debugSynchronizers().updatePoi(blockPos);
              }
 +            } // Leaf - Fix cross-dimensional POI access
          });
          entity.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
      }
 diff --git a/net/minecraft/world/entity/npc/Villager.java b/net/minecraft/world/entity/npc/Villager.java
-index f29e569b4d19b7f8bed622df5087ad84ae753f24..b295c56a7297651d526f2c5f00b96eadebd00628 100644
+index cc25ef0be97b2647560a06483f417dcaf18e4d40..5c2462a2b036b94c7ccb018620e67d979d7e22d6 100644
 --- a/net/minecraft/world/entity/npc/Villager.java
 +++ b/net/minecraft/world/entity/npc/Villager.java
 @@ -685,6 +685,18 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
@@ -55,7 +55,7 @@ index f29e569b4d19b7f8bed622df5087ad84ae753f24..b295c56a7297651d526f2c5f00b96ead
 +                            BiPredicate<Villager, Holder<PoiType>> biPredicate = POI_MEMORIES.get(moduleType);
 +                            if (type.isPresent() && biPredicate.test(this, type.get())) {
 +                                poiManager.release(pos.pos());
-+                                DebugPackets.sendPoiTicketCountPacket(level, pos.pos());
++                                level.debugSynchronizers().updatePoi(pos.pos());
 +                            }
 +                        }, ca.spottedleaf.concurrentutil.util.Priority.BLOCKING);
 +                    } else { // Leaf end - Fix cross-dimensional POI access
@@ -64,7 +64,7 @@ index f29e569b4d19b7f8bed622df5087ad84ae753f24..b295c56a7297651d526f2c5f00b96ead
                      BiPredicate<Villager, Holder<PoiType>> biPredicate = POI_MEMORIES.get(moduleType);
 @@ -692,6 +704,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
                          poiManager.release(pos.pos());
-                         DebugPackets.sendPoiTicketCountPacket(level, pos.pos());
+                         level.debugSynchronizers().updatePoi(pos.pos());
                      }
 +                    } // Leaf - Fix cross-dimensional POI access
                  }

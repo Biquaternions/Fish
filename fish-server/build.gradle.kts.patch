@@ -3,7 +3,7 @@
 @@ -18,7 +_,7 @@
  
  dependencies {
-     mache("io.papermc:mache:1.21.8+build.2")
+     mache("io.papermc:mache:1.21.10+build.1")
 -    paperclip("io.papermc:paperclip:3.0.3")
 +    paperclip("com.github.Biquaternions:Fishclip:1.1")
      testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -36,7 +36,7 @@
 +
      spigot {
          enabled = true
-         buildDataRef = "436eac9815c211be1a2a6ca0702615f995e81c44"
+         buildDataRef = "42d18d4c4653ffc549778dbe223f6994a031d69e"
 @@ -124,10 +_,18 @@
      main {
          java { srcDir("../paper-server/src/main/java") }
@@ -56,13 +56,13 @@
      }
  }
  val log4jPlugins = sourceSets.create("log4jPlugins") {
-@@ -155,7 +_,7 @@
+@@ -156,7 +_,7 @@
  }
  
  dependencies {
 -    implementation(project(":pufferfish-api")) // Pufferfish
 +    implementation(project(":fish-api")) // Pufferfish
-     implementation("ca.spottedleaf:concurrentutil:0.0.3")
+     implementation("ca.spottedleaf:concurrentutil:0.0.5")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
 @@ -229,14 +_,14 @@

@@ -5,10 +5,10 @@ Subject: [PATCH] Fish Added Config And Command
 
 
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index c16475818be31d68cbe72216ca124fdaf527b56c..6d0baa5a1778b132895c9dc592afc93eacc5b44f 100644
+index 4a063946a3c72c16085a4db00ddd46d156c83a16..af8d7028c75fd3bcb1fa3a363b9912493578409d 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
-@@ -109,6 +109,7 @@ public class Main {
+@@ -107,6 +107,7 @@ public class Main {
                  JvmProfiler.INSTANCE.start(Environment.SERVER);
              }
  
@@ -17,7 +17,7 @@ index c16475818be31d68cbe72216ca124fdaf527b56c..6d0baa5a1778b132895c9dc592afc93e
              Bootstrap.bootStrap();
              Bootstrap.validate();
 diff --git a/net/minecraft/server/ReloadableServerResources.java b/net/minecraft/server/ReloadableServerResources.java
-index 0265fee09afd7cded53fb606a1333974537831af..08b0c964e4fc01e46aaee7df095851365340e033 100644
+index 0265fee09afd7cded53fb606a1333974537831af..fe73f46e56e7d0545f19040d76444e391095b096 100644
 --- a/net/minecraft/server/ReloadableServerResources.java
 +++ b/net/minecraft/server/ReloadableServerResources.java
 @@ -43,6 +43,7 @@ public class ReloadableServerResources {
@@ -29,14 +29,14 @@ index 0265fee09afd7cded53fb606a1333974537831af..08b0c964e4fc01e46aaee7df09585136
          this.functionLibrary = new ServerFunctionLibrary(functionCompilationLevel, this.commands.getDispatcher());
      }
 diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
-index c46876197e5450dff501645c46b608ad2862231b..eff2ae5d9cca81902e004f28a58932c234843050 100644
+index a7c9119bb2d92b9524c1d45927091c59709179af..526d4a6ce03b02c2a409dcd4429ff91236563b7b 100644
 --- a/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -185,6 +185,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -278,6 +278,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
          com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics(); // Paper - start metrics
          com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
          new gg.pufferfish.pufferfish.PufferfishConfig().load(); // Pufferfish - Config and command
 +        net.serlith.fish.FishConfig.init(); // Fish start - Config and command
  
-         this.setPvpAllowed(properties.pvp);
-         this.setFlightAllowed(properties.allowFlight);
+         // this.worldData.setGameType(properties.gameMode.get()); // CraftBukkit - moved to world loading
+         LOGGER.info("Default game type: {}", properties.gameMode.get());

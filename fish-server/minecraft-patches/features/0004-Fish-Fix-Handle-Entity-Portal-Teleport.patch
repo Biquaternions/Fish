@@ -7,10 +7,10 @@ Used this snippet from Leaf's version as a reference to fix:
 https://github.com/Winds-Studio/Leaf/blob/3268a57db808ad2a371cb28c5fea4cb2edc2e426/leaf-server/minecraft-patches/features/0210-SparklyPaper-Parallel-world-ticking.patch#L851
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 7f4a3695742ec0cb78d9aac2610e3709c22af714..6c9d76dd426b445dd9bb0714e41b41e42b065f85 100644
+index c4b1dd48538ea40e57069769a2adca3fdd5210ce..fec655ed022bef1a42289d4a150ce7d2f8d3bae1 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -837,7 +837,6 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -842,7 +842,6 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
@@ -18,17 +18,17 @@ index 7f4a3695742ec0cb78d9aac2610e3709c22af714..6c9d76dd426b445dd9bb0714e41b41e4
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
-@@ -3413,6 +3412,30 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -3483,6 +3482,30 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
                      ProfilerFiller profilerFiller = Profiler.get();
                      profilerFiller.push("portal");
                      this.setPortalCooldown();
 +                    // Fish start - Handle entity portal teleport
 +                    if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
-+                        this.portalProcess.setPending(true);
++                        this.portalProcess.fish$setPending(true);
 +                        this.getBukkitEntity().taskScheduler.schedule(e -> {
 +                            PortalProcessor processor = e.portalProcess;
 +                            if (processor == null) return;
-+                            if (!processor.isPending()) {
++                            if (!processor.fish$isPending()) {
 +                                e.portalProcess = null;
 +                                return;
 +                            }
@@ -40,7 +40,7 @@ index 7f4a3695742ec0cb78d9aac2610e3709c22af714..6c9d76dd426b445dd9bb0714e41b41e4
 +                                    this.teleport(portalDestination);
 +                                }
 +                            }
-+                            processor.setPending(false);
++                            processor.fish$setPending(false);
 +                        }, e -> {}, 0);
 +                        profilerFiller.pop();
 +                        return;
@@ -50,14 +50,14 @@ index 7f4a3695742ec0cb78d9aac2610e3709c22af714..6c9d76dd426b445dd9bb0714e41b41e4
                      if (portalDestination != null) {
                          ServerLevel level = portalDestination.newLevel();
 diff --git a/net/minecraft/world/entity/PortalProcessor.java b/net/minecraft/world/entity/PortalProcessor.java
-index 88b07fbb96b20124777889830afa480673629d43..10681d0be8dca1885deffd051f6db8693c2f04ad 100644
+index 88b07fbb96b20124777889830afa480673629d43..858de3d9c79b01e2a2aeba264326f44ae6aac4f2 100644
 --- a/net/minecraft/world/entity/PortalProcessor.java
 +++ b/net/minecraft/world/entity/PortalProcessor.java
 @@ -19,6 +19,7 @@ public class PortalProcessor {
      }
  
      public boolean processPortalTeleportation(ServerLevel level, Entity entity, boolean canChangeDimensions) {
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.isPending()) return false; // Fish - Handle entity portal teleport
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.fish$isPending()) return false; // Fish - Handle entity portal teleport
          if (!this.insidePortalThisTick) {
              this.decayTick();
              return false;
@@ -65,7 +65,7 @@ index 88b07fbb96b20124777889830afa480673629d43..10681d0be8dca1885deffd051f6db869
      }
  
      public boolean hasExpired() {
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !this.isPending() && this.portalTime <= 0; // Fish - Handle entity portal teleport
++        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !this.fish$isPending() && this.portalTime <= 0; // Fish - Handle entity portal teleport
          return this.portalTime <= 0;
      }
  
@@ -75,12 +75,12 @@ index 88b07fbb96b20124777889830afa480673629d43..10681d0be8dca1885deffd051f6db869
      }
 +
 +    // Fish start - Handle entity portal teleport
-+    private volatile boolean pending = false;
-+    public void setPending(boolean pending) {
-+        this.pending = pending;
++    private volatile boolean fish$pending = false;
++    public void fish$setPending(boolean fish$pending) {
++        this.fish$pending = fish$pending;
 +    }
-+    public boolean isPending() {
-+        return this.pending;
++    public boolean fish$isPending() {
++        return this.fish$pending;
 +    }
 +    // Fish end - Handle entity portal teleport
 +

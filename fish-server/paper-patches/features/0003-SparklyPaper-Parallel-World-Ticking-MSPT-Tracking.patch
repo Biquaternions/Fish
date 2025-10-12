@@ -5,10 +5,10 @@ Subject: [PATCH] SparklyPaper Parallel World Ticking MSPT Tracking
 
 
 diff --git a/src/main/java/io/papermc/paper/command/MSPTCommand.java b/src/main/java/io/papermc/paper/command/MSPTCommand.java
-index 8b5293b0c696ef21d0101493ffa41b60bf0bc86b..d3b3b42a1765fdc03f6ee8391a22598a2bc93873 100644
+index 04b8097b147350f97fdee16c0b8aa78a87fddd33..391e864a359af538959536a78a91f2cf0425f0bb 100644
 --- a/src/main/java/io/papermc/paper/command/MSPTCommand.java
 +++ b/src/main/java/io/papermc/paper/command/MSPTCommand.java
-@@ -78,6 +78,49 @@ public final class MSPTCommand extends Command {
+@@ -82,6 +82,49 @@ public final class MSPTCommand extends Command {
                  )
              )
          );
@@ -38,9 +38,9 @@ index 8b5293b0c696ef21d0101493ffa41b60bf0bc86b..d3b3b42a1765fdc03f6ee8391a22598a
 +            );
 +            for (net.minecraft.server.level.ServerLevel serverLevel : server.getAllLevels()) {
 +                List<Component> worldTimes = new ArrayList<>();
-+                worldTimes.addAll(eval(serverLevel.tickTimes5s.getTimes()));
-+                worldTimes.addAll(eval(serverLevel.tickTimes10s.getTimes()));
-+                worldTimes.addAll(eval(serverLevel.tickTimes60s.getTimes()));
++                worldTimes.addAll(eval(serverLevel.fish$tickTimes5s));
++                worldTimes.addAll(eval(serverLevel.fish$tickTimes10s));
++                worldTimes.addAll(eval(serverLevel.fish$tickTimes60s));
 +
 +                sender.sendMessage(text().content("◴ " + serverLevel.getWorld().getName() + ": ").color(GOLD)
 +                    .append(text().color(GRAY)

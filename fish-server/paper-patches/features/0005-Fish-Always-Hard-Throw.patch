@@ -16,14 +16,14 @@ The user is now forced to read an entry in the repository before using the featu
   https://github.com/Biquaternions/Fish/blob/ver/1.21.8/docs/PWT_RULES.md
 
 diff --git a/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java b/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
-index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6e7ff0740 100644
+index ed1cada324a34604d19659556d32a36bacc6cdfe..35f3718766de733777aee6130475e15652b583f8 100644
 --- a/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
 +++ b/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
 @@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  public class TickThread extends Thread {
  
      private static final Logger LOGGER = LoggerFactory.getLogger(TickThread.class);
--    private static final boolean HARD_THROW = !Boolean.getBoolean("fish.dontHardThrow"); // SparklyPaper - parallel world ticking
+-    private static final boolean FISH$HARD_THROW = !Boolean.getBoolean("fish.dontHardThrow"); // SparklyPaper - parallel world ticking
  
      private static String getThreadContext() {
          return "thread=" + Thread.currentThread().getName();
@@ -31,7 +31,7 @@ index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6
      public static void ensureTickThread(final String reason) {
          if (!isTickThread()) {
              LOGGER.error("Thread failed main thread check: " + reason + ", context=" + getThreadContext(), new Throwable());
--            if (HARD_THROW) // SparklyPaper - parallel world ticking
+-            if (FISH$HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(reason);
          }
      }
@@ -39,7 +39,7 @@ index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6
              final String ex = "Thread failed main thread check: " +
                                 reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", block_pos=" + pos + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
--            if (HARD_THROW) // SparklyPaper - parallel world ticking
+-            if (FISH$HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -47,7 +47,7 @@ index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6
              final String ex = "Thread failed main thread check: " +
                  reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", block_pos=" + pos + ", block_radius=" + blockRadius + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
--            if (HARD_THROW) // SparklyPaper - parallel world ticking
+-            if (FISH$HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -55,7 +55,7 @@ index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6
              final String ex = "Thread failed main thread check: " +
                  reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", chunk_pos=" + pos + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
--            if (HARD_THROW) // SparklyPaper - parallel world ticking
+-            if (FISH$HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -63,15 +63,15 @@ index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6
              final String ex = "Thread failed main thread check: " +
                  reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", chunk_pos=" + new ChunkPos(chunkX, chunkZ) + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
--            if (HARD_THROW) // SparklyPaper - parallel world ticking
+-            if (FISH$HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
 @@ -77,7 +71,6 @@ public class TickThread extends Thread {
              final String ex = "Thread failed main thread check: " +
-                 reason + ", context=" + getThreadContext() + ", entity=" + EntityUtil.dumpEntity(entity) + " - " + TickThread.getTickThreadInformation(entity.getServer()); // SparklyPaper - parallel world ticking
+                 reason + ", context=" + getThreadContext() + ", entity=" + EntityUtil.dumpEntity(entity) + " - " + TickThread.getTickThreadInformation(entity.level().getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
--            if (HARD_THROW) // SparklyPaper - parallel world ticking
+-            if (FISH$HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -79,7 +79,7 @@ index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6
              final String ex = "Thread failed main thread check: " +
                  reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", aabb=" + aabb + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
--            if (HARD_THROW) // SparklyPaper - parallel world ticking
+-            if (FISH$HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -87,7 +87,7 @@ index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6
              final String ex = "Thread failed main thread check: " +
                  reason + ", context=" + getThreadContext() + ", world=" + WorldUtil.getWorldName(world) + ", block_pos=" + new Vec3(blockX, 0.0, blockZ) + " - " + TickThread.getTickThreadInformation(world.getServer()); // SparklyPaper - parallel world ticking
              LOGGER.error(ex, new Throwable());
--            if (HARD_THROW) // SparklyPaper - parallel world ticking
+-            if (FISH$HARD_THROW) // SparklyPaper - parallel world ticking
              throw new IllegalStateException(ex);
          }
      }
@@ -95,7 +95,7 @@ index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6
      public static void ensureTickThread(final net.minecraft.server.level.ServerLevel world, final String reason) {
          if (!TickThread.isTickThreadFor(world)) {
              LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread check: " + reason + " @ world " + world.getWorld().getName() + " - " + TickThread.getTickThreadInformation(world.getServer()), new Throwable()); // SparklyPaper - parallel world ticking
--            if (HARD_THROW) throw new IllegalStateException(reason);
+-            if (FISH$HARD_THROW) throw new IllegalStateException(reason);
 +            throw new IllegalStateException(reason);
          }
      }
@@ -104,7 +104,7 @@ index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6
          boolean isServerLevelTickThread = TickThread.isWorldTickThread();
          if (!isTickThread || isServerLevelTickThread) {
              LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread ONLY tick thread check: " + reason, new Throwable());
--            if (HARD_THROW) throw new IllegalStateException(reason);
+-            if (FISH$HARD_THROW) throw new IllegalStateException(reason);
 +            throw new IllegalStateException(reason);
          }
      }
@@ -113,7 +113,7 @@ index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6
          boolean isValid = isAsyncThread || isValidTickThread;
          if (!isValid) {
              LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread or async thread check: " + reason + " @ world " + world.getWorld().getName() + " - " + TickThread.getTickThreadInformation(world.getServer()), new Throwable());
--            if (HARD_THROW) throw new IllegalStateException(reason);
+-            if (FISH$HARD_THROW) throw new IllegalStateException(reason);
 +            throw new IllegalStateException(reason);
          }
      }
@@ -123,7 +123,7 @@ index 7b16a1c90e1a7e41ffe340f48f80559766879269..462a8e3c85acb770e99296b4d8c5a8d6
          sb.append("; Is iterating over levels? ");
          sb.append(minecraftServer.isIteratingOverLevels);
 -        sb.append("; Are we going to hard throw? ");
--        sb.append(HARD_THROW);
+-        sb.append(FISH$HARD_THROW);
          return sb.toString();
      }
  
