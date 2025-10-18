@@ -1,15 +1,15 @@
 --- a/pufferfish-server/build.gradle.kts
 +++ b/pufferfish-server/build.gradle.kts
-@@ -18,7 +_,7 @@
+@@ -15,7 +_,7 @@
  
  dependencies {
-     mache("io.papermc:mache:1.21.10+build.1")
+     mache("io.papermc:mache:1.21.10+build.4")
 -    paperclip("io.papermc:paperclip:3.0.3")
 +    paperclip("com.github.Biquaternions:Fishclip:1.1")
      testRuntimeOnly("org.junit.platform:junit-platform-launcher")
  }
  
-@@ -35,9 +_,26 @@
+@@ -32,9 +_,26 @@
              outputDir = rootDirectory.dir("paper-server")
          }
      }
@@ -37,7 +37,7 @@
      spigot {
          enabled = true
          buildDataRef = "42d18d4c4653ffc549778dbe223f6994a031d69e"
-@@ -124,10 +_,18 @@
+@@ -121,10 +_,18 @@
      main {
          java { srcDir("../paper-server/src/main/java") }
          resources { srcDir("../paper-server/src/main/resources") }
@@ -56,7 +56,7 @@
      }
  }
  val log4jPlugins = sourceSets.create("log4jPlugins") {
-@@ -156,7 +_,7 @@
+@@ -153,7 +_,7 @@
  }
  
  dependencies {
@@ -65,7 +65,7 @@
      implementation("ca.spottedleaf:concurrentutil:0.0.5")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -229,14 +_,14 @@
+@@ -226,14 +_,14 @@
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",

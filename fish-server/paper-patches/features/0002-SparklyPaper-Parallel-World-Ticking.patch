@@ -230,7 +230,7 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..ed1cada324a34604d19659556d32a36b
 +    }
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 48f6f41d59983e52b9db41a7555423d6e9a416d4..2fafdcf92229d116105fe35bcb0d3e8f8b701b34 100644
+index 56129da89b1c5e7a5c5c7af4e41fc57cbc324f8f..5bdca93cd51504ba21461d0c05043d165b5cac2d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -471,7 +471,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
@@ -496,10 +496,10 @@ index bcd73c788768f9a278181926fb56df510d271a76..e0a91bcd42383b2b65af5fe5d399666a
          }
      }
 diff --git a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
-index 6744a9f4cfe813a2593bad67b433bfb2c774a636..c1548ea24cdd21967a1a53eeec7a7b3f820cd0d9 100644
+index cc108383fa62b3ea5781c1ac58f9f8a24412e6c3..2488b74687b1fac13f8fe4d981e64e48920ee942 100644
 --- a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
 +++ b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
-@@ -813,6 +813,7 @@ public class CraftEventFactory {
+@@ -812,6 +812,7 @@ public class CraftEventFactory {
      }
  
      public static BlockPos sourceBlockOverride = null; // SPIGOT-7068: Add source block override, not the most elegant way but better than passing down a BlockPos up to five methods deep.
@@ -507,7 +507,7 @@ index 6744a9f4cfe813a2593bad67b433bfb2c774a636..c1548ea24cdd21967a1a53eeec7a7b3f
  
      public static boolean handleBlockSpreadEvent(LevelAccessor world, BlockPos source, BlockPos target, net.minecraft.world.level.block.state.BlockState state, int flags) {
          return handleBlockSpreadEvent(world, source, target, state, flags, false);
-@@ -828,7 +829,7 @@ public class CraftEventFactory {
+@@ -827,7 +828,7 @@ public class CraftEventFactory {
          CraftBlockState snapshot = CraftBlockStates.getBlockState(world, target);
          snapshot.setData(state);
  

@@ -1,5 +1,6 @@
 package net.serlith.fish.async;
 
+import ca.spottedleaf.moonrise.common.time.TickData;
 import ca.spottedleaf.moonrise.common.time.TickTime;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -11,6 +12,7 @@ import net.serlith.fish.FishConfig;
 import net.serlith.fish.util.CallableWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -95,10 +97,25 @@ public class AsyncWorldTicking {
     }
 
     private static void addTickTime(final ServerLevel level, final TickTime time) {
-        level.fish$tickTimes5s.addDataFrom(time);
-        level.fish$tickReport5s = level.fish$tickTimes5s.generateTickReport(null, System.nanoTime(), TICK_RATE_MANAGER.nanosecondsPerTick());
-        level.fish$tickTimes10s.addDataFrom(time);
-        level.fish$tickTimes60s.addDataFrom(time);
+        synchronized (level.fish$statsLock) {
+            level.fish$tickTimes5s.addDataFrom(time);
+            level.fish$tickTimes10s.addDataFrom(time);
+            level.fish$tickTimes60s.addDataFrom(time);
+            AsyncWorldTicking.clearTickTimeStatistics(level);
+        }
+    }
+
+    private static void clearTickTimeStatistics(final ServerLevel level) {
+        level.fish$msptData5s = null;
+    }
+
+    public static @Nullable TickData.MSPTData getMSPTData5s(final ServerLevel level) {
+        synchronized (level.fish$statsLock) {
+            if (level.fish$msptData5s == null) {
+                level.fish$msptData5s = level.fish$tickTimes5s.getMSPTData(null, TICK_RATE_MANAGER.nanosecondsPerTick());
+            }
+            return level.fish$msptData5s;
+        }
     }
 
     private static void processScheduledWorldTasks(ServerLevel level) {

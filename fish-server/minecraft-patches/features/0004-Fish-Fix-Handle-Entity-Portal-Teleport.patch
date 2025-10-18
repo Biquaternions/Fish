@@ -7,7 +7,7 @@ Used this snippet from Leaf's version as a reference to fix:
 https://github.com/Winds-Studio/Leaf/blob/3268a57db808ad2a371cb28c5fea4cb2edc2e426/leaf-server/minecraft-patches/features/0210-SparklyPaper-Parallel-world-ticking.patch#L851
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index c4b1dd48538ea40e57069769a2adca3fdd5210ce..fec655ed022bef1a42289d4a150ce7d2f8d3bae1 100644
+index 5a27505102342377e1a394759232e4d752b9822f..30fb8d453ce09215d3c39730b3b20900241ea286 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -842,7 +842,6 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
@@ -18,7 +18,7 @@ index c4b1dd48538ea40e57069769a2adca3fdd5210ce..fec655ed022bef1a42289d4a150ce7d2
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
-@@ -3483,6 +3482,30 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -3482,6 +3481,30 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
                      ProfilerFiller profilerFiller = Profiler.get();
                      profilerFiller.push("portal");
                      this.setPortalCooldown();
