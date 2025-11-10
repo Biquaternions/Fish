@@ -49,9 +49,8 @@ public class AsyncWorldTicking {
                         serverLevel.fish$nextTickTimeNanos = serverLevel.fish$tickSchedule.getDeadline(tickInterval);
 
                         serverLevel.tick(hasTimeLeft);
-                        AsyncWorldTicking.processScheduledWorldTasks(serverLevel);
-
                         AsyncWorldTicking.recordEndOfTick(serverLevel);
+                        AsyncWorldTicking.processScheduledWorldTasks(serverLevel);
 
                     } catch (Throwable var7) {
                         CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world [" + serverLevel.getWorld().getName() + "]");
@@ -89,9 +88,11 @@ public class AsyncWorldTicking {
             0L,
             now,
             0L,
-            false,
-            true
+            level.fish$taskExecutionTime,
+            0L,
+            false
         );
+        level.fish$taskExecutionTime = 0L;
 
         AsyncWorldTicking.addTickTime(level, time);
     }
@@ -119,10 +120,12 @@ public class AsyncWorldTicking {
     }
 
     private static void processScheduledWorldTasks(ServerLevel level) {
+        final long start = Util.getNanos();
         Runnable task;
         while ((task = level.fish$endOfTickTasks.poll()) != null) {
             task.run();
         }
+        level.fish$taskExecutionTime = Util.getNanos() - start;
     }
 
     private static void processScheduledTasks() {

@@ -33,10 +33,10 @@ index 964b57bb240151ddf4f11c203b67e8be6469e473..be7f4dd7c17d1b50ef5bfa9d578aab85
 +    // Fish end - Parallel World Ticking API
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index 7b22c923b4675eda944a94de67816a86daf1b1ca..a4c34b65ef6020da60c3dfd27916135bd8daa11e 100644
+index 2cda5a030665702b07b94cca6717cf5035ce30dc..52298f9ce1371d30431f9aa82914fd87ad5fae61 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4583,6 +4583,25 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4586,6 +4586,25 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
      @NotNull
      public Collection<GeneratedStructure> getStructures(int x, int z, @NotNull Structure structure);
  

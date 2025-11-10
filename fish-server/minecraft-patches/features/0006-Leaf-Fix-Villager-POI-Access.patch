@@ -40,10 +40,10 @@ index 6adf1b2250234ede6e6f498ed0990ab523f09b8e..7f01d7c7d5e930ade3a60d56288a2355
          entity.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
      }
 diff --git a/net/minecraft/world/entity/npc/Villager.java b/net/minecraft/world/entity/npc/Villager.java
-index cc25ef0be97b2647560a06483f417dcaf18e4d40..5c2462a2b036b94c7ccb018620e67d979d7e22d6 100644
+index c12831524045bf6331c2020e2c924deac936dea9..364f3251d15eea045b29e03a059438f40e9c9d8f 100644
 --- a/net/minecraft/world/entity/npc/Villager.java
 +++ b/net/minecraft/world/entity/npc/Villager.java
-@@ -685,6 +685,18 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+@@ -686,6 +686,18 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
              this.brain.getMemory(moduleType).ifPresent(pos -> {
                  ServerLevel level = server.getLevel(pos.dimension());
                  if (level != null) {
@@ -62,7 +62,7 @@ index cc25ef0be97b2647560a06483f417dcaf18e4d40..5c2462a2b036b94c7ccb018620e67d97
                      PoiManager poiManager = level.getPoiManager();
                      Optional<Holder<PoiType>> type = poiManager.getType(pos.pos());
                      BiPredicate<Villager, Holder<PoiType>> biPredicate = POI_MEMORIES.get(moduleType);
-@@ -692,6 +704,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+@@ -693,6 +705,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
                          poiManager.release(pos.pos());
                          level.debugSynchronizers().updatePoi(pos.pos());
                      }

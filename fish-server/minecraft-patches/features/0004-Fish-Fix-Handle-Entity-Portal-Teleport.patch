@@ -7,10 +7,10 @@ Used this snippet from Leaf's version as a reference to fix:
 https://github.com/Winds-Studio/Leaf/blob/3268a57db808ad2a371cb28c5fea4cb2edc2e426/leaf-server/minecraft-patches/features/0210-SparklyPaper-Parallel-world-ticking.patch#L851
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 5a27505102342377e1a394759232e4d752b9822f..30fb8d453ce09215d3c39730b3b20900241ea286 100644
+index 46400375998b8023c94712d32f5f3c532cfce65d..82ae5c89329bb505addbeaa054d3e4148f397933 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -842,7 +842,6 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -841,7 +841,6 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
@@ -18,7 +18,7 @@ index 5a27505102342377e1a394759232e4d752b9822f..30fb8d453ce09215d3c39730b3b20900
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
-@@ -3482,6 +3481,30 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -3474,6 +3473,30 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
                      ProfilerFiller profilerFiller = Profiler.get();
                      profilerFiller.push("portal");
                      this.setPortalCooldown();
