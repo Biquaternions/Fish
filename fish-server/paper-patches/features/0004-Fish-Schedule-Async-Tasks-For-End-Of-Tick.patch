@@ -245,10 +245,10 @@ index 0130fd2c3c8b78999df8174064986cdfa9ad3f9a..9df5e9e44bab9c2319afcbc85aa64ac8
          net.minecraft.world.item.ItemStack nms = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(item);
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 436ae42b4ef226b4867abd65086ad0e20ff8598d..9194913e7e7c1e9e30ad1c62b06858e82601abe4 100644
+index 94307a5ffce0df877b3e93cdbeac81a9306d5eae..18f52e02fb63a717bd5c374db758ef47198b4b0c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3001,6 +3001,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -3011,6 +3011,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
  
          @Override
          public void respawn() {
