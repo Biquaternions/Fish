@@ -1,15 +1,15 @@
-package net.serlith.fish.async;
+package me.biquaternions.fish.async;
 
 import ca.spottedleaf.moonrise.common.time.TickData;
 import ca.spottedleaf.moonrise.common.time.TickTime;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerTickRateManager;
 import net.minecraft.server.level.ServerLevel;
-import net.serlith.fish.FishConfig;
-import net.serlith.fish.util.CallableWrapper;
+import me.biquaternions.fish.FishConfig;
+import me.biquaternions.fish.util.CallableWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;

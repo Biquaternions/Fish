@@ -13,7 +13,7 @@ With this approach only new methods are added into already existing Bukkit API, 
   get standarized.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index b2961752b50e98d95adf3af4f658e2fdb2127d43..55639cfdb52b3bc8dfc105c95c56056816625bbb 100644
+index b2961752b50e98d95adf3af4f658e2fdb2127d43..6c847ab721d95dbd746e80a0486f28f05e464c91 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -2964,4 +2964,11 @@ public final class CraftServer implements Server {
@@ -24,12 +24,12 @@ index b2961752b50e98d95adf3af4f658e2fdb2127d43..55639cfdb52b3bc8dfc105c95c560568
 +    // Fish start - Parallel World Ticking API
 +    @Override
 +    public boolean isParallelWorldTickingEnabled() {
-+        return net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED;
++        return me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED;
 +    }
 +    // Fish end - Parallel World Ticking API
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index ecbb2bdab3c6645479e198b1deedc83570ff5a35..99d63bad890a00f445bdd765b00e3aaa85d5b085 100644
+index 1ec9d43b5f017736a8d0fd287ded25128db8c7ca..55c47d9438ba1365b899529a2589785bfe7220d3 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -2064,4 +2064,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
@@ -40,12 +40,12 @@ index ecbb2bdab3c6645479e198b1deedc83570ff5a35..99d63bad890a00f445bdd765b00e3aaa
 +    // Fish start - Parallel World Ticking API
 +    @Override
 +    public long @NotNull [] getTickTimes() {
-+        final ca.spottedleaf.moonrise.common.time.TickData.MSPTData reportData = net.serlith.fish.async.AsyncWorldTicking.getMSPTData5s(this.world);
++        final ca.spottedleaf.moonrise.common.time.TickData.MSPTData reportData = me.biquaternions.fish.async.AsyncWorldTicking.getMSPTData5s(this.world);
 +        return reportData == null ? new long[0] : reportData.rawData().clone();
 +    }
 +    @Override
 +    public double getAverageTickTime() {
-+        final ca.spottedleaf.moonrise.common.time.TickData.MSPTData reportData = net.serlith.fish.async.AsyncWorldTicking.getMSPTData5s(this.world);
++        final ca.spottedleaf.moonrise.common.time.TickData.MSPTData reportData = me.biquaternions.fish.async.AsyncWorldTicking.getMSPTData5s(this.world);
 +        return reportData == null ? 0.0 : reportData.avg();
 +    }
 +    // Fish end - Parallel World Ticking API

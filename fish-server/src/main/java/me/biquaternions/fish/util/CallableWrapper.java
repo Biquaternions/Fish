@@ -1,4 +1,4 @@
-package net.serlith.fish.util;
+package me.biquaternions.fish.util;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;

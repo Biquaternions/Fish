@@ -1,4 +1,4 @@
-package net.serlith.fish.async.thread;
+package me.biquaternions.fish.async.thread;
 
 import ca.spottedleaf.moonrise.common.util.TickThread;
 import net.minecraft.server.level.ServerLevel;

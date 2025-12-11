@@ -53,7 +53,7 @@ index 094d2d528cb74b8f1d277cd780bba7f438dbe764..ac744cee72a62ef25e112a9dc6ff0848
              String awtException = io.papermc.paper.util.ServerEnvironment.awtDependencyCheck();
              if (awtException != null) {
 diff --git a/net/minecraft/server/gui/MinecraftServerGui.java b/net/minecraft/server/gui/MinecraftServerGui.java
-index f262a7c5ae4e7d56f16f5c0f4f145a2e428abbe4..f102244871fd6e96ad113afe35439467db4222ab 100644
+index f262a7c5ae4e7d56f16f5c0f4f145a2e428abbe4..adec331ad59ded9a88ab1dce088b985b4d1cf823 100644
 --- a/net/minecraft/server/gui/MinecraftServerGui.java
 +++ b/net/minecraft/server/gui/MinecraftServerGui.java
 @@ -79,11 +79,16 @@ public class MinecraftServerGui extends JComponent {
@@ -89,7 +89,7 @@ index f262a7c5ae4e7d56f16f5c0f4f145a2e428abbe4..f102244871fd6e96ad113afe35439467
 +            );
 +            javax.swing.JLabel fishLabel = new javax.swing.JLabel(fishIcon);
 +            jPanel.add(fishLabel, BorderLayout.CENTER);
-+        } catch (net.serlith.fish.exception.FishException betrayal) {
++        } catch (me.biquaternions.fish.exception.FishException betrayal) {
 +            LOGGER.error("Fish has been betrayed.", betrayal);
 +            System.exit(1);
 +        }

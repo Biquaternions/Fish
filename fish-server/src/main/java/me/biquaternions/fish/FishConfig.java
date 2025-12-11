@@ -1,4 +1,4 @@
-package net.serlith.fish;
+package me.biquaternions.fish;
 
 import net.j4c0b3y.api.config.ConfigHandler;
 import net.j4c0b3y.api.config.StaticConfig;

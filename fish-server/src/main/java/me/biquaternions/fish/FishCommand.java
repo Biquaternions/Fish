@@ -1,4 +1,4 @@
-package net.serlith.fish;
+package me.biquaternions.fish;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;

@@ -5,7 +5,7 @@ Subject: [PATCH] Leaf Fix Villager POI Access
 
 
 diff --git a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
-index eefc8f835f8818407612eadf3f2df5730a0bbe97..8e9846efd3caf02285b816e70cc5461721cbb853 100644
+index eefc8f835f8818407612eadf3f2df5730a0bbe97..f06753171d0d216bcf10524b31852fa23f3654af 100644
 --- a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
 +++ b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
 @@ -42,6 +42,22 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
@@ -13,7 +13,7 @@ index eefc8f835f8818407612eadf3f2df5730a0bbe97..8e9846efd3caf02285b816e70cc54617
          Optional<GlobalPos> memory = entity.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
          memory.ifPresent(globalPos -> {
 +            // Leaf start - Fix cross-dimensional POI access
-+            if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
 +                BlockPos blockPos = globalPos.pos();
 +                ServerLevel poiLevel = level.getServer().getLevel(globalPos.dimension());
 +                if (poiLevel != null) {
@@ -40,7 +40,7 @@ index eefc8f835f8818407612eadf3f2df5730a0bbe97..8e9846efd3caf02285b816e70cc54617
          entity.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
      }
 diff --git a/net/minecraft/world/entity/npc/villager/Villager.java b/net/minecraft/world/entity/npc/villager/Villager.java
-index 1c49f834852e8dfcc13da050f9930ce3b131e8f4..f01cbab6945456eac9074c902baf5a4756d368b1 100644
+index 1c49f834852e8dfcc13da050f9930ce3b131e8f4..6e0c01f05ade9f56cc5934fc7bacbbfe6c7690f7 100644
 --- a/net/minecraft/world/entity/npc/villager/Villager.java
 +++ b/net/minecraft/world/entity/npc/villager/Villager.java
 @@ -680,6 +680,18 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
@@ -48,7 +48,7 @@ index 1c49f834852e8dfcc13da050f9930ce3b131e8f4..f01cbab6945456eac9074c902baf5a47
                  ServerLevel level = server.getLevel(pos.dimension());
                  if (level != null) {
 +                    // Leaf start - Fix cross-dimensional POI access
-+                    if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
 +                        level.moonrise$getChunkTaskScheduler().scheduleChunkTask(0, 0, () -> {
 +                            PoiManager poiManager = level.getPoiManager();
 +                            Optional<Holder<PoiType>> type = poiManager.getType(pos.pos());

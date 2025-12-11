@@ -1,7 +1,7 @@
-package net.serlith.fish.async.thread.factory;
+package me.biquaternions.fish.async.thread.factory;
 
 import net.minecraft.server.level.ServerLevel;
-import net.serlith.fish.async.thread.WorldTickThread;
+import me.biquaternions.fish.async.thread.WorldTickThread;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

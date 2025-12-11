@@ -5,14 +5,14 @@ Subject: [PATCH] Leaf Fix Too Many Chained Neighbors
 
 
 diff --git a/io/papermc/paper/redstone/RedstoneWireTurbo.java b/io/papermc/paper/redstone/RedstoneWireTurbo.java
-index ff747a1ecdf3c888bca0d69de4f85dcd810b6139..093188014e652610325564adf756f22c32cd0520 100644
+index ff747a1ecdf3c888bca0d69de4f85dcd810b6139..342d144ce4890210216e3e16784b870fba7c24c3 100644
 --- a/io/papermc/paper/redstone/RedstoneWireTurbo.java
 +++ b/io/papermc/paper/redstone/RedstoneWireTurbo.java
 @@ -829,14 +829,16 @@ public final class RedstoneWireTurbo {
          j = getMaxCurrentStrength(upd, j);
          int l = 0;
  
-+        final int k; if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) k = wire.getBlockSignal(worldIn, upd.self); else {
++        final int k; if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) k = wire.getBlockSignal(worldIn, upd.self); else {
          wire.shouldSignal = false;
          // Unfortunately, World.isBlockIndirectlyGettingPowered is complicated,
          // and I'm not ready to try to replicate even more functionality from
@@ -27,7 +27,7 @@ index ff747a1ecdf3c888bca0d69de4f85dcd810b6139..093188014e652610325564adf756f22c
          // The variable 'k' holds the maximum redstone power value of any adjacent blocks.
          // If 'k' has the highest level of all neighbors, then the power level of this
 diff --git a/net/minecraft/world/level/block/RedStoneWireBlock.java b/net/minecraft/world/level/block/RedStoneWireBlock.java
-index 852e864ed4a7e60aef90a9f96cd36b4b222bfed1..f3134d1cff313825012d8728e9d08d7b2b07662c 100644
+index bd230046a9e9563b42d5d3c55ab49e83a1d65bde..b573ec3097950c6e76cedbc7a17405d8786c2ec7 100644
 --- a/net/minecraft/world/level/block/RedStoneWireBlock.java
 +++ b/net/minecraft/world/level/block/RedStoneWireBlock.java
 @@ -65,6 +65,7 @@ public class RedStoneWireBlock extends Block {
@@ -42,7 +42,7 @@ index 852e864ed4a7e60aef90a9f96cd36b4b222bfed1..f3134d1cff313825012d8728e9d08d7b
      }
  
      public int getBlockSignal(Level level, BlockPos pos) {
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
 +            this.fish$shouldSignalTL.set(false);
 +            int bestNeighborSignal = level.getBestNeighborSignal(pos);
 +            this.fish$shouldSignalTL.set(true);
@@ -55,14 +55,14 @@ index 852e864ed4a7e60aef90a9f96cd36b4b222bfed1..f3134d1cff313825012d8728e9d08d7b
  
      @Override
      protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !this.fish$shouldSignalTL.get() ? 0 : state.getSignal(level, pos, side);
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !this.fish$shouldSignalTL.get() ? 0 : state.getSignal(level, pos, side);
          return !this.shouldSignal ? 0 : state.getSignal(level, pos, side);
      }
  
      @Override
      protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
 -        if (this.shouldSignal && side != Direction.DOWN) {
-+        boolean _shouldSignal = net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? this.fish$shouldSignalTL.get() : this.shouldSignal;
++        boolean _shouldSignal = me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? this.fish$shouldSignalTL.get() : this.shouldSignal;
 +        if (_shouldSignal && side != Direction.DOWN) {
              int powerValue = state.getValue(POWER);
              if (powerValue == 0) {
@@ -78,7 +78,7 @@ index 852e864ed4a7e60aef90a9f96cd36b4b222bfed1..f3134d1cff313825012d8728e9d08d7b
  
      @Override
      protected boolean isSignalSource(BlockState state) {
-+        if (net.serlith.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return this.fish$shouldSignalTL.get();
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return this.fish$shouldSignalTL.get();
          return this.shouldSignal;
      }
  

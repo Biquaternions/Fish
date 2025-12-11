@@ -1,4 +1,4 @@
-package net.serlith.fish.exception;
+package me.biquaternions.fish.exception;
 
 public class FishException extends RuntimeException {
 
