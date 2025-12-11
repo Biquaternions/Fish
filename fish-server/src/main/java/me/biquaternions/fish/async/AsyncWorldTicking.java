@@ -12,7 +12,7 @@ import me.biquaternions.fish.FishConfig;
 import me.biquaternions.fish.util.CallableWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -110,7 +110,7 @@ public class AsyncWorldTicking {
         level.fish$msptData5s = null;
     }
 
-    public static @Nullable TickData.MSPTData getMSPTData5s(final ServerLevel level) {
+    public static TickData.@Nullable MSPTData getMSPTData5s(final ServerLevel level) {
         synchronized (level.fish$statsLock) {
             if (level.fish$msptData5s == null) {
                 level.fish$msptData5s = level.fish$tickTimes5s.getMSPTData(null, TICK_RATE_MANAGER.nanosecondsPerTick());
