@@ -428,7 +428,7 @@ index 23e9e5e7ef76fe3d6e1bbc41faf69ee65ca77d80..6de78fca4865386ad68bfe2a56561de1
                      org.bukkit.Location location = org.bukkit.craftbukkit.util.CraftLocation.toBukkit(pos, level);
                      java.util.List<org.bukkit.block.BlockState> blocks = new java.util.ArrayList<>(level.capturedBlockStates.values());
 diff --git a/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java b/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
-index edf3bc4adc9b1700b73f06ea940f17cd55b16860..c8369241ca621ea3a1524e8ceb03b8a64e2bd2f9 100644
+index edf3bc4adc9b1700b73f06ea940f17cd55b16860..932f8234408f8b7f719c739943fa5fbdf6b49499 100644
 --- a/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
 @@ -66,6 +66,11 @@ public abstract class BaseContainerBlockEntity extends BlockEntity implements Co
@@ -436,8 +436,8 @@ index edf3bc4adc9b1700b73f06ea940f17cd55b16860..c8369241ca621ea3a1524e8ceb03b8a6
  
      public boolean canOpen(Player player) {
 +        // SparklyPaper start - parallel world ticking (see: PARALLEL_NOTES.md - Opening an inventory after a world switch)
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && blockEntity != null && blockEntity.getLevel() != serverPlayer.level()) {
-+            net.minecraft.server.MinecraftServer.LOGGER.warn("Player " + serverPlayer.getScoreboardName() + " (" + serverPlayer.getStringUUID() + ") attempted to open a BlockEntity @ " + blockEntity.getLevel().getWorld().getName() + " " + blockEntity.getBlockPos().getX() + ", " + blockEntity.getBlockPos().getY() + ", " + blockEntity.getBlockPos().getZ() + " while they were in a different world " + serverPlayer.level().getWorld().getName() + " than the block themselves!");
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && this.getLevel() != serverPlayer.level()) {
++            net.minecraft.server.MinecraftServer.LOGGER.warn("Player " + serverPlayer.getScoreboardName() + " (" + serverPlayer.getUUID() + ") attempted to open a BlockEntity @ " + this.getLevel().getWorld().getName() + " " + this.getBlockPos().getX() + ", " + this.getBlockPos().getY() + ", " + this.getBlockPos().getZ() + " while they were in a different world " + serverPlayer.level().getWorld().getName() + " than the block themselves!");
 +            return false;
 +        } // SparklyPaper end - parallel world ticking (see: PARALLEL_NOTES.md - Opening an inventory after a world switch)
          return org.bukkit.craftbukkit.event.CraftEventFactory.callBlockLockCheckEvent(this, this.lockKey, this.getDisplayName(), player); // Paper - Call BlockLockCheckEvent

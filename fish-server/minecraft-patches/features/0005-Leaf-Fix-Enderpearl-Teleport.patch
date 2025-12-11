@@ -5,7 +5,7 @@ Subject: [PATCH] Leaf Fix Enderpearl Teleport
 
 
 diff --git a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
-index 66df6c69a95c5ca6b07294fdb3b13eee6651d22d..e8f254d9d0f8cce43ea3bd8907a5fa60cf992edf 100644
+index 66df6c69a95c5ca6b07294fdb3b13eee6651d22d..5b3219e7cc3a069de9aefb0a1183f755234b16c9 100644
 --- a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
 +++ b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
 @@ -102,6 +102,33 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
@@ -20,7 +20,7 @@ index 66df6c69a95c5ca6b07294fdb3b13eee6651d22d..e8f254d9d0f8cce43ea3bd8907a5fa60
 +                                    this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.HIT);
 +                                    return;
 +                                }
-+                                if (this.random.nextFloat() < 0.05F && serverLevel.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
++                                if (this.random.nextFloat() < 0.05F && serverLevel.getGameRules().get(GameRules.SPAWN_MOBS)) {
 +                                    Endermite endermite = EntityType.ENDERMITE.create(serverLevel, EntitySpawnReason.TRIGGERED);
 +                                    if (endermite != null) {
 +                                        endermite.snapTo(owner.getX(), owner.getY(), owner.getZ(), owner.getYRot(), owner.getXRot());
