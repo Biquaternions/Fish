@@ -1,4 +1,4 @@
-name: Build 1.21.10
+name: Build 1.21.11
 on:
   workflow_dispatch:
   pull_request:
@@ -52,17 +52,17 @@ jobs:
       - name: Upload Fish
         uses: actions/upload-artifact@main
         with:
-          name: Fish 1.21.10
-          path: ./fish-server/build/libs/fish-paperclip-1.21.10-R0.1-SNAPSHOT-mojmap.jar
+          name: Fish 1.21.11
+          path: ./fish-server/build/libs/fish-paperclip-1.21.11-R0.1-SNAPSHOT-mojmap.jar
 
       - name: Release Fish
         uses: softprops/action-gh-release@master
         with:
-          name: "🐟 Fish 1.21.10 (Build ${{ env.BUILD_NUMBER }})"
-          tag_name: "ver-1.21.10"
+          name: "🐟 Fish 1.21.11 (Build ${{ env.BUILD_NUMBER }})"
+          tag_name: "ver-1.21.11"
           files: |
-            ./fish-server/build/libs/fish-paperclip-1.21.10-R0.1-SNAPSHOT-mojmap.jar
-            ./fish-api/build/libs/fish-api-1.21.10-R0.1-SNAPSHOT.jar
+            ./fish-server/build/libs/fish-paperclip-1.21.11-R0.1-SNAPSHOT-mojmap.jar
+            ./fish-api/build/libs/fish-api-1.21.11-R0.1-SNAPSHOT.jar
           body_path: "./RELEASE.md"
           token: "${{ secrets.GITHUB_TOKEN }}"
           target_commitish: "${{ github.sha }}"

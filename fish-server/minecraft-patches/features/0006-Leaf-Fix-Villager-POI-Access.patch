@@ -5,7 +5,7 @@ Subject: [PATCH] Leaf Fix Villager POI Access
 
 
 diff --git a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
-index 6adf1b2250234ede6e6f498ed0990ab523f09b8e..7f01d7c7d5e930ade3a60d56288a2355cff922cf 100644
+index eefc8f835f8818407612eadf3f2df5730a0bbe97..8e9846efd3caf02285b816e70cc5461721cbb853 100644
 --- a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
 +++ b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
 @@ -42,6 +42,22 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
@@ -39,11 +39,11 @@ index 6adf1b2250234ede6e6f498ed0990ab523f09b8e..7f01d7c7d5e930ade3a60d56288a2355
          });
          entity.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
      }
-diff --git a/net/minecraft/world/entity/npc/Villager.java b/net/minecraft/world/entity/npc/Villager.java
-index c12831524045bf6331c2020e2c924deac936dea9..364f3251d15eea045b29e03a059438f40e9c9d8f 100644
---- a/net/minecraft/world/entity/npc/Villager.java
-+++ b/net/minecraft/world/entity/npc/Villager.java
-@@ -686,6 +686,18 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+diff --git a/net/minecraft/world/entity/npc/villager/Villager.java b/net/minecraft/world/entity/npc/villager/Villager.java
+index 1c49f834852e8dfcc13da050f9930ce3b131e8f4..f01cbab6945456eac9074c902baf5a4756d368b1 100644
+--- a/net/minecraft/world/entity/npc/villager/Villager.java
++++ b/net/minecraft/world/entity/npc/villager/Villager.java
+@@ -680,6 +680,18 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
              this.brain.getMemory(moduleType).ifPresent(pos -> {
                  ServerLevel level = server.getLevel(pos.dimension());
                  if (level != null) {
@@ -62,7 +62,7 @@ index c12831524045bf6331c2020e2c924deac936dea9..364f3251d15eea045b29e03a059438f4
                      PoiManager poiManager = level.getPoiManager();
                      Optional<Holder<PoiType>> type = poiManager.getType(pos.pos());
                      BiPredicate<Villager, Holder<PoiType>> biPredicate = POI_MEMORIES.get(moduleType);
-@@ -693,6 +705,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+@@ -687,6 +699,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
                          poiManager.release(pos.pos());
                          level.debugSynchronizers().updatePoi(pos.pos());
                      }

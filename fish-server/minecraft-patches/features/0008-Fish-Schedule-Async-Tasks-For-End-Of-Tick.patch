@@ -11,10 +11,10 @@ If the world is about to tick, but the async "request" is not done yet, the worl
 This scheduling logic is very performant as long as none of the plugins is spamming world/block requests.
 
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 376fb7f8150bb706f13fa5159282036663ac7409..16a6797e7e5bb731553d6766bd1aa10e69af1fbc 100644
+index 6a871948798cd06b7b7bce08e761dfd7ee81d216..37675914a28b907c52344ec67f65b38133af82fe 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -223,6 +223,8 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -229,6 +229,8 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
      public boolean hasPhysicsEvent = true; // Paper - BlockPhysicsEvent
      public boolean hasEntityMoveEvent; // Paper - Add EntityMoveEvent
      private final alternate.current.wire.WireHandler wireHandler = new alternate.current.wire.WireHandler(this); // Paper - optimize redstone (Alternate Current)

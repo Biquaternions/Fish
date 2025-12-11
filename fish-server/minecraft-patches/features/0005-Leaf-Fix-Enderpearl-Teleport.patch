@@ -4,11 +4,11 @@ Date: Sat, 2 Aug 2025 20:35:47 -0500
 Subject: [PATCH] Leaf Fix Enderpearl Teleport
 
 
-diff --git a/net/minecraft/world/entity/projectile/ThrownEnderpearl.java b/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
-index 283b1c92a2aa87db77aea0fe5bf38eb5ba0f5cee..cde505149f8181022eb163743bfa6597b19fa756 100644
---- a/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
-+++ b/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
-@@ -104,6 +104,33 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
+diff --git a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
+index 66df6c69a95c5ca6b07294fdb3b13eee6651d22d..db2a08647043917a4a9c6fb790c4bff20bdc8551 100644
+--- a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
++++ b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
+@@ -102,6 +102,33 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                  Vec3 vec3 = this.oldPosition();
                  if (owner instanceof ServerPlayer serverPlayer) {
                      if (serverPlayer.connection.isAcceptingMessages()) {
@@ -42,7 +42,7 @@ index 283b1c92a2aa87db77aea0fe5bf38eb5ba0f5cee..cde505149f8181022eb163743bfa6597
                          // CraftBukkit start
                          // Store pre teleportation position as the teleport has been moved up.
                          final double preTeleportX = serverPlayer.getX(), preTeleportY = serverPlayer.getY(), preTeleportZ = serverPlayer.getZ();
-@@ -140,6 +167,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
+@@ -138,6 +165,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                          }
  
                          this.playSound(serverLevel, vec3);

@@ -27,10 +27,10 @@ index ff747a1ecdf3c888bca0d69de4f85dcd810b6139..093188014e652610325564adf756f22c
          // The variable 'k' holds the maximum redstone power value of any adjacent blocks.
          // If 'k' has the highest level of all neighbors, then the power level of this
 diff --git a/net/minecraft/world/level/block/RedStoneWireBlock.java b/net/minecraft/world/level/block/RedStoneWireBlock.java
-index 6c3c78dc3d12979d629e0534ed1b68732179779f..20d7b47b9cab8008efe283c104e89f6bc3fb5a35 100644
+index 852e864ed4a7e60aef90a9f96cd36b4b222bfed1..f3134d1cff313825012d8728e9d08d7b2b07662c 100644
 --- a/net/minecraft/world/level/block/RedStoneWireBlock.java
 +++ b/net/minecraft/world/level/block/RedStoneWireBlock.java
-@@ -66,6 +66,7 @@ public class RedStoneWireBlock extends Block {
+@@ -65,6 +65,7 @@ public class RedStoneWireBlock extends Block {
      private final BlockState crossState;
      private final RedstoneWireEvaluator evaluator = new DefaultRedstoneWireEvaluator(this);
      public boolean shouldSignal = true;
@@ -38,7 +38,7 @@ index 6c3c78dc3d12979d629e0534ed1b68732179779f..20d7b47b9cab8008efe283c104e89f6b
  
      @Override
      public MapCodec<RedStoneWireBlock> codec() {
-@@ -330,6 +331,12 @@ public class RedStoneWireBlock extends Block {
+@@ -329,6 +330,12 @@ public class RedStoneWireBlock extends Block {
      }
  
      public int getBlockSignal(Level level, BlockPos pos) {
@@ -51,7 +51,7 @@ index 6c3c78dc3d12979d629e0534ed1b68732179779f..20d7b47b9cab8008efe283c104e89f6b
          this.shouldSignal = false;
          int bestNeighborSignal = level.getBestNeighborSignal(pos);
          this.shouldSignal = true;
-@@ -424,18 +431,20 @@ public class RedStoneWireBlock extends Block {
+@@ -423,18 +430,20 @@ public class RedStoneWireBlock extends Block {
  
      @Override
      protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
@@ -74,7 +74,7 @@ index 6c3c78dc3d12979d629e0534ed1b68732179779f..20d7b47b9cab8008efe283c104e89f6b
                      ? 0
                      : powerValue;
              }
-@@ -461,6 +470,7 @@ public class RedStoneWireBlock extends Block {
+@@ -460,6 +469,7 @@ public class RedStoneWireBlock extends Block {
  
      @Override
      protected boolean isSignalSource(BlockState state) {

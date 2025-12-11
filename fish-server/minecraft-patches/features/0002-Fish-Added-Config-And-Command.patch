@@ -5,10 +5,10 @@ Subject: [PATCH] Fish Added Config And Command
 
 
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index 4a063946a3c72c16085a4db00ddd46d156c83a16..af8d7028c75fd3bcb1fa3a363b9912493578409d 100644
+index ac744cee72a62ef25e112a9dc6ff08489f0b373f..b677227c967d64fef84d297f1a3237364c2a8304 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
-@@ -107,6 +107,7 @@ public class Main {
+@@ -105,6 +105,7 @@ public class Main {
                  JvmProfiler.INSTANCE.start(Environment.SERVER);
              }
  
@@ -17,22 +17,22 @@ index 4a063946a3c72c16085a4db00ddd46d156c83a16..af8d7028c75fd3bcb1fa3a363b991249
              Bootstrap.bootStrap();
              Bootstrap.validate();
 diff --git a/net/minecraft/server/ReloadableServerResources.java b/net/minecraft/server/ReloadableServerResources.java
-index 0265fee09afd7cded53fb606a1333974537831af..fe73f46e56e7d0545f19040d76444e391095b096 100644
+index fcc1c2ca594f543a91e59c680c1892cdddacca36..2e03a35c1d7e8315eb6047d4e0a6ec218e565c94 100644
 --- a/net/minecraft/server/ReloadableServerResources.java
 +++ b/net/minecraft/server/ReloadableServerResources.java
-@@ -43,6 +43,7 @@ public class ReloadableServerResources {
+@@ -44,6 +44,7 @@ public class ReloadableServerResources {
          io.papermc.paper.command.PaperCommands.registerCommands(); // Paper
          gg.pufferfish.pufferfish.PufferfishCommand.init(); // Pufferfish - Config and command
          gg.pufferfish.pufferfish.flare.FlareCommand.init(); // Pufferfish - Config and command
 +        net.serlith.fish.FishCommand.init(); // Fish - Config and command
          this.advancements = new ServerAdvancementManager(registries);
-         this.functionLibrary = new ServerFunctionLibrary(functionCompilationLevel, this.commands.getDispatcher());
+         this.functionLibrary = new ServerFunctionLibrary(permissions, this.commands.getDispatcher());
      }
 diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
-index a7c9119bb2d92b9524c1d45927091c59709179af..526d4a6ce03b02c2a409dcd4429ff91236563b7b 100644
+index d3dc03775c08b252fb88a20c94fad91eacf9a032..e2c370c86172d23b80b45330a08977f7660f7162 100644
 --- a/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -278,6 +278,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -275,6 +275,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
          com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics(); // Paper - start metrics
          com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
          new gg.pufferfish.pufferfish.PufferfishConfig().load(); // Pufferfish - Config and command

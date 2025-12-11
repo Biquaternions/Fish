@@ -13,10 +13,10 @@ With this approach only new methods are added into already existing Bukkit API, 
   get standarized.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 34d74014fd042f6eeafafadb6237a838b1ddd47c..78f28a1433b7c4eb9ee52731b0a1ee88fa8dbdea 100644
+index b2961752b50e98d95adf3af4f658e2fdb2127d43..55639cfdb52b3bc8dfc105c95c56056816625bbb 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -2962,4 +2962,11 @@ public final class CraftServer implements Server {
+@@ -2964,4 +2964,11 @@ public final class CraftServer implements Server {
      public void allowPausing(final Plugin plugin, final boolean value) {
          this.console.addPluginAllowingSleep(plugin.getName(), value);
      }
@@ -29,10 +29,10 @@ index 34d74014fd042f6eeafafadb6237a838b1ddd47c..78f28a1433b7c4eb9ee52731b0a1ee88
 +    // Fish end - Parallel World Ticking API
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 1d003acbb659ad2261c248d49eef547a125f1176..91654774100402b8dc5dd3f1e23c9d458179a909 100644
+index ecbb2bdab3c6645479e198b1deedc83570ff5a35..99d63bad890a00f445bdd765b00e3aaa85d5b085 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -2088,4 +2088,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2064,4 +2064,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          return POINTERS_SUPPLIER.view(this);
      }
      // Paper end

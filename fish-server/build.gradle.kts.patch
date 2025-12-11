@@ -3,13 +3,13 @@
 @@ -15,7 +_,7 @@
  
  dependencies {
-     mache("io.papermc:mache:1.21.10+build.9")
+     mache("io.papermc:mache:1.21.11+build.1")
 -    paperclip("io.papermc:paperclip:3.0.3")
 +    paperclip("me.biquaternions:Fishclip:1.1")
-     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
  }
  
-@@ -32,9 +_,26 @@
+ paperweight {
+@@ -31,9 +_,26 @@
              outputDir = rootDirectory.dir("paper-server")
          }
      }
@@ -35,7 +35,7 @@
 +    // Fish end - Rebrand
 +
      spigot {
-         enabled = true
+         enabled = false
          buildDataRef = "42d18d4c4653ffc549778dbe223f6994a031d69e"
 @@ -121,10 +_,18 @@
      main {
@@ -65,7 +65,7 @@
      implementation("ca.spottedleaf:concurrentutil:0.0.7")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -226,14 +_,14 @@
+@@ -227,14 +_,14 @@
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",

@@ -5,7 +5,7 @@ Subject: [PATCH] Fish Rebrand
 
 
 diff --git a/net/minecraft/CrashReport.java b/net/minecraft/CrashReport.java
-index 606c8f4a47f3ea2dc223c2bc3cab543bc389f4ea..e025dbdb857841d65f3cbc047e8e8f9dfb442f11 100644
+index 355a5e04afe3a1f685bc5fab7e6161e01a7c69c5..9cb5b8219dd8348ca3a5156e4a46d520dfd4b6c0 100644
 --- a/net/minecraft/CrashReport.java
 +++ b/net/minecraft/CrashReport.java
 @@ -30,7 +30,7 @@ public class CrashReport {
@@ -31,10 +31,10 @@ index 1f0413214f54e9a47f53c623484d6882c85f54c9..f806ec570f25d7c36eaad5f94dbee90e
                  LOGGER.warn("Failed to save {}", this.file, var6);
              }
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index 8d299a75c80fddc61a2aa4dc5b0dc5948aef5a0d..4a063946a3c72c16085a4db00ddd46d156c83a16 100644
+index 094d2d528cb74b8f1d277cd780bba7f438dbe764..ac744cee72a62ef25e112a9dc6ff08489f0b373f 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
-@@ -152,6 +152,17 @@ public class Main {
+@@ -150,6 +150,17 @@ public class Main {
                  return;
              }
  
@@ -103,7 +103,7 @@ index f262a7c5ae4e7d56f16f5c0f4f145a2e428abbe4..f102244871fd6e96ad113afe35439467
          JPanel jPanel = new JPanel(new BorderLayout());
          JTextArea jTextArea = new JTextArea();
 diff --git a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
-index a424a9a8ca3a788ed1cbc07bf54597df889fcd7e..e5b64206f034a35ec0c3fb31ede416dd23b8e313 100644
+index 2b0b3b25ac28972e4852f9fbc465f5dba4a68358..af20d272ef82d79ac36bf1bea7e421ca641262c0 100644
 --- a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 @@ -309,7 +309,7 @@ public class RegionFileStorage implements AutoCloseable, ca.spottedleaf.moonrise

@@ -7,10 +7,10 @@ Used this snippet from Leaf's version as a reference to fix:
 https://github.com/Winds-Studio/Leaf/blob/3268a57db808ad2a371cb28c5fea4cb2edc2e426/leaf-server/minecraft-patches/features/0210-SparklyPaper-Parallel-world-ticking.patch#L851
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 46400375998b8023c94712d32f5f3c532cfce65d..82ae5c89329bb505addbeaa054d3e4148f397933 100644
+index 121c146c74c4df049b4338de98994e56019504bf..a53d9956c8ff2d91866f22989d1907505d13579d 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -841,7 +841,6 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -846,7 +846,6 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
@@ -18,7 +18,7 @@ index 46400375998b8023c94712d32f5f3c532cfce65d..82ae5c89329bb505addbeaa054d3e414
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
-@@ -3474,6 +3473,30 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -3495,6 +3494,30 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
                      ProfilerFiller profilerFiller = Profiler.get();
                      profilerFiller.push("portal");
                      this.setPortalCooldown();
@@ -50,7 +50,7 @@ index 46400375998b8023c94712d32f5f3c532cfce65d..82ae5c89329bb505addbeaa054d3e414
                      if (portalDestination != null) {
                          ServerLevel level = portalDestination.newLevel();
 diff --git a/net/minecraft/world/entity/PortalProcessor.java b/net/minecraft/world/entity/PortalProcessor.java
-index 88b07fbb96b20124777889830afa480673629d43..858de3d9c79b01e2a2aeba264326f44ae6aac4f2 100644
+index 4e69e32ad000b8c02e44c3ffce24ff5e3c090a2f..71516e74b528ba7401e5581c85e0b45d3bc78114 100644
 --- a/net/minecraft/world/entity/PortalProcessor.java
 +++ b/net/minecraft/world/entity/PortalProcessor.java
 @@ -19,6 +19,7 @@ public class PortalProcessor {
@@ -61,7 +61,7 @@ index 88b07fbb96b20124777889830afa480673629d43..858de3d9c79b01e2a2aeba264326f44a
          if (!this.insidePortalThisTick) {
              this.decayTick();
              return false;
-@@ -42,6 +43,7 @@ public class PortalProcessor {
+@@ -41,6 +42,7 @@ public class PortalProcessor {
      }
  
      public boolean hasExpired() {
@@ -69,7 +69,7 @@ index 88b07fbb96b20124777889830afa480673629d43..858de3d9c79b01e2a2aeba264326f44a
          return this.portalTime <= 0;
      }
  
-@@ -68,4 +70,15 @@ public class PortalProcessor {
+@@ -67,4 +69,15 @@ public class PortalProcessor {
      public boolean isSamePortal(Portal portal) {
          return this.portal == portal;
      }
