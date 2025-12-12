@@ -61,7 +61,7 @@
  
  dependencies {
 -    implementation(project(":pufferfish-api")) // Pufferfish
-+    implementation(project(":fish-api")) // Pufferfish
++    implementation(project(":fish-api")) // Pufferfish // Fish
      implementation("ca.spottedleaf:concurrentutil:0.0.7")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
@@ -80,7 +80,7 @@
 -            "Brand-Id" to "pufferfish:pufferfish", // Pufferfish
 -            "Brand-Name" to "Pufferfish", // Pufferfish
 +            "Specification-Vendor" to "Biquaternions", // Pufferfish // Fish
-+            "Brand-Id" to "serlith:fish", // Pufferfish // Fish
++            "Brand-Id" to "biquaternions:fish", // Pufferfish // Fish
 +            "Brand-Name" to "Fish", // Pufferfish // Fish
              "Build-Number" to (build ?: ""),
              "Build-Time" to buildTime.toString(),
