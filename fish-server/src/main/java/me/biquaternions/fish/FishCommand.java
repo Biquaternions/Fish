@@ -51,7 +51,7 @@ public class FishCommand {
             )
             .build();
 
-        PaperCommands.INSTANCE.registerWithFlagsInternal(null, "serlith", "fish", command, "Fish related commands", List.of(), Set.of());
+        PaperCommands.INSTANCE.registerWithFlagsInternal(null, "biquaternions", "fish", command, "Fish related commands", List.of(), Set.of());
     }
 
 }
