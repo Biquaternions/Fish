@@ -82,7 +82,7 @@ index 328d62997706cb05736f0244ef4862d29f33bdf8..e00fc6da02a9718b48af0a9cc88bef82
                  continue;
              }
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index a9fcc5cbcbe445dcb0ef14b5e2426ffb3efe005b..3d335f6e1c33d652f7e08b94d84849bb921bb07e 100644
+index a9fcc5cbcbe445dcb0ef14b5e2426ffb3efe005b..44f2448961a4a060ce6e1fec282b689d63769636 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -194,7 +194,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
@@ -112,7 +112,7 @@ index a9fcc5cbcbe445dcb0ef14b5e2426ffb3efe005b..3d335f6e1c33d652f7e08b94d84849bb
 +    public final ca.spottedleaf.moonrise.common.time.TickData fish$tickTimes10s = new ca.spottedleaf.moonrise.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(10L));
 +    public final ca.spottedleaf.moonrise.common.time.TickData fish$tickTimes60s = new ca.spottedleaf.moonrise.common.time.TickData(java.util.concurrent.TimeUnit.MINUTES.toNanos(1L));
 +    public final ca.spottedleaf.moonrise.common.time.Schedule fish$tickSchedule = new ca.spottedleaf.moonrise.common.time.Schedule(0L);
-+    public long fish$lastTickStart = ca.spottedleaf.concurrentutil.scheduler.SchedulerThreadPool.DEADLINE_NOT_SET;
++    public long fish$lastTickStart = ca.spottedleaf.concurrentutil.util.TimeUtil.DEADLINE_NOT_SET;
 +    public long fish$currentTickStart;
 +    public long fish$scheduledTickStart;
 +    public long fish$taskExecutionTime;
