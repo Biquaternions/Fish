@@ -4,6 +4,43 @@ Date: Sat, 9 Aug 2025 17:35:49 -0500
 Subject: [PATCH] Fish Rebrand
 
 
+diff --git a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
+index 4b3b93dfa9430d25677c150c902b4bc615bde73d..0c548bdba1eda8220e64d5bae7127f6fd7e72159 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
++++ b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
+@@ -31,11 +31,11 @@ import static net.minecraft.server.MinecraftServer.COMPONENT_LOGGER;
+ 
+ public class PufferfishVersionFetcher extends PaperVersionFetcher {
+ 
+-    private static final Logger LOGGER = LoggerFactory.getLogger(PufferfishVersionFetcher.class.getSimpleName());
++    private static final Logger LOGGER = LoggerFactory.getLogger("FishVersionFetcher"); // Fish - Rebrand
+     private static final long CACHE_TIME = TimeUnit.MINUTES.toMillis(30);
+ 
+-    private static final String REPOSITORY = "SerlithNetwork/Puffernot";
+-    private static final String DOWNLOAD_PAGE = "https://github.com/SerlithNetwork/Puffernot/releases";
++    private static final String REPOSITORY = "Biquaternions/Fish"; // Fish - Rebrand
++    private static final String DOWNLOAD_PAGE = "https://github.com/Biquaternions/Fish/releases"; // Fish - Rebrand
+ 
+     private static final int DISTANCE_ERROR = -1;
+     private static final int DISTANCE_UNKNOWN = -2;
+@@ -92,7 +92,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
+ 
+     private static int fetchDistanceFromSiteApi(final int actionsBuild) {
+         try {
+-            final URL buildsUrl = URI.create("https://version.serlith.net/projects/pufferfish/" + PufferfishVersionFetcher.BUILD_INFO.minecraftVersionId() + "/latest").toURL();
++            final URL buildsUrl = URI.create("https://version.serlith.net/projects/fish/" + PufferfishVersionFetcher.BUILD_INFO.minecraftVersionId() + "/latest").toURL(); // Fish - Rebrand
+             final HttpURLConnection connection = (HttpURLConnection) buildsUrl.openConnection();
+             connection.setConnectTimeout(5000);
+             connection.setReadTimeout(5000);
+@@ -103,7 +103,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
+                 final int latest = json.getAsInt();
+                 return Math.max(latest - actionsBuild, 0);
+             } catch (final JsonSyntaxException ex) {
+-                LOGGER.error("Error parsing json from Pufferfish's downloads API", ex);
++                LOGGER.error("Error parsing json from Fish's downloads API", ex); // Fish - Rebrand
+                 return DISTANCE_ERROR;
+             } catch (final SocketTimeoutException ex) {
+                 return 0;
 diff --git a/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java b/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
 index d9e03f2d5c26e3759311925a5d2e6d3a5d823752..b2be8ec19d455b5d026c90a7ac77a0a0e591d784 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
@@ -18,3 +55,15 @@ index d9e03f2d5c26e3759311925a5d2e6d3a5d823752..b2be8ec19d455b5d026c90a7ac77a0a0
      };
  
      private static final String[] hiddenConfigEntries = new String[]{
+diff --git a/src/main/java/gg/pufferfish/pufferfish/flare/PluginLookup.java b/src/main/java/gg/pufferfish/pufferfish/flare/PluginLookup.java
+index 3acffffcb5c63ca0a63691c52808369e85494eed..522550f1de17d47924aa5ada71bc169186f51156 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/flare/PluginLookup.java
++++ b/src/main/java/gg/pufferfish/pufferfish/flare/PluginLookup.java
+@@ -33,6 +33,7 @@ public class PluginLookup {
+             || name.startsWith("ca.spottedleaf.") || name.startsWith("com.sun.") || name.startsWith("org.jline.") || name.startsWith("org.bukkit.")
+             || name.startsWith("org.spigotmc.") || name.startsWith("com.destroystokyo.paper") || name.startsWith("co.aikar.")
+             || name.startsWith("io.netty.") || name.startsWith("com.velocitypowered.")
++            || name.startsWith("me.biquaternions.fish.") // Fish - Ignore self packages
+         ) {
+             return Optional.empty();
+         }

@@ -11,10 +11,10 @@ If the world is about to tick, but the async "request" is not done yet, the worl
 This scheduling logic is very performant as long as none of the plugins is spamming world/block requests.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 17ca63f0269d85644a217cfd500d9d2d67a975ae..1ec9d43b5f017736a8d0fd287ded25128db8c7ca 100644
+index 6ace66909fd2174dbfa7bd12011cbb13e5ae9ac9..d5ca3cedad5eaae18129971532e8b886fc5d8a20 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -487,7 +487,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -475,7 +475,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean refreshChunk(int x, int z) {
@@ -26,7 +26,7 @@ index 17ca63f0269d85644a217cfd500d9d2d67a975ae..1ec9d43b5f017736a8d0fd287ded2512
          ChunkHolder playerChunk = this.world.getChunkSource().chunkMap.getVisibleChunkIfPresent(ChunkPos.asLong(x, z));
          if (playerChunk == null) return false;
  
-@@ -751,7 +754,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -739,7 +742,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean generateTree(Location loc, TreeType type, BlockChangeDelegate delegate) {
@@ -38,7 +38,7 @@ index 17ca63f0269d85644a217cfd500d9d2d67a975ae..1ec9d43b5f017736a8d0fd287ded2512
          this.world.captureTreeGeneration = true;
          this.world.captureBlockStates = true;
          boolean grownTree = this.generateTree(loc, type);
-@@ -853,7 +859,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -841,7 +847,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      private boolean createExplosion(double x, double y, double z, float power, boolean setFire, boolean breakBlocks, Entity source, Consumer<net.minecraft.world.level.ServerExplosion> configurator) {
          // Paper end - expand explosion API
@@ -50,7 +50,7 @@ index 17ca63f0269d85644a217cfd500d9d2d67a975ae..1ec9d43b5f017736a8d0fd287ded2512
          net.minecraft.world.level.Level.ExplosionInteraction explosionType;
          if (!breakBlocks) {
              explosionType = net.minecraft.world.level.Level.ExplosionInteraction.NONE; // Don't break blocks
-@@ -910,7 +919,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -900,7 +909,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public int getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
@@ -59,7 +59,7 @@ index 17ca63f0269d85644a217cfd500d9d2d67a975ae..1ec9d43b5f017736a8d0fd287ded2512
          warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
          // Transient load for this tick
          return this.world.getChunk(x >> 4, z >> 4).getHeight(CraftHeightMap.toNMS(heightMap), x, z);
-@@ -925,8 +934,11 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -915,8 +924,11 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> bb) {
@@ -72,7 +72,7 @@ index 17ca63f0269d85644a217cfd500d9d2d67a975ae..1ec9d43b5f017736a8d0fd287ded2512
          if (this.world.hasChunkAt(pos)) {
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
-@@ -1884,7 +1896,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1879,7 +1891,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void sendGameEvent(Entity sourceEntity, org.bukkit.GameEvent gameEvent, Vector position) {
@@ -245,10 +245,10 @@ index 72571389f6decba33c8f85f6d6a937e5af77152f..2fcb7c34189833b43a10ec66d0cfd3fa
          net.minecraft.world.item.ItemStack nms = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(item);
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index d20735dbd18a7a7836c3834e366f39619775601d..0ed486bc9a629624677a964b54e27efb33e1b7fe 100644
+index d86ebc4cd182076629eb8000267d7b1a38a06be1..021abbec1ebd6e6aab558de811304083d6a6f9b5 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3025,6 +3025,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+@@ -3028,6 +3028,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
  
          @Override
          public void respawn() {
@@ -258,12 +258,12 @@ index d20735dbd18a7a7836c3834e366f39619775601d..0ed486bc9a629624677a964b54e27efb
 +        private void fish$respawn() {
              if (CraftPlayer.this.getHealth() <= 0 && CraftPlayer.this.isOnline()) {
                  CraftPlayer.this.server.getServer().getPlayerList().respawn(CraftPlayer.this.getHandle(), false, Entity.RemovalReason.KILLED, org.bukkit.event.player.PlayerRespawnEvent.RespawnReason.PLUGIN);
-             }
+                 CraftPlayer.this.getHandle().connection.restartClientLoadTimerAfterRespawn();
 diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
-index 553778b3a4ff09f8c5ddf4b5ec010291de79e6a2..ee19026178252b6d37c80a48347f5df5cbb350b3 100644
+index 6058d219f31c16d7037040d5a1e84552d38a79de..67c67bfad3e1c2b268c1eac41e3f2a65abd31bf9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
-@@ -235,6 +235,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+@@ -236,6 +236,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
      @Override
      public void addEntry(String entry) {
          Preconditions.checkArgument(entry != null, "Entry cannot be null");
@@ -274,7 +274,7 @@ index 553778b3a4ff09f8c5ddf4b5ec010291de79e6a2..ee19026178252b6d37c80a48347f5df5
          this.checkState();
  
          this.getScoreboard().getHandle().addPlayerToTeam(entry, this.team);
-@@ -262,6 +266,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+@@ -264,6 +268,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
      @Override
      public boolean removeEntry(String entry) {
          Preconditions.checkArgument(entry != null, "Entry cannot be null");

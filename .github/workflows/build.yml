@@ -68,3 +68,11 @@ jobs:
           target_commitish: "${{ github.sha }}"
           draft: false
           prerelease: false
+
+      - name: Publish Fish Version
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: https://version.serlith.net/submit
+          method: 'POST'
+          customHeaders: '{"Content-Type": "application/json", "Authorization": "${{ secrets.VERSION_TOKEN }}", "Server-Software": "Fish"}'
+          data: '{ "software": "Fish", "version": "1.21.11", "build": ${{ env.BUILD_NUMBER }} }'
