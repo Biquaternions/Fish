@@ -50,7 +50,7 @@ index bfefb5031544caa59230f0073e8880c2b39ebf4d..d3d8b22e52bfbe1637abec695492119b
                      org.bukkit.Location location = org.bukkit.craftbukkit.util.CraftLocation.toBukkit(blockPos, level);
                      List<org.bukkit.block.BlockState> states = new java.util.ArrayList<>(level.capturedBlockStates.values());
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 482ea05c249a4fe14e2fcd2d23085eaebe8bce68..bfbadac2afaa9ceacaff3aa1cdbc8ffe37e2ccfa 100644
+index c16b2e559fa5619175357ebf00c5034a61a48b58..4bfa4fabf8a5c77945a6bd7296f2358bd56cfb77 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -1807,6 +1807,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -206,7 +206,7 @@ index 79c804245c7f41a5a7f062e1c5e01760adde7d84..f0497240f292f034dd6024962bca39d3
                  this.containerMenu = abstractContainerMenu; // Moved up
                  if (!this.isImmobile())
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index 989ac565c47a70c7947cb7315d0f5c2cfecd0363..612ec4e8e4239c0d720cfa7495b28ed011c24710 100644
+index c6aa7b4a9d05470a2f7659759fa4d3f2d89300fb..7eea6dbe8bb88162ab78b9f6a8995f462ab738e2 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
 @@ -154,6 +154,7 @@ public abstract class PlayerList {
@@ -217,7 +217,7 @@ index 989ac565c47a70c7947cb7315d0f5c2cfecd0363..612ec4e8e4239c0d720cfa7495b28ed0
          player.isRealPlayer = true; // Paper
          player.loginTime = System.currentTimeMillis(); // Paper - Replace OfflinePlayer#getLastPlayed
          NameAndId nameAndId = player.nameAndId();
-@@ -594,6 +595,7 @@ public abstract class PlayerList {
+@@ -596,6 +597,7 @@ public abstract class PlayerList {
  
      // Paper start - respawn event
      public ServerPlayer respawn(ServerPlayer player, boolean keepInventory, Entity.RemovalReason reason, org.bukkit.event.player.PlayerRespawnEvent.RespawnReason respawnReason) {
@@ -225,7 +225,7 @@ index 989ac565c47a70c7947cb7315d0f5c2cfecd0363..612ec4e8e4239c0d720cfa7495b28ed0
          ServerPlayer.RespawnResult result = player.findRespawnPositionAndUseSpawnBlock0(!keepInventory, TeleportTransition.DO_NOTHING, respawnReason);
          if (result == null) { // disconnected player during the respawn event
              return player;
-@@ -606,6 +608,7 @@ public abstract class PlayerList {
+@@ -608,6 +610,7 @@ public abstract class PlayerList {
          player.level().removePlayerImmediately(player, reason);
          ServerLevel level = teleportTransition.newLevel();
          ServerPlayer serverPlayer = player; // Paper - TODO - recreate instance

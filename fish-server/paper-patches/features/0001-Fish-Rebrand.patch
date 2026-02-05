@@ -69,10 +69,10 @@ index c1639f79b5a5e53d3a276458e4aa8f44e6841464..c2db124be7aa58682b93c139728a57c3
              SharedConstants.getCurrentVersion().name(),
              getManifestAttribute(manifest, ATTRIBUTE_BUILD_NUMBER)
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
-index 982455a5eecdb6d80762cc17c2461b467ba5072e..8759ce2cef04b583926e08ead6b443d11bef3056 100644
+index 8aa4e2286704e43503abbdae0d88ccfd5e0bf7e4..1c6a7e867bde69da73e5010ed2e0b109ad88484c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
-@@ -493,7 +493,7 @@ public class CraftScheduler implements BukkitScheduler {
+@@ -494,7 +494,7 @@ public class CraftScheduler implements BukkitScheduler {
                  this.parsePending();
              } else {
                  // this.debugTail = this.debugTail.setNext(new CraftAsyncDebugger(this.currentTick + CraftScheduler.RECENT_TICKS, task.getOwner(), task.getTaskClass())); // Paper
