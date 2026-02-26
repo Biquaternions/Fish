@@ -260,7 +260,7 @@ index d86ebc4cd182076629eb8000267d7b1a38a06be1..021abbec1ebd6e6aab558de811304083
                  CraftPlayer.this.server.getServer().getPlayerList().respawn(CraftPlayer.this.getHandle(), false, Entity.RemovalReason.KILLED, org.bukkit.event.player.PlayerRespawnEvent.RespawnReason.PLUGIN);
                  CraftPlayer.this.getHandle().connection.restartClientLoadTimerAfterRespawn();
 diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
-index 6058d219f31c16d7037040d5a1e84552d38a79de..f2b652d90c3cc0aeedaa4cd0ecd2dc1fed4148dd 100644
+index 6058d219f31c16d7037040d5a1e84552d38a79de..76a38d3e52afb4d978a5a59fd48affd924a70f84 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
 @@ -41,6 +41,11 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
@@ -387,28 +387,28 @@ index 6058d219f31c16d7037040d5a1e84552d38a79de..f2b652d90c3cc0aeedaa4cd0ecd2dc1f
          this.team.setNameTagVisibility(CraftTeam.bukkitToNotch(visibility));
      }
  
-@@ -236,6 +283,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
-     @Override
-     public void addEntry(String entry) {
+@@ -238,6 +285,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
          Preconditions.checkArgument(entry != null, "Entry cannot be null");
+         this.checkState();
+ 
 +        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$addEntry(entry));
 +        else this.fish$addEntry(entry);
 +    }
 +    private void fish$addEntry(String entry) {
+         this.getScoreboard().getHandle().addPlayerToTeam(entry, this.team);
+     }
+ 
+@@ -266,6 +317,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+         Preconditions.checkArgument(entry != null, "Entry cannot be null");
          this.checkState();
  
-         this.getScoreboard().getHandle().addPlayerToTeam(entry, this.team);
-@@ -264,6 +315,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
-     @Override
-     public boolean removeEntry(String entry) {
-         Preconditions.checkArgument(entry != null, "Entry cannot be null");
 +        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) return me.biquaternions.fish.async.AsyncWorldTicking.scheduleForEndOfTick(() -> this.fish$removeEntry(entry));
 +        else return this.fish$removeEntry(entry);
 +    }
 +    private boolean fish$removeEntry(String entry) {
-         this.checkState();
- 
          if (!this.team.getPlayers().contains(entry)) {
+             return false;
+         }
 @@ -312,6 +367,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
      @Override
      public void unregister() {
