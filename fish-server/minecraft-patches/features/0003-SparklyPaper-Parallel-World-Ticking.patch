@@ -5,7 +5,7 @@ Subject: [PATCH] SparklyPaper Parallel World Ticking
 
 
 diff --git a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
-index 467065e3b40df17f38716499259b46663c174fd0..c441066e251cbc358185e2e3edda94e8a9e4b070 100644
+index 41b4c5a87b5153f845421a7df8df04c9231253a8..12687bc6bc73752bc69880360a7a73e790b6257d 100644
 --- a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
 +++ b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
 @@ -1129,7 +1129,7 @@ public final class ChunkHolderManager {
@@ -26,7 +26,7 @@ index 467065e3b40df17f38716499259b46663c174fd0..c441066e251cbc358185e2e3edda94e8
  
          if (BLOCK_TICKET_UPDATES.get() == Boolean.TRUE) {
              throw new IllegalStateException("Cannot unload chunks recursively");
-@@ -1416,7 +1416,7 @@ public final class ChunkHolderManager {
+@@ -1419,7 +1419,7 @@ public final class ChunkHolderManager {
          if (BLOCK_TICKET_UPDATES.get() == Boolean.TRUE) {
              throw new IllegalStateException("Cannot update ticket level while unloading chunks or updating entity manager");
          }
@@ -50,10 +50,10 @@ index bfefb5031544caa59230f0073e8880c2b39ebf4d..d3d8b22e52bfbe1637abec695492119b
                      org.bukkit.Location location = org.bukkit.craftbukkit.util.CraftLocation.toBukkit(blockPos, level);
                      List<org.bukkit.block.BlockState> states = new java.util.ArrayList<>(level.capturedBlockStates.values());
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index c16b2e559fa5619175357ebf00c5034a61a48b58..4bfa4fabf8a5c77945a6bd7296f2358bd56cfb77 100644
+index cb5efea0c38c369b5403af7c1604c131fa37c093..e4c2e451e7eb75f5e285f823db880999435ee0e7 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -1807,6 +1807,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1802,6 +1802,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          }
  
          this.isIteratingOverLevels = true; // Paper - Throw exception on world create while being ticked
@@ -61,7 +61,7 @@ index c16b2e559fa5619175357ebf00c5034a61a48b58..4bfa4fabf8a5c77945a6bd7296f2358b
          for (ServerLevel serverLevel : this.getAllLevels()) {
              serverLevel.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
              serverLevel.hasEntityMoveEvent = io.papermc.paper.event.entity.EntityMoveEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - Add EntityMoveEvent
-@@ -1931,6 +1932,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1926,6 +1927,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      public void removeLevel(ServerLevel level) {
          Map<ResourceKey<Level>, ServerLevel> oldLevels = this.levels;
          Map<ResourceKey<Level>, ServerLevel> newLevels = Maps.newLinkedHashMap(oldLevels);

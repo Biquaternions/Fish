@@ -5,7 +5,7 @@ Subject: [PATCH] Fish Rebrand
 
 
 diff --git a/net/minecraft/CrashReport.java b/net/minecraft/CrashReport.java
-index 355a5e04afe3a1f685bc5fab7e6161e01a7c69c5..9cb5b8219dd8348ca3a5156e4a46d520dfd4b6c0 100644
+index 894faee12a0bba5eff2dea3ff157478aed019be1..dcfd37c7c11d7734c25184a3e70b800d182e14d7 100644
 --- a/net/minecraft/CrashReport.java
 +++ b/net/minecraft/CrashReport.java
 @@ -30,7 +30,7 @@ public class CrashReport {
@@ -16,7 +16,7 @@ index 355a5e04afe3a1f685bc5fab7e6161e01a7c69c5..9cb5b8219dd8348ca3a5156e4a46d520
 +    private final List<String> extraInfo = List.of("", "DO NOT REPORT THIS TO PAPER! REPORT THIS TO FISH!", ""); // Pufferfish - Rebrand // Fish - Rebrand
  
      public CrashReport(String title, Throwable exception) {
-         io.papermc.paper.util.StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(exception); // Paper
+         this.title = title;
 diff --git a/net/minecraft/server/Eula.java b/net/minecraft/server/Eula.java
 index 1f0413214f54e9a47f53c623484d6882c85f54c9..f806ec570f25d7c36eaad5f94dbee90ed9233019 100644
 --- a/net/minecraft/server/Eula.java
@@ -31,7 +31,7 @@ index 1f0413214f54e9a47f53c623484d6882c85f54c9..f806ec570f25d7c36eaad5f94dbee90e
                  LOGGER.warn("Failed to save {}", this.file, var6);
              }
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index 094d2d528cb74b8f1d277cd780bba7f438dbe764..ac744cee72a62ef25e112a9dc6ff08489f0b373f 100644
+index 9216e85e74bb0121c72665f155b07cf9a37f430a..f3d5b15f3ecbb0d5b4795533397012c5c0900052 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
 @@ -150,6 +150,17 @@ public class Main {

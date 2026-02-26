@@ -260,10 +260,134 @@ index d86ebc4cd182076629eb8000267d7b1a38a06be1..021abbec1ebd6e6aab558de811304083
                  CraftPlayer.this.server.getServer().getPlayerList().respawn(CraftPlayer.this.getHandle(), false, Entity.RemovalReason.KILLED, org.bukkit.event.player.PlayerRespawnEvent.RespawnReason.PLUGIN);
                  CraftPlayer.this.getHandle().connection.restartClientLoadTimerAfterRespawn();
 diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
-index 6058d219f31c16d7037040d5a1e84552d38a79de..67c67bfad3e1c2b268c1eac41e3f2a65abd31bf9 100644
+index 6058d219f31c16d7037040d5a1e84552d38a79de..f2b652d90c3cc0aeedaa4cd0ecd2dc1fed4148dd 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
 +++ b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
-@@ -236,6 +236,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+@@ -41,6 +41,11 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+     public void displayName(net.kyori.adventure.text.Component displayName) throws IllegalStateException, IllegalArgumentException {
+         if (displayName == null) displayName = net.kyori.adventure.text.Component.empty();
+         this.checkState();
++        final net.kyori.adventure.text.Component finalDisplayName = displayName;
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$displayName(finalDisplayName));
++        else this.fish$displayName(finalDisplayName);
++    }
++    private void fish$displayName(net.kyori.adventure.text.Component displayName) throws IllegalStateException, IllegalArgumentException {
+         this.team.setDisplayName(io.papermc.paper.adventure.PaperAdventure.asVanilla(displayName));
+     }
+ 
+@@ -54,6 +59,11 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+     public void prefix(net.kyori.adventure.text.Component prefix) throws IllegalStateException, IllegalArgumentException {
+         if (prefix == null) prefix = net.kyori.adventure.text.Component.empty();
+         this.checkState();
++        final net.kyori.adventure.text.Component finalPrefix = prefix;
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$prefix(finalPrefix));
++        else this.fish$prefix(finalPrefix);
++    }
++    private void fish$prefix(net.kyori.adventure.text.Component prefix) throws IllegalStateException, IllegalArgumentException {
+         this.team.setPlayerPrefix(io.papermc.paper.adventure.PaperAdventure.asVanilla(prefix));
+     }
+ 
+@@ -67,6 +77,11 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+     public void suffix(net.kyori.adventure.text.Component suffix) throws IllegalStateException, IllegalArgumentException {
+         if (suffix == null) suffix = net.kyori.adventure.text.Component.empty();
+         this.checkState();
++        final net.kyori.adventure.text.Component finalSuffix = suffix;
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$suffix(finalSuffix));
++        else this.fish$suffix(finalSuffix);
++    }
++    private void fish$suffix(net.kyori.adventure.text.Component suffix) throws IllegalStateException, IllegalArgumentException {
+         this.team.setPlayerSuffix(io.papermc.paper.adventure.PaperAdventure.asVanilla(suffix));
+     }
+ 
+@@ -91,6 +106,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+     @Override
+     public void color(net.kyori.adventure.text.format.NamedTextColor color) {
+         this.checkState();
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$color(color));
++        else this.fish$color(color);
++    }
++    private void fish$color(net.kyori.adventure.text.format.NamedTextColor color) {
+         this.team.setColor(color == null ? net.minecraft.ChatFormatting.RESET : io.papermc.paper.adventure.PaperAdventure.asVanilla(color));
+     }
+ 
+@@ -106,6 +125,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+         Preconditions.checkArgument(displayName != null, "Display name cannot be null");
+         this.checkState();
+ 
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$setDisplayName(displayName));
++        else this.fish$setDisplayName(displayName);
++    }
++    private void fish$setDisplayName(String displayName) {
+         this.team.setDisplayName(CraftChatMessage.fromString(displayName)[0]); // SPIGOT-4112: not nullable
+     }
+ 
+@@ -121,6 +144,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+         Preconditions.checkArgument(prefix != null, "Prefix cannot be null");
+         this.checkState();
+ 
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$setPrefix(prefix));
++        else this.fish$setPrefix(prefix);
++    }
++    private void fish$setPrefix(String prefix) {
+         this.team.setPlayerPrefix(CraftChatMessage.fromStringOrNull(prefix));
+     }
+ 
+@@ -136,6 +163,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+         Preconditions.checkArgument(suffix != null, "Suffix cannot be null");
+         this.checkState();
+ 
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$setSuffix(suffix));
++        else this.fish$setSuffix(suffix);
++    }
++    private void fish$setSuffix(String suffix) {
+         this.team.setPlayerSuffix(CraftChatMessage.fromStringOrNull(suffix));
+     }
+ 
+@@ -152,6 +183,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+         Preconditions.checkArgument(!color.isFormat(), "Color must be a color not a format");
+         this.checkState();
+ 
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$setColor(color));
++        else this.fish$setColor(color);
++    }
++    private void fish$setColor(ChatColor color) {
+         this.team.setColor(CraftChatMessage.getColor(color));
+     }
+ 
+@@ -166,6 +201,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+     public void setAllowFriendlyFire(boolean enabled) {
+         this.checkState();
+ 
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$setAllowFriendlyFire(enabled));
++        else this.fish$setAllowFriendlyFire(enabled);
++    }
++    private void fish$setAllowFriendlyFire(boolean enabled) {
+         this.team.setAllowFriendlyFire(enabled);
+     }
+ 
+@@ -180,6 +219,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+     public void setCanSeeFriendlyInvisibles(boolean enabled) {
+         this.checkState();
+ 
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$setCanSeeFriendlyInvisibles(enabled));
++        else this.fish$setCanSeeFriendlyInvisibles(enabled);
++    }
++    private void fish$setCanSeeFriendlyInvisibles(boolean enabled) {
+         this.team.setSeeFriendlyInvisibles(enabled);
+     }
+ 
+@@ -194,6 +237,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+     public void setNameTagVisibility(NameTagVisibility visibility) throws IllegalArgumentException {
+         this.checkState();
+ 
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$setNameTagVisibility(visibility));
++        else this.fish$setNameTagVisibility(visibility);
++    }
++    private void fish$setNameTagVisibility(NameTagVisibility visibility) throws IllegalArgumentException {
+         this.team.setNameTagVisibility(CraftTeam.bukkitToNotch(visibility));
+     }
+ 
+@@ -236,6 +283,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
      @Override
      public void addEntry(String entry) {
          Preconditions.checkArgument(entry != null, "Entry cannot be null");
@@ -274,7 +398,7 @@ index 6058d219f31c16d7037040d5a1e84552d38a79de..67c67bfad3e1c2b268c1eac41e3f2a65
          this.checkState();
  
          this.getScoreboard().getHandle().addPlayerToTeam(entry, this.team);
-@@ -264,6 +268,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+@@ -264,6 +315,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
      @Override
      public boolean removeEntry(String entry) {
          Preconditions.checkArgument(entry != null, "Entry cannot be null");
@@ -285,3 +409,25 @@ index 6058d219f31c16d7037040d5a1e84552d38a79de..67c67bfad3e1c2b268c1eac41e3f2a65
          this.checkState();
  
          if (!this.team.getPlayers().contains(entry)) {
+@@ -312,6 +367,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+     @Override
+     public void unregister() {
+         this.checkState();
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(this::fish$unregister);
++        else this.fish$unregister();
++    }
++    private void fish$unregister() {
+         this.getScoreboard().getHandle().removePlayerTeam(this.team);
+     }
+ 
+@@ -331,6 +390,10 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
+     public void setOption(Option option, OptionStatus status) {
+         this.checkState();
+ 
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThread()) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> this.fish$setOption(option, status));
++        else this.fish$setOption(option, status);
++    }
++    private void fish$setOption(Option option, OptionStatus status) {
+         switch (option) {
+             case NAME_TAG_VISIBILITY -> this.team.setNameTagVisibility(Visibility.values()[status.ordinal()]);
+             case DEATH_MESSAGE_VISIBILITY -> this.team.setDeathMessageVisibility(Visibility.values()[status.ordinal()]);
