@@ -244,21 +244,6 @@ index 72571389f6decba33c8f85f6d6a937e5af77152f..2fcb7c34189833b43a10ec66d0cfd3fa
          this.requirePlaced();
          net.minecraft.world.item.ItemStack nms = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(item);
  
-diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index d86ebc4cd182076629eb8000267d7b1a38a06be1..021abbec1ebd6e6aab558de811304083d6a6f9b5 100644
---- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-+++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3028,6 +3028,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
- 
-         @Override
-         public void respawn() {
-+            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(this::fish$respawn);
-+            else this.fish$respawn();
-+        }
-+        private void fish$respawn() {
-             if (CraftPlayer.this.getHealth() <= 0 && CraftPlayer.this.isOnline()) {
-                 CraftPlayer.this.server.getServer().getPlayerList().respawn(CraftPlayer.this.getHandle(), false, Entity.RemovalReason.KILLED, org.bukkit.event.player.PlayerRespawnEvent.RespawnReason.PLUGIN);
-                 CraftPlayer.this.getHandle().connection.restartClientLoadTimerAfterRespawn();
 diff --git a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java b/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java
 index 6058d219f31c16d7037040d5a1e84552d38a79de..76a38d3e52afb4d978a5a59fd48affd924a70f84 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scoreboard/CraftTeam.java

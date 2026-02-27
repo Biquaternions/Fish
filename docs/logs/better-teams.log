@@ -1,0 +1,37 @@
+[2025-09-25 09:08:17] [INFO] [09:08:17 INFO]: [Not Secure]   Kazuto103 ➤ blue
+[2025-09-25 09:08:22] [INFO] [09:08:22 INFO]: [Not Secure]   PapiCorpse ➤ 5k asian pink, 3k kazuto blue
+[2025-09-25 09:08:37] [INFO] [09:08:37 INFO]: UUID of player Its_Aldrin29 is 7f83efe4-27a1-37d1-b3bf-eeb2670cdd84
+[2025-09-25 09:08:42] [INFO] [09:08:42 INFO]: [Essentials] CONSOLE issued server command: /give Ayaren iron_ingot 1
+[2025-09-25 09:08:42] [INFO] [09:08:42 INFO]: Giving 1 of iron ingot to  Ayaren.
+[2025-09-25 09:08:42] [INFO] [09:08:42 INFO]: [Essentials] CONSOLE issued server command: /give Ayaren iron_ingot 1
+[2025-09-25 09:08:42] [INFO] [09:08:42 INFO]: Giving 1 of iron ingot to  Ayaren.
+[2025-09-25 09:08:44] [INFO] [09:08:44 INFO]: [VotingPlugin] Login: Its_Aldrin29 (7f83efe4-27a1-37d1-b3bf-eeb2670cdd84)
+[2025-09-25 09:08:44] [INFO] [09:08:44 INFO]: ᴡᴇʟᴄᴏᴍᴇ ʙᴀᴄᴋ! Its_Aldrin29
+[2025-09-25 09:08:44] [INFO] [09:08:44 INFO]: Its_Aldrin29[/0.0.0.0:53474] logged in with entity id 295953 at ([world]3194.058239527066, 65.33088254276429, -2143.8696295564846)
+[2025-09-25 09:08:44] [ERROR] [09:08:44 ERROR]: [ca.spottedleaf.moonrise.common.util.TickThread] Thread Craft Scheduler Thread - 723 - BetterTeams failed main thread check: Cannot create waypoint connections off-main @ world world - Is tick thread? false; Is server level tick thread? false; Is iterating over levels? false; Are we going to hard throw? true
+[2025-09-25 09:08:44] [INFO] java.lang.Throwable: null
+[2025-09-25 09:08:44] [INFO] 	at ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(TickThread.java:110) ~[leaf-1.21.8.jar:1.21.8-114-f1e884e]
+[2025-09-25 09:08:44] [INFO] 	at net.minecraft.server.waypoints.ServerWaypointManager.createConnection(ServerWaypointManager.java:131) ~[leaf-1.21.8.jar:1.21.8-114-f1e884e]
+[2025-09-25 09:08:44] [INFO] 	at net.minecraft.server.waypoints.ServerWaypointManager.remakeConnections(ServerWaypointManager.java:117) ~[leaf-1.21.8.jar:1.21.8-114-f1e884e]
+[2025-09-25 09:08:44] [INFO] 	at net.minecraft.server.ServerScoreboard.updatePlayerWaypoint(ServerScoreboard.java:310) ~[leaf-1.21.8.jar:1.21.8-114-f1e884e]
+[2025-09-25 09:08:44] [INFO] 	at net.minecraft.server.ServerScoreboard.removePlayerFromTeam(ServerScoreboard.java:143) ~[leaf-1.21.8.jar:1.21.8-114-f1e884e]
+[2025-09-25 09:08:44] [INFO] 	at net.minecraft.world.scores.Scoreboard.removePlayerFromTeam(Scoreboard.java:291) ~[leaf-1.21.8.jar:1.21.8-114-f1e884e]
+[2025-09-25 09:08:44] [INFO] 	at net.minecraft.world.scores.Scoreboard.addPlayerToTeam(Scoreboard.java:281) ~[leaf-1.21.8.jar:1.21.8-114-f1e884e]
+[2025-09-25 09:08:44] [INFO] 	at net.minecraft.server.ServerScoreboard.addPlayerToTeam(ServerScoreboard.java:110) ~[leaf-1.21.8.jar:1.21.8-114-f1e884e]
+[2025-09-25 09:08:44] [INFO] 	at org.bukkit.craftbukkit.scoreboard.CraftTeam.addEntry(CraftTeam.java:240) ~[leaf-1.21.8.jar:1.21.8-114-f1e884e]
+[2025-09-25 09:08:44] [INFO] 	at BetterTeams-4.14.0.jar/com.booksaw.betterTeams.events.MCTeamManagement.displayBelowName(MCTeamManagement.java:64) ~[BetterTeams-4.14.0.jar:?]
+[2025-09-25 09:08:44] [INFO] 	at BetterTeams-4.14.0.jar/com.booksaw.betterTeams.events.MCTeamManagement.lambda$playerJoinEvent$0(MCTeamManagement.java:135) ~[BetterTeams-4.14.0.jar:?]
+[2025-09-25 09:08:44] [INFO] 	at BetterTeams-4.14.0.jar/com.booksaw.betterTeams.lib.folialib.impl.SpigotImplementation.lambda$runAsync$1(SpigotImplementation.java:101) ~[BetterTeams-4.14.0.jar:?]
+[2025-09-25 09:08:44] [INFO] 	at org.bukkit.craftbukkit.scheduler.CraftTask.run(CraftTask.java:80) ~[leaf-1.21.8.jar:1.21.8-114-f1e884e]
+[2025-09-25 09:08:44] [INFO] 	at org.bukkit.craftbukkit.scheduler.CraftAsyncTask.run(CraftAsyncTask.java:57) ~[leaf-1.21.8.jar:1.21.8-114-f1e884e]
+[2025-09-25 09:08:44] [INFO] 	at com.destroystokyo.paper.ServerSchedulerReportingWrapper.run(ServerSchedulerReportingWrapper.java:22) ~[leaf-1.21.8.jar:?]
+[2025-09-25 09:08:44] [INFO] 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[?:?]
+[2025-09-25 09:08:44] [INFO] 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[?:?]
+[2025-09-25 09:08:44] [INFO] 	at java.base/java.lang.VirtualThread.run(VirtualThread.java:329) ~[?:?]
+[2025-09-25 09:08:44] [ERROR] [09:08:44 ERROR]: [BetterTeams] Could not register the team name in the tab menu due to a conflict, see https://betterteams.booksaw.dev/docs/configuration/Managing-the-TAB-Menu#plugin-conflicts error:Cannot create waypoint connections off-main
+[2025-09-25 09:08:45] [INFO] [09:08:45 INFO]: [voicechat] Received secret request of Its_Aldrin29 (18)
+[2025-09-25 09:08:45] [INFO] [09:08:45 INFO]: [voicechat] Sent secret to Its_Aldrin29
+[2025-09-25 09:08:45] [INFO] [09:08:45 INFO]: [voicechat] Successfully authenticated player 7f83efe4-27a1-37d1-b3bf-eeb2670cdd84
+[2025-09-25 09:08:45] [INFO] [09:08:45 INFO]: [Essentials] CONSOLE issued server command: /give pihker iron_ingot 1
+[2025-09-25 09:08:45] [INFO] [09:08:45 INFO]: Giving 1 of iron ingot to  pihker.
+[2025-09-25 09:08:45] [INFO] [09:08:45 INFO]: [Essentials] CONSOLE issued server command: /give pihker iron_ingot 1

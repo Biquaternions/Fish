@@ -1,0 +1,26 @@
+[16:50:39] [Server thread/INFO]: Biquaternions[/[0:0:0:0:0:0:0:0]:37054] logged in with entity id 1 at ([world]8.5, -63.0, 8.5)
+[16:50:39] [Craft Scheduler Thread - 4 - FrostModern/WARN]: [FrostModern] Plugin FrostModern v1.6.1-r generated an exception while executing task 13
+java.util.ConcurrentModificationException
+	at java.base/java.util.HashMap$KeySpliterator.forEachRemaining(HashMap.java:1721) ~[?:?]
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:570) ~[?:?]
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:560) ~[?:?]
+	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:153) ~[?:?]
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:176) ~[?:?]
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:265) ~[?:?]
+	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:632) ~[?:?]
+	at net.minecraft.server.ServerScoreboard.updateTeamWaypoints(ServerScoreboard.java:313) ~[fish-1.21.11.jar:1.21.11-7-c8484ea]
+	at net.minecraft.server.ServerScoreboard.onTeamChanged(ServerScoreboard.java:201) ~[fish-1.21.11.jar:1.21.11-7-c8484ea]
+	at net.minecraft.world.scores.PlayerTeam.setPlayerSuffix(PlayerTeam.java:103) ~[fish-1.21.11.jar:1.21.11-7-c8484ea]
+	at org.bukkit.craftbukkit.scoreboard.CraftTeam.setSuffix(CraftTeam.java:139) ~[fish-1.21.11.jar:1.21.11-7-c8484ea]
+	at Frost Modern-1.6.1-r.jar//club.frozed.frost_modern.scoreboard.scoreboard.BoardEntry.send(BoardEntry.java:79) ~[?:?]
+	at Frost Modern-1.6.1-r.jar//club.frozed.frost_modern.scoreboard.Aether$1.run(Aether.java:124) ~[?:?]
+	at org.bukkit.craftbukkit.scheduler.CraftTask.run(CraftTask.java:78) ~[fish-1.21.11.jar:1.21.11-7-c8484ea]
+	at org.bukkit.craftbukkit.scheduler.CraftAsyncTask.run(CraftAsyncTask.java:57) ~[fish-1.21.11.jar:1.21.11-7-c8484ea]
+	at com.destroystokyo.paper.ServerSchedulerReportingWrapper.run(ServerSchedulerReportingWrapper.java:22) ~[fish-1.21.11.jar:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[16:51:04] [Frost Scheduler Thread 0/INFO]: [FrostModern] Saving player data!
+[16:51:04] [Frost Scheduler Thread 0/INFO]: [FrostModern] Successfully saved 1 players!
+[16:55:38] [Frost Scheduler Thread 0/INFO]: [FrostModern] Saving player data!
+[16:55:38] [Frost Scheduler Thread 0/INFO]: [FrostModern] Successfully saved 1 players!
