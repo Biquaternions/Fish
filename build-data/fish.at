@@ -1,2 +1,4 @@
 # This file is auto generated, any changes may be overridden!
 # See CONTRIBUTING.md on how to add access transformers.
+protected net.minecraft.server.waypoints.ServerWaypointManager createConnection(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/waypoints/WaypointTransmitter;)V
+protected net.minecraft.server.waypoints.ServerWaypointManager updateConnection(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/waypoints/WaypointTransmitter;Lnet/minecraft/world/waypoints/WaypointTransmitter$Connection;)V

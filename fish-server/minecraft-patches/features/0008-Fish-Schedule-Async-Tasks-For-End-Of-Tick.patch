@@ -11,15 +11,15 @@ If the world is about to tick, but the async "request" is not done yet, the worl
 This scheduling logic is very performant as long as none of the plugins is spamming world/block requests.
 
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 6a871948798cd06b7b7bce08e761dfd7ee81d216..37675914a28b907c52344ec67f65b38133af82fe 100644
+index d75facba88f28bf596424fc9e8faa4e6abff9e6b..75f45df8656a1856854d1afa951dcbdee026a763 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -229,6 +229,8 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -236,6 +236,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
      public boolean hasPhysicsEvent = true; // Paper - BlockPhysicsEvent
      public boolean hasEntityMoveEvent; // Paper - Add EntityMoveEvent
      private final alternate.current.wire.WireHandler wireHandler = new alternate.current.wire.WireHandler(this); // Paper - optimize redstone (Alternate Current)
-+    public final java.util.Queue<Runnable> fish$endOfTickTasks = new java.util.concurrent.ConcurrentLinkedQueue<>(); // Fish - Schedule tasks for end of tick
-+    public final java.util.concurrent.locks.ReentrantReadWriteLock fish$lock = new java.util.concurrent.locks.ReentrantReadWriteLock(true);
++    public final java.util.concurrent.locks.ReentrantReadWriteLock fish$lock = new java.util.concurrent.locks.ReentrantReadWriteLock(true); // Fish - Schedule tasks for end of tick
++    public final me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler.Scheduler fish$scheduler = new me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler.Scheduler(); // Fish - Schedule tasks for end of tick
  
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {

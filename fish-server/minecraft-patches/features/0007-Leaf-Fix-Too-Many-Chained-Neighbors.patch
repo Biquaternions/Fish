@@ -5,14 +5,14 @@ Subject: [PATCH] Leaf Fix Too Many Chained Neighbors
 
 
 diff --git a/io/papermc/paper/redstone/RedstoneWireTurbo.java b/io/papermc/paper/redstone/RedstoneWireTurbo.java
-index ff747a1ecdf3c888bca0d69de4f85dcd810b6139..342d144ce4890210216e3e16784b870fba7c24c3 100644
+index 8e03419df1469c6fecfaa82fcb319a58635b39f3..b40935d10a6cdb733fd99dc7fd6a3940a0e9a21d 100644
 --- a/io/papermc/paper/redstone/RedstoneWireTurbo.java
 +++ b/io/papermc/paper/redstone/RedstoneWireTurbo.java
-@@ -829,14 +829,16 @@ public final class RedstoneWireTurbo {
+@@ -827,14 +827,16 @@ public final class RedstoneWireTurbo {
          j = getMaxCurrentStrength(upd, j);
          int l = 0;
  
-+        final int k; if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) k = wire.getBlockSignal(worldIn, upd.self); else {
++        final int k; if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) k = wire.getBlockSignal(worldIn, upd.self); else { // Leaf - Fix too many chained neighbors
          wire.shouldSignal = false;
          // Unfortunately, World.isBlockIndirectlyGettingPowered is complicated,
          // and I'm not ready to try to replicate even more functionality from
@@ -27,10 +27,10 @@ index ff747a1ecdf3c888bca0d69de4f85dcd810b6139..342d144ce4890210216e3e16784b870f
          // The variable 'k' holds the maximum redstone power value of any adjacent blocks.
          // If 'k' has the highest level of all neighbors, then the power level of this
 diff --git a/net/minecraft/world/level/block/RedStoneWireBlock.java b/net/minecraft/world/level/block/RedStoneWireBlock.java
-index bd230046a9e9563b42d5d3c55ab49e83a1d65bde..b573ec3097950c6e76cedbc7a17405d8786c2ec7 100644
+index 3fb9600b0301503e9593915a9d96ddbe2863e2f1..eaf9ad7c22e3473386b579de7eaa572775d47409 100644
 --- a/net/minecraft/world/level/block/RedStoneWireBlock.java
 +++ b/net/minecraft/world/level/block/RedStoneWireBlock.java
-@@ -65,6 +65,7 @@ public class RedStoneWireBlock extends Block {
+@@ -66,6 +66,7 @@ public class RedStoneWireBlock extends Block {
      private final BlockState crossState;
      private final RedstoneWireEvaluator evaluator = new DefaultRedstoneWireEvaluator(this);
      public boolean shouldSignal = true;
@@ -38,10 +38,10 @@ index bd230046a9e9563b42d5d3c55ab49e83a1d65bde..b573ec3097950c6e76cedbc7a17405d8
  
      @Override
      public MapCodec<RedStoneWireBlock> codec() {
-@@ -329,6 +330,12 @@ public class RedStoneWireBlock extends Block {
+@@ -336,6 +337,12 @@ public class RedStoneWireBlock extends Block {
      }
  
-     public int getBlockSignal(Level level, BlockPos pos) {
+     public int getBlockSignal(final Level level, final BlockPos pos) {
 +        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
 +            this.fish$shouldSignalTL.set(false);
 +            int bestNeighborSignal = level.getBestNeighborSignal(pos);
@@ -49,35 +49,28 @@ index bd230046a9e9563b42d5d3c55ab49e83a1d65bde..b573ec3097950c6e76cedbc7a17405d8
 +            return bestNeighborSignal;
 +        }
          this.shouldSignal = false;
-         int bestNeighborSignal = level.getBestNeighborSignal(pos);
+         int blockSignal = level.getBestNeighborSignal(pos);
          this.shouldSignal = true;
-@@ -423,18 +430,20 @@ public class RedStoneWireBlock extends Block {
+@@ -432,12 +439,14 @@ public class RedStoneWireBlock extends Block {
  
      @Override
-     protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !this.fish$shouldSignalTL.get() ? 0 : state.getSignal(level, pos, side);
-         return !this.shouldSignal ? 0 : state.getSignal(level, pos, side);
+     protected int getDirectSignal(final BlockState state, final BlockGetter level, final BlockPos pos, final Direction direction) {
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !this.fish$shouldSignalTL.get() ? 0 : state.getSignal(level, pos, direction);
+         return !this.shouldSignal ? Redstone.SIGNAL_MIN : state.getSignal(level, pos, direction);
      }
  
      @Override
-     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
--        if (this.shouldSignal && side != Direction.DOWN) {
-+        boolean _shouldSignal = me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? this.fish$shouldSignalTL.get() : this.shouldSignal;
-+        if (_shouldSignal && side != Direction.DOWN) {
-             int powerValue = state.getValue(POWER);
-             if (powerValue == 0) {
-                 return 0;
-             } else {
-                 return side != Direction.UP
--                        && !this.getConnectionState(level, state, pos).getValue(PROPERTY_BY_DIRECTION.get(side.getOpposite())).isConnected()
-+                    && !this.getConnectionState(level, state, pos).getValue(PROPERTY_BY_DIRECTION.get(side.getOpposite())).isConnected()
-                     ? 0
-                     : powerValue;
-             }
-@@ -460,6 +469,7 @@ public class RedStoneWireBlock extends Block {
+     protected int getSignal(final BlockState state, final BlockGetter level, final BlockPos pos, final Direction direction) {
+-        if (this.shouldSignal && direction != Direction.DOWN) {
++        boolean shouldSignal0 = me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? this.fish$shouldSignalTL.get() : this.shouldSignal;
++        if (shouldSignal0 && direction != Direction.DOWN) {
+             int power = this.ownSignal(state, level, pos);
+             if (power == 0) {
+                 return Redstone.SIGNAL_MIN;
+@@ -474,6 +483,7 @@ public class RedStoneWireBlock extends Block {
  
      @Override
-     protected boolean isSignalSource(BlockState state) {
+     protected boolean isSignalSource(final BlockState state) {
 +        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return this.fish$shouldSignalTL.get();
          return this.shouldSignal;
      }

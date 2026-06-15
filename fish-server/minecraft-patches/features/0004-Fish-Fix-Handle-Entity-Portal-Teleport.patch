@@ -7,10 +7,10 @@ Used this snippet from Leaf's version as a reference to fix:
 https://github.com/Winds-Studio/Leaf/blob/3268a57db808ad2a371cb28c5fea4cb2edc2e426/leaf-server/minecraft-patches/features/0210-SparklyPaper-Parallel-world-ticking.patch#L851
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 5bb7b1f0fd7e5fb7d913cb4e361e1ec908e20d6d..2f93a36adccc11f15a3c08c1cee2a6d2f59bb4a0 100644
+index f60535cc3d55099e8dd489db9e15af1ebe9e754e..44f5991b1ba83de2e72a9e0cd76eb92b3092e063 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -846,7 +846,6 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -870,7 +870,6 @@ public abstract class Entity
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
@@ -18,9 +18,9 @@ index 5bb7b1f0fd7e5fb7d913cb4e361e1ec908e20d6d..2f93a36adccc11f15a3c08c1cee2a6d2
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
-@@ -3496,6 +3495,30 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
-                     ProfilerFiller profilerFiller = Profiler.get();
-                     profilerFiller.push("portal");
+@@ -3587,6 +3586,29 @@ public abstract class Entity
+                     ProfilerFiller profiler = Profiler.get();
+                     profiler.push("portal");
                      this.setPortalCooldown();
 +                    // Fish start - Handle entity portal teleport
 +                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
@@ -32,31 +32,30 @@ index 5bb7b1f0fd7e5fb7d913cb4e361e1ec908e20d6d..2f93a36adccc11f15a3c08c1cee2a6d2
 +                                e.portalProcess = null;
 +                                return;
 +                            }
-+                            TeleportTransition portalDestination = this.portalProcess.getPortalDestination(serverLevel, this); // Fish - copied from below
-+                            if (portalDestination != null) {
-+                                ServerLevel level = portalDestination.newLevel();
-+                                if (this instanceof ServerPlayer // CraftBukkit - always call event for players
-+                                    || (level != null && (level.dimension() == serverLevel.dimension() || this.canTeleport(serverLevel, level)))) { // CraftBukkit
-+                                    this.teleport(portalDestination);
++                            TeleportTransition teleportTransition = this.portalProcess.getPortalDestination(level, this);
++                            if (teleportTransition != null) {
++                                ServerLevel newLevel = teleportTransition.newLevel();
++                                if (level.isAllowedToEnterPortal(newLevel) && (newLevel.dimension() == level.dimension() || this.canTeleport(level, newLevel))) {
++                                    this.teleport(teleportTransition);
 +                                }
 +                            }
 +                            processor.fish$setPending(false);
 +                        }, e -> {}, 0);
-+                        profilerFiller.pop();
++                        profiler.pop();
 +                        return;
 +                    }
 +                    // Fish end - Handle entity portal teleport
-                     TeleportTransition portalDestination = this.portalProcess.getPortalDestination(serverLevel, this);
-                     if (portalDestination != null) {
-                         ServerLevel level = portalDestination.newLevel();
+                     TeleportTransition teleportTransition = this.portalProcess.getPortalDestination(level, this);
+                     if (teleportTransition != null) {
+                         ServerLevel newLevel = teleportTransition.newLevel();
 diff --git a/net/minecraft/world/entity/PortalProcessor.java b/net/minecraft/world/entity/PortalProcessor.java
-index 4e69e32ad000b8c02e44c3ffce24ff5e3c090a2f..9751226b3b261bc177faa10d992290c4158e4f90 100644
+index 7ec15f3d3a770e1e9e2fbac29dd38e947bb07091..711951b696ef9ff6e021308eaad3541f56350205 100644
 --- a/net/minecraft/world/entity/PortalProcessor.java
 +++ b/net/minecraft/world/entity/PortalProcessor.java
 @@ -19,6 +19,7 @@ public class PortalProcessor {
      }
  
-     public boolean processPortalTeleportation(ServerLevel level, Entity entity, boolean canChangeDimensions) {
+     public boolean processPortalTeleportation(final ServerLevel serverLevel, final Entity entity, final boolean allowedToTeleport) {
 +        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.fish$isPending()) return false; // Fish - Handle entity portal teleport
          if (!this.insidePortalThisTick) {
              this.decayTick();
@@ -69,19 +68,18 @@ index 4e69e32ad000b8c02e44c3ffce24ff5e3c090a2f..9751226b3b261bc177faa10d992290c4
          return this.portalTime <= 0;
      }
  
-@@ -67,4 +69,15 @@ public class PortalProcessor {
-     public boolean isSamePortal(Portal portal) {
+@@ -67,4 +69,14 @@ public class PortalProcessor {
+     public boolean isSamePortal(final Portal portal) {
          return this.portal == portal;
      }
 +
 +    // Fish start - Handle entity portal teleport
 +    private volatile boolean fish$pending = false;
-+    public void fish$setPending(boolean fish$pending) {
-+        this.fish$pending = fish$pending;
++    public void fish$setPending(boolean pending) {
++        this.fish$pending = pending;
 +    }
 +    public boolean fish$isPending() {
 +        return this.fish$pending;
 +    }
 +    // Fish end - Handle entity portal teleport
-+
  }
