@@ -16,7 +16,7 @@ The user is now forced to read an entry in the repository before using the featu
   https://github.com/Biquaternions/Fish/blob/ver/1.21.8/docs/PWT_RULES.md
 
 diff --git a/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java b/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
-index ed1cada324a34604d19659556d32a36bacc6cdfe..35f3718766de733777aee6130475e15652b583f8 100644
+index d393e76d75a2cb8950c633235f3cc56db744d107..2fb5fc0e82b13c92d445460a70036cd168b8fd13 100644
 --- a/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
 +++ b/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
 @@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
