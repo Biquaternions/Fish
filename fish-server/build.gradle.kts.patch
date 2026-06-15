@@ -3,8 +3,8 @@
 @@ -15,7 +_,7 @@
  
  dependencies {
-     mache("io.papermc:mache:1.21.11+build.1")
--    paperclip("io.papermc:paperclip:3.0.3")
+     mache("io.papermc:mache:26.2-rc-2+build.2")
+-    paperclip("io.papermc:paperclip:3.0.4")
 +    paperclip("me.biquaternions:Fishclip:1.1")
  }
  
@@ -34,10 +34,10 @@
 +    activeFork = fish
 +    // Fish end - Rebrand
 +
-     spigot {
-         enabled = true
-         buildDataRef = "17f77cee7117ab9d6175f088ae8962bfd04e61a9"
-@@ -121,10 +_,18 @@
+     /* Pufferfish - Unneeded
+     updatingMinecraft {
+         oldPaperCommit = "d4fe85375af18bfa88f44d7c1e6a61904ae550cc"
+@@ -105,10 +_,18 @@
      main {
          java { srcDir("../paper-server/src/main/java") }
          resources { srcDir("../paper-server/src/main/resources") }
@@ -56,16 +56,16 @@
      }
  }
  val log4jPlugins = sourceSets.create("log4jPlugins") {
-@@ -153,7 +_,7 @@
+@@ -137,7 +_,7 @@
  }
  
  dependencies {
 -    implementation(project(":pufferfish-api")) // Pufferfish
 +    implementation(project(":fish-api")) // Pufferfish // Fish
-     implementation("ca.spottedleaf:concurrentutil:0.0.8")
+     implementation("ca.spottedleaf:concurrentutil:0.0.10")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -227,14 +_,14 @@
+@@ -202,14 +_,14 @@
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",

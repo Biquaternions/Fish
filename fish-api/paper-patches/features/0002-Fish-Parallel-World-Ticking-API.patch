@@ -13,10 +13,10 @@ With this approach only new methods are added into already existing Bukkit API, 
   get standarized.
 
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 0ec885b97d655c03371840d739b47063494ed36f..c9034f4520daf0603137f9fbd654b94d186d0c6e 100644
+index 62341f72e8457c5547994bee1f3fda9faade6ce0..775d9b360033018ad00fbb051a24d5c1af8c5f55 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -2761,4 +2761,15 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+@@ -2776,4 +2776,15 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
       */
      void allowPausing(@NotNull org.bukkit.plugin.Plugin plugin, boolean value);
      // Paper end - API to check if the server is sleeping
@@ -33,10 +33,10 @@ index 0ec885b97d655c03371840d739b47063494ed36f..c9034f4520daf0603137f9fbd654b94d
 +    // Fish end - Parallel World Ticking API
  }
 diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
-index b202bdb84bae23f7b2b5af591879a032f6378a25..e2d8dc16480cdca7b679d6c105ad787885a08bd9 100644
+index ace05559319506ab1f20dee8b4050cd797ca695b..6a2c4783f64dfccb76d1729113625526b89b7a92 100644
 --- a/src/main/java/org/bukkit/World.java
 +++ b/src/main/java/org/bukkit/World.java
-@@ -4560,6 +4560,25 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+@@ -4632,6 +4632,25 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
      @NotNull
      public Collection<GeneratedStructure> getStructures(int x, int z, @NotNull Structure structure);
  
