@@ -1,4 +1,4 @@
-name: Build 1.21.11
+name: Build 26.2
 on:
   workflow_dispatch:
   pull_request:
@@ -52,17 +52,17 @@ jobs:
       - name: Upload Fish
         uses: actions/upload-artifact@main
         with:
-          name: Fish 1.21.11
-          path: ./fish-server/build/libs/fish-paperclip-1.21.11-R0.1-SNAPSHOT-mojmap.jar
+          name: Fish 26.2
+          path: ./fish-server/build/libs/fish-paperclip-*.jar
 
       - name: Release Fish
         uses: softprops/action-gh-release@master
         with:
-          name: "🐟 Fish 1.21.11 (Build ${{ env.BUILD_NUMBER }})"
-          tag_name: "ver-1.21.11"
+          name: "🐟 Fish 26.2 (Build ${{ env.BUILD_NUMBER }})"
+          tag_name: "ver-26.2"
           files: |
-            ./fish-server/build/libs/fish-paperclip-1.21.11-R0.1-SNAPSHOT-mojmap.jar
-            ./fish-api/build/libs/fish-api-1.21.11-R0.1-SNAPSHOT.jar
+            ./fish-server/build/libs/fish-paperclip-*.jar
+            ./fish-api/build/libs/fish-api-*.jar
           body_path: "./RELEASE.md"
           token: "${{ secrets.GITHUB_TOKEN }}"
           target_commitish: "${{ github.sha }}"
@@ -75,4 +75,4 @@ jobs:
           url: https://version.serlith.net/submit
           method: 'POST'
           customHeaders: '{"Content-Type": "application/json", "Authorization": "${{ secrets.VERSION_TOKEN }}", "Server-Software": "Fish"}'
-          data: '{ "software": "Fish", "version": "1.21.11", "build": ${{ env.BUILD_NUMBER }} }'
+          data: '{ "software": "Fish", "version": "26.2", "build": ${{ env.BUILD_NUMBER }} }'
