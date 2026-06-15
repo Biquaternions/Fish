@@ -9,11 +9,15 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerTickRateManager;
 import net.minecraft.server.level.ServerLevel;
 import me.biquaternions.fish.FishConfig;
+import me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler;
 import me.biquaternions.fish.util.CallableWrapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.bukkit.Bukkit;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayDeque;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -21,9 +25,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 import java.util.function.BooleanSupplier;
 
+@NullMarked
 public class AsyncWorldTicking {
 
-    private static final Logger LOGGER = LogManager.getLogger("Fish World Ticking");
+    private static final Logger LOGGER = LoggerFactory.getLogger("Fish World Ticking");
     private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.ASYNC.WORLD_TICKING._THREADS);
     private static final CompletableFuture<?>[] EMPTY_ARRAY = new CompletableFuture[0];
     private static final Queue<Runnable> END_OF_TICK_TASKS = new ConcurrentLinkedQueue<>();
@@ -49,8 +54,8 @@ public class AsyncWorldTicking {
                         serverLevel.fish$nextTickTimeNanos = serverLevel.fish$tickSchedule.getDeadline(tickInterval);
 
                         serverLevel.tick(hasTimeLeft);
+                        ((WorldRegionScheduler) Bukkit.getRegionScheduler()).tickWorld(serverLevel);
                         AsyncWorldTicking.recordEndOfTick(serverLevel);
-                        AsyncWorldTicking.processScheduledWorldTasks(serverLevel);
 
                     } catch (Throwable var7) {
                         CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world [" + serverLevel.getWorld().getName() + "]");
@@ -60,7 +65,7 @@ public class AsyncWorldTicking {
                         serverLevel.fish$lock.writeLock().unlock();
                         SEMAPHORE.release();
                     }
-                }, serverLevel.fish$tickExecutor));
+                }, Objects.requireNonNull(serverLevel.fish$tickExecutor)));
                 serverLevel.explosionDensityCache.clear(); // Paper - Optimize explosions
             }
             CompletableFuture.allOf(tasks.toArray(EMPTY_ARRAY)).join();
@@ -119,15 +124,6 @@ public class AsyncWorldTicking {
         }
     }
 
-    private static void processScheduledWorldTasks(ServerLevel level) {
-        final long start = Util.getNanos();
-        Runnable task;
-        while ((task = level.fish$endOfTickTasks.poll()) != null) {
-            task.run();
-        }
-        level.fish$taskExecutionTime = Util.getNanos() - start;
-    }
-
     private static void processScheduledTasks() {
         Runnable task;
         while ((task = END_OF_TICK_TASKS.poll()) != null) {
@@ -147,7 +143,7 @@ public class AsyncWorldTicking {
             }
         } else {
             CallableWrapper<T> task = new CallableWrapper<>(callable);
-            level.fish$endOfTickTasks.offer(task);
+            level.fish$scheduler.schedule(task);
             return task.get();
         }
     }
@@ -163,7 +159,7 @@ public class AsyncWorldTicking {
                 level.fish$lock.readLock().unlock();
             }
         } else {
-            level.fish$endOfTickTasks.offer(runnable);
+            level.fish$scheduler.schedule(runnable);
         }
     }
 
@@ -207,7 +203,7 @@ public class AsyncWorldTicking {
     public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         CallableWrapper<T> task = new CallableWrapper<>(callable);
-        level.fish$endOfTickTasks.offer(task);
+        level.fish$scheduler.schedule(task);
         return task.get();
     }
 
@@ -222,7 +218,7 @@ public class AsyncWorldTicking {
      */
     public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        level.fish$endOfTickTasks.offer(runnable);
+        level.fish$scheduler.schedule(runnable);
     }
 
     /**
@@ -239,7 +235,7 @@ public class AsyncWorldTicking {
         Thread thread = Thread.currentThread();
         LOGGER.warn("A plugin accessed world/block data asynchronously from thread \"{}\".", thread.getName());
         for (StackTraceElement stackTraceElement : thread.getStackTrace()) {
-            LOGGER.warn("\tat {}", stackTraceElement.toString());
+            LOGGER.warn("\tat {}", stackTraceElement);
         }
     }
 
