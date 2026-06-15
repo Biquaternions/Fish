@@ -82,7 +82,7 @@ index 8aa4e2286704e43503abbdae0d88ccfd5e0bf7e4..1c6a7e867bde69da73e5010ed2e0b109
                  // (async tasks must live with race-conditions if they attempt to cancel between these few lines of code)
              }
 diff --git a/src/main/java/org/spigotmc/WatchdogThread.java b/src/main/java/org/spigotmc/WatchdogThread.java
-index b1063ec2eb0efceca88b64979e4f9b8e22439112..782533ef1c68ca4888775ce1561987ff6415328e 100644
+index 9495d361e3f09a6cf6e25adb3f02fed47f8c0361..7d535b63771750f54933646bdb9eb32b6749a02e 100644
 --- a/src/main/java/org/spigotmc/WatchdogThread.java
 +++ b/src/main/java/org/spigotmc/WatchdogThread.java
 @@ -25,7 +25,7 @@ public class WatchdogThread extends ca.spottedleaf.moonrise.common.util.TickThre
