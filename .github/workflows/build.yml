@@ -37,8 +37,8 @@ jobs:
       - name: Apply Patches
         run: ./gradlew applyAllPatches --stacktrace
 
-      - name: Create MojmapPaperclipJar
-        run: ./gradlew createMojmapPaperclipJar --stacktrace
+      - name: Create PaperclipJar
+        run: ./gradlew createPaperclipJar --stacktrace
 
       - name: Prepare release notes and artifacts
         run: |
