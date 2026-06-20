@@ -11,12 +11,12 @@ If the world is about to tick, but the async "request" is not done yet, the worl
 This scheduling logic is very performant as long as none of the plugins is spamming world/block requests.
 
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index d75facba88f28bf596424fc9e8faa4e6abff9e6b..75f45df8656a1856854d1afa951dcbdee026a763 100644
+index d460b59d8904fdbcb73929d6aeb27a44901eeacb..32946b3ca707cb56b24c1ce376afa633c0e64b77 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -236,6 +236,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
-     public boolean hasPhysicsEvent = true; // Paper - BlockPhysicsEvent
-     public boolean hasEntityMoveEvent; // Paper - Add EntityMoveEvent
+@@ -238,6 +238,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+     private static final org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry();
+     public final org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer persistentDataContainer = new org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer(DATA_TYPE_REGISTRY);
      private final alternate.current.wire.WireHandler wireHandler = new alternate.current.wire.WireHandler(this); // Paper - optimize redstone (Alternate Current)
 +    public final java.util.concurrent.locks.ReentrantReadWriteLock fish$lock = new java.util.concurrent.locks.ReentrantReadWriteLock(true); // Fish - Schedule tasks for end of tick
 +    public final me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler.Scheduler fish$scheduler = new me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler.Scheduler(); // Fish - Schedule tasks for end of tick

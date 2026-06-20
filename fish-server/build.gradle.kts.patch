@@ -3,7 +3,7 @@
 @@ -15,7 +_,7 @@
  
  dependencies {
-     mache("io.papermc:mache:26.2-rc-2+build.2")
+     mache("io.papermc:mache:26.2+build.1")
 -    paperclip("io.papermc:paperclip:3.0.4")
 +    paperclip("me.biquaternions:Fishclip:1.1")
  }
@@ -36,7 +36,7 @@
 +
      /* Pufferfish - Unneeded
      updatingMinecraft {
-         oldPaperCommit = "d4fe85375af18bfa88f44d7c1e6a61904ae550cc"
+         // oldPaperCommit = "d4fe85375af18bfa88f44d7c1e6a61904ae550cc"
 @@ -105,10 +_,18 @@
      main {
          java { srcDir("../paper-server/src/main/java") }
