@@ -11,7 +11,7 @@ If the world is about to tick, but the async "request" is not done yet, the worl
 This scheduling logic is very performant as long as none of the plugins is spamming world/block requests.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 4ad3230bde2a88c88dad8c1135d138760b53fd36..9a9b65b3a7d5a3a8b51b07c5f506ad591a02837b 100644
+index 83b8d44c7c8fc3cabb371c4e6ab9e1a9320ead35..13dacc8083dd15389356e324e9c906f3ddedfaa5 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -306,7 +306,7 @@ public final class CraftServer implements Server {
@@ -24,7 +24,7 @@ index 4ad3230bde2a88c88dad8c1135d138760b53fd36..9a9b65b3a7d5a3a8b51b07c5f506ad59
      private final io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler globalRegionScheduler = new io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler();
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index b00a79e441061f314d75c09b4904585693029fe0..88251c2a0016f5ca37c18c1db0027e4503a96194 100644
+index 11a62d5b2fc9aefab4f6217927ed3daf6d225646..35910c0eff9d29931f8dc4753f8ff38d87cf770b 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -475,7 +475,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
@@ -85,7 +85,7 @@ index b00a79e441061f314d75c09b4904585693029fe0..88251c2a0016f5ca37c18c1db0027e45
          if (this.world.hasChunkAt(pos)) {
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
-@@ -1863,7 +1875,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1868,7 +1880,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void sendGameEvent(Entity sourceEntity, org.bukkit.GameEvent gameEvent, Vector position) {
@@ -98,7 +98,7 @@ index b00a79e441061f314d75c09b4904585693029fe0..88251c2a0016f5ca37c18c1db0027e45
      }
      // Paper end
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
-index 3d8fbd74b3572203be6153383946cdf8b26adffe..e8de3538717ac27d78065dac957f7c478cbf8fb0 100644
+index 3a887094c66a54384d50ccf58a636f78bf3554b5..12be855c83759925db9980a8d2262a72e6eb93ee 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 @@ -149,7 +149,10 @@ public class CraftBlock implements Block {

@@ -13,7 +13,7 @@ With this approach only new methods are added into already existing Bukkit API, 
   get standarized.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 9a9b65b3a7d5a3a8b51b07c5f506ad591a02837b..54f0f6772f73544d9728484d4d7c371126675469 100644
+index 13dacc8083dd15389356e324e9c906f3ddedfaa5..78c3778828d1cdae15074c51f59887ccb8e808b9 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -2962,4 +2962,11 @@ public final class CraftServer implements Server {
@@ -29,10 +29,10 @@ index 9a9b65b3a7d5a3a8b51b07c5f506ad591a02837b..54f0f6772f73544d9728484d4d7c3711
 +    // Fish end - Parallel World Ticking API
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 88251c2a0016f5ca37c18c1db0027e4503a96194..fdc1c38c51aef6d3d1683ac359f35ae631ba19f9 100644
+index 35910c0eff9d29931f8dc4753f8ff38d87cf770b..3685cb305268c4ce8737f389ed592f002ad303fc 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -2065,4 +2065,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2070,4 +2070,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          return POINTERS_SUPPLIER.view(this);
      }
      // Paper end
