@@ -96,7 +96,7 @@ index 8538e9b33b5d417ae4051a853fb988cbedc50c8a..f3cdeab98548a9d1eb06289f447b7274
                  continue;
              }
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 7f77d5c5c25ec019a33103ed47d448b9f9bab4c4..d48f9647acb795a96e0c63c4cb5a2d157daaae88 100644
+index 7f77d5c5c25ec019a33103ed47d448b9f9bab4c4..1e438c545d60958f05f900128ea60dbde963b70b 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -196,7 +196,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -116,17 +116,18 @@ index 7f77d5c5c25ec019a33103ed47d448b9f9bab4c4..d48f9647acb795a96e0c63c4cb5a2d15
  
      // CraftBukkit start
      private final ResourceKey<LevelStem> typeKey;
-@@ -607,6 +608,17 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -607,6 +608,18 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
      }
      // Paper end - chunk tick iteration
  
 +    public final Object fish$statsLock = new Object();
-+    public ca.spottedleaf.moonrise.common.time.TickData.@Nullable MSPTData fish$msptData5s;
-+    public final ca.spottedleaf.moonrise.common.time.TickData fish$tickTimes5s = new ca.spottedleaf.moonrise.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
-+    public final ca.spottedleaf.moonrise.common.time.TickData fish$tickTimes10s = new ca.spottedleaf.moonrise.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(10L));
-+    public final ca.spottedleaf.moonrise.common.time.TickData fish$tickTimes60s = new ca.spottedleaf.moonrise.common.time.TickData(java.util.concurrent.TimeUnit.MINUTES.toNanos(1L));
-+    public final ca.spottedleaf.moonrise.common.time.Schedule fish$tickSchedule = new ca.spottedleaf.moonrise.common.time.Schedule(0L);
-+    public long fish$lastTickStart = ca.spottedleaf.concurrentutil.util.TimeUtil.DEADLINE_NOT_SET;
++    public ca.spottedleaf.common.time.TickData.@Nullable MSPTData fish$msptData5s;
++    public final ca.spottedleaf.common.time.TickData fish$tickTimes5s = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
++    public final ca.spottedleaf.common.time.TickData fish$tickTimes10s = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(10L));
++    public final ca.spottedleaf.common.time.TickData fish$tickTimes15s = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(15L));
++    public final ca.spottedleaf.common.time.TickData fish$tickTimes60s = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.MINUTES.toNanos(1L));
++    public final ca.spottedleaf.common.time.Schedule fish$tickSchedule = new ca.spottedleaf.common.time.Schedule(0L);
++    public long fish$lastTickStart = ca.spottedleaf.common.util.TimeUtil.DEADLINE_NOT_SET;
 +    public long fish$currentTickStart;
 +    public long fish$scheduledTickStart;
 +    public long fish$taskExecutionTime;
@@ -134,7 +135,7 @@ index 7f77d5c5c25ec019a33103ed47d448b9f9bab4c4..d48f9647acb795a96e0c63c4cb5a2d15
      public ServerLevel(
          final MinecraftServer server,
          final Executor executor,
-@@ -724,7 +736,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -724,7 +737,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
  
          this.sleepStatus = new SleepStatus();
          this.gameEventDispatcher = new GameEventDispatcher(this);
@@ -143,7 +144,7 @@ index 7f77d5c5c25ec019a33103ed47d448b9f9bab4c4..d48f9647acb795a96e0c63c4cb5a2d15
          this.environmentAttributes = EnvironmentAttributeSystem.builder().addDefaultLayers(this).build();
          this.updateSkyBrightness();
          // Paper start - rewrite chunk system
-@@ -742,6 +754,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -742,6 +755,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
          this.chunkDataController = new ca.spottedleaf.moonrise.patches.chunk_system.io.datacontroller.ChunkDataController((ServerLevel)(Object)this, this.chunkTaskScheduler);
          // Paper end - rewrite chunk system
          this.getCraftServer().addWorld(this.getWorld()); // CraftBukkit
@@ -151,7 +152,7 @@ index 7f77d5c5c25ec019a33103ed47d448b9f9bab4c4..d48f9647acb795a96e0c63c4cb5a2d15
      }
  
      // Paper start
-@@ -1356,6 +1369,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -1356,6 +1370,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
          }
          // Paper start - rewrite chunk system
          if ((++this.tickedBlocksOrFluids & 7L) != 0L) {
@@ -159,7 +160,7 @@ index 7f77d5c5c25ec019a33103ed47d448b9f9bab4c4..d48f9647acb795a96e0c63c4cb5a2d15
              ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.server).moonrise$executeMidTickTasks();
          }
          // Paper end - rewrite chunk system
-@@ -1369,6 +1383,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -1369,6 +1384,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
          }
          // Paper start - rewrite chunk system
          if ((++this.tickedBlocksOrFluids & 7L) != 0L) {
@@ -167,7 +168,7 @@ index 7f77d5c5c25ec019a33103ed47d448b9f9bab4c4..d48f9647acb795a96e0c63c4cb5a2d15
              ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.server).moonrise$executeMidTickTasks();
          }
          // Paper end - rewrite chunk system
-@@ -1620,6 +1635,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -1620,6 +1636,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
      }
  
      private void addPlayer(final ServerPlayer player) {
@@ -175,7 +176,7 @@ index 7f77d5c5c25ec019a33103ed47d448b9f9bab4c4..d48f9647acb795a96e0c63c4cb5a2d15
          Entity existing = this.getEntity(player.getUUID());
          if (existing != null) {
              LOGGER.warn("Force-added player with duplicate UUID {}", player.getUUID());
-@@ -1632,6 +1648,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -1632,6 +1649,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
  
      // CraftBukkit start
      private boolean addEntity(final Entity entity, final org.bukkit.event.entity.CreatureSpawnEvent.@Nullable SpawnReason spawnReason) {

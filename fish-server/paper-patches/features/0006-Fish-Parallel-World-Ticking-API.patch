@@ -29,7 +29,7 @@ index 13dacc8083dd15389356e324e9c906f3ddedfaa5..78c3778828d1cdae15074c51f59887cc
 +    // Fish end - Parallel World Ticking API
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 35910c0eff9d29931f8dc4753f8ff38d87cf770b..3685cb305268c4ce8737f389ed592f002ad303fc 100644
+index 35910c0eff9d29931f8dc4753f8ff38d87cf770b..c6d86a298b367c502ba876157f7991ab8d9a7bb8 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -2070,4 +2070,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
@@ -40,12 +40,12 @@ index 35910c0eff9d29931f8dc4753f8ff38d87cf770b..3685cb305268c4ce8737f389ed592f00
 +    // Fish start - Parallel World Ticking API
 +    @Override
 +    public long @NotNull [] getTickTimes() {
-+        final ca.spottedleaf.moonrise.common.time.TickData.MSPTData reportData = me.biquaternions.fish.async.AsyncWorldTicking.getMSPTData5s(this.world);
++        final ca.spottedleaf.common.time.TickData.MSPTData reportData = me.biquaternions.fish.async.AsyncWorldTicking.getMSPTData5s(this.world);
 +        return reportData == null ? new long[0] : reportData.rawData().clone();
 +    }
 +    @Override
 +    public double getAverageTickTime() {
-+        final ca.spottedleaf.moonrise.common.time.TickData.MSPTData reportData = me.biquaternions.fish.async.AsyncWorldTicking.getMSPTData5s(this.world);
++        final ca.spottedleaf.common.time.TickData.MSPTData reportData = me.biquaternions.fish.async.AsyncWorldTicking.getMSPTData5s(this.world);
 +        return reportData == null ? 0.0 : reportData.avg();
 +    }
 +    // Fish end - Parallel World Ticking API

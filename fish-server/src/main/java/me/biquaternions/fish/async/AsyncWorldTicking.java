@@ -1,7 +1,7 @@
 package me.biquaternions.fish.async;
 
-import ca.spottedleaf.moonrise.common.time.TickData;
-import ca.spottedleaf.moonrise.common.time.TickTime;
+import ca.spottedleaf.common.time.TickData;
+import ca.spottedleaf.common.time.TickTime;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.util.Util;
@@ -86,7 +86,7 @@ public class AsyncWorldTicking {
 
         final long now = Util.getNanos();
 
-        final ca.spottedleaf.moonrise.common.time.TickTime time = new ca.spottedleaf.moonrise.common.time.TickTime(
+        final TickTime time = new TickTime(
             prevStart,
             scheduledStart,
             currStart,
@@ -106,6 +106,7 @@ public class AsyncWorldTicking {
         synchronized (level.fish$statsLock) {
             level.fish$tickTimes5s.addDataFrom(time);
             level.fish$tickTimes10s.addDataFrom(time);
+            level.fish$tickTimes15s.addDataFrom(time);
             level.fish$tickTimes60s.addDataFrom(time);
             AsyncWorldTicking.clearTickTimeStatistics(level);
         }
