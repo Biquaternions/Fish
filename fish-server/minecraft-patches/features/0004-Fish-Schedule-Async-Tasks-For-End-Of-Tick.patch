@@ -11,7 +11,7 @@ If the world is about to tick, but the async "request" is not done yet, the worl
 This scheduling logic is very performant as long as none of the plugins is spamming world/block requests.
 
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index d460b59d8904fdbcb73929d6aeb27a44901eeacb..32946b3ca707cb56b24c1ce376afa633c0e64b77 100644
+index 1e438c545d60958f05f900128ea60dbde963b70b..b6af62bcdb23e11aff6ab9e2e1f4442331584fea 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -238,6 +238,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
