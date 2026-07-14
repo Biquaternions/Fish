@@ -1,0 +1,76 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Tue, 14 Jul 2026 00:10:33 -0500
+Subject: [PATCH] Fish Handle Redstone Wire Updates
+
+
+diff --git a/io/papermc/paper/redstone/RedstoneWireTurbo.java b/io/papermc/paper/redstone/RedstoneWireTurbo.java
+index 8e03419df1469c6fecfaa82fcb319a58635b39f3..a3e7486aadf4cd221c5a30d1dc1b9184ad74debe 100644
+--- a/io/papermc/paper/redstone/RedstoneWireTurbo.java
++++ b/io/papermc/paper/redstone/RedstoneWireTurbo.java
+@@ -827,14 +827,23 @@ public final class RedstoneWireTurbo {
+         j = getMaxCurrentStrength(upd, j);
+         int l = 0;
+ 
++        // Fish start - Fix too many chained neighbors
++        final int k;
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++            me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal = false;
++            k = worldIn.getBestNeighborSignal(upd.self);
++            me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal = true;
++        }
++        else { // Fish end - Fix too many chained neighbors
+         wire.shouldSignal = false;
+         // Unfortunately, World.isBlockIndirectlyGettingPowered is complicated,
+         // and I'm not ready to try to replicate even more functionality from
+         // elsewhere in Minecraft into this accelerator.  So sadly, we must
+         // suffer the performance hit of this very expensive call.  If there
+         // is consistency to what this call returns, we may be able to cache it.
+-        final int k = worldIn.getBestNeighborSignal(upd.self);
++        k = worldIn.getBestNeighborSignal(upd.self);
+         wire.shouldSignal = true;
++        } // Fish - Fix too many chained neighbors
+ 
+         // The variable 'k' holds the maximum redstone power value of any adjacent blocks.
+         // If 'k' has the highest level of all neighbors, then the power level of this
+diff --git a/net/minecraft/world/level/block/RedStoneWireBlock.java b/net/minecraft/world/level/block/RedStoneWireBlock.java
+index 3fb9600b0301503e9593915a9d96ddbe2863e2f1..0ec2e0c075de7e12db449287ab6f3c6d0989ced1 100644
+--- a/net/minecraft/world/level/block/RedStoneWireBlock.java
++++ b/net/minecraft/world/level/block/RedStoneWireBlock.java
+@@ -336,6 +336,12 @@ public class RedStoneWireBlock extends Block {
+     }
+ 
+     public int getBlockSignal(final Level level, final BlockPos pos) {
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++            me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal = false;
++            int blockSignal = level.getBestNeighborSignal(pos);
++            me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal = true;
++            return blockSignal;
++        }
+         this.shouldSignal = false;
+         int blockSignal = level.getBestNeighborSignal(pos);
+         this.shouldSignal = true;
+@@ -432,12 +438,14 @@ public class RedStoneWireBlock extends Block {
+ 
+     @Override
+     protected int getDirectSignal(final BlockState state, final BlockGetter level, final BlockPos pos, final Direction direction) {
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal ? Redstone.SIGNAL_MIN : state.getSignal(level, pos, direction);
+         return !this.shouldSignal ? Redstone.SIGNAL_MIN : state.getSignal(level, pos, direction);
+     }
+ 
+     @Override
+     protected int getSignal(final BlockState state, final BlockGetter level, final BlockPos pos, final Direction direction) {
+-        if (this.shouldSignal && direction != Direction.DOWN) {
++        boolean shouldSignal0 = me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal : this.shouldSignal;
++        if (shouldSignal0 && direction != Direction.DOWN) {
+             int power = this.ownSignal(state, level, pos);
+             if (power == 0) {
+                 return Redstone.SIGNAL_MIN;
+@@ -474,6 +482,7 @@ public class RedStoneWireBlock extends Block {
+ 
+     @Override
+     protected boolean isSignalSource(final BlockState state) {
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal;
+         return this.shouldSignal;
+     }
+ 
