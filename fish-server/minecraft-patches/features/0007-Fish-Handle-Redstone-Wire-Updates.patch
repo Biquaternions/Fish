@@ -34,10 +34,26 @@ index 8e03419df1469c6fecfaa82fcb319a58635b39f3..a3e7486aadf4cd221c5a30d1dc1b9184
          // The variable 'k' holds the maximum redstone power value of any adjacent blocks.
          // If 'k' has the highest level of all neighbors, then the power level of this
 diff --git a/net/minecraft/world/level/block/RedStoneWireBlock.java b/net/minecraft/world/level/block/RedStoneWireBlock.java
-index 3fb9600b0301503e9593915a9d96ddbe2863e2f1..0ec2e0c075de7e12db449287ab6f3c6d0989ced1 100644
+index 35e49078d8d36ae4683de26988435d971c7f0e89..04d6ab937142dbc5a286b5f1f68a2fb93001e261 100644
 --- a/net/minecraft/world/level/block/RedStoneWireBlock.java
 +++ b/net/minecraft/world/level/block/RedStoneWireBlock.java
-@@ -336,6 +336,12 @@ public class RedStoneWireBlock extends Block {
+@@ -287,6 +287,7 @@ public class RedStoneWireBlock extends Block {
+             if (orientation != null) {
+                 source = pos.relative(orientation.getFront().getOpposite());
+             }
++            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().turbo.updateSurroundingRedstone(worldIn, pos, state, source); else // SparklyPaper - parallel world ticking
+             turbo.updateSurroundingRedstone(worldIn, pos, state, source);
+             return;
+         }
+@@ -311,6 +312,7 @@ public class RedStoneWireBlock extends Block {
+                 // [Space Walker] suppress shape updates and emit those manually to
+                 // bypass the new neighbor update stack.
+                 if (level.setBlock(pos, state, Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS)) {
++                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().turbo.updateNeighborShapes(level, pos, state); else // SparklyPaper - parallel world ticking
+                     turbo.updateNeighborShapes(level, pos, state);
+                 }
+             }
+@@ -334,6 +336,12 @@ public class RedStoneWireBlock extends Block {
      }
  
      public int getBlockSignal(final Level level, final BlockPos pos) {
@@ -50,7 +66,7 @@ index 3fb9600b0301503e9593915a9d96ddbe2863e2f1..0ec2e0c075de7e12db449287ab6f3c6d
          this.shouldSignal = false;
          int blockSignal = level.getBestNeighborSignal(pos);
          this.shouldSignal = true;
-@@ -432,12 +438,14 @@ public class RedStoneWireBlock extends Block {
+@@ -430,12 +438,14 @@ public class RedStoneWireBlock extends Block {
  
      @Override
      protected int getDirectSignal(final BlockState state, final BlockGetter level, final BlockPos pos, final Direction direction) {
@@ -66,7 +82,7 @@ index 3fb9600b0301503e9593915a9d96ddbe2863e2f1..0ec2e0c075de7e12db449287ab6f3c6d
              int power = this.ownSignal(state, level, pos);
              if (power == 0) {
                  return Redstone.SIGNAL_MIN;
-@@ -474,6 +482,7 @@ public class RedStoneWireBlock extends Block {
+@@ -472,6 +482,7 @@ public class RedStoneWireBlock extends Block {
  
      @Override
      protected boolean isSignalSource(final BlockState state) {
