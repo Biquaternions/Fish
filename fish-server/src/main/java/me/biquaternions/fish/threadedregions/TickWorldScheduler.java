@@ -1,7 +1,9 @@
 package me.biquaternions.fish.threadedregions;
 
 import me.biquaternions.fish.async.thread.WorldTickThread;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class TickWorldScheduler {
 
     public static RegionizedWorldData getCurrentRegionizedWorldData() {
