@@ -43,7 +43,7 @@ public class WorldTpsCollector extends LiveCollector {
         Map<Key, CollectorData> msptData = new HashMap<>();
         for (World world : worlds) {
             Key key = world.key();
-            String msptId = String.format("flare:perf:world[%s]:mspt", key.asString().replace(":", "$"));
+            String msptId = String.format("flare:perf:world[%s]:mspt", key.asString());
             msptData.put(key, new CollectorData(
                 msptId,
                 "MSPT",
