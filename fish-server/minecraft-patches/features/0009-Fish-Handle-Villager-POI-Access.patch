@@ -1,0 +1,65 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Sat, 18 Jul 2026 13:59:10 -0500
+Subject: [PATCH] Fish Handle Villager POI Access
+
+
+diff --git a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
+index ba61762e09ace201173999b3984046f930ccfe57..ecac4466b68c515ede358ec7614f69dc10938abd 100644
+--- a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
++++ b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
+@@ -45,12 +45,23 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
+             BlockPos pos = globalPos.pos();
+             ServerLevel serverLevel = level.getServer().getLevel(globalPos.dimension());
+             if (serverLevel != null) {
++                // Fish start - Handle Villager POI Access
++                if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(serverLevel)) {
++                    me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(serverLevel, () -> {
++                        PoiManager manager = serverLevel.getPoiManager();
++                        if (manager.exists(pos, p -> true)) {
++                            manager.release(pos);
++                        }
++                        level.debugSynchronizers().updatePoi(pos);
++                    });
++                } else { // Fish end - Handle Villager POI Access
+                 PoiManager manager = serverLevel.getPoiManager();
+                 if (manager.exists(pos, p -> true)) {
+                     manager.release(pos);
+                 }
+ 
+                 level.debugSynchronizers().updatePoi(pos);
++                } // Fish - Handle Villager POI Access
+             }
+         });
+         body.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
+diff --git a/net/minecraft/world/entity/npc/villager/Villager.java b/net/minecraft/world/entity/npc/villager/Villager.java
+index ed6ac2507d58d609aae286a66c9f0b5e39dddbe3..10802eeaf23d3dfcb96d88f92cd519aeac0230e1 100644
+--- a/net/minecraft/world/entity/npc/villager/Villager.java
++++ b/net/minecraft/world/entity/npc/villager/Villager.java
+@@ -675,6 +675,18 @@ public class Villager extends AbstractVillager implements VillagerDataHolder, Re
+             this.brain.getMemory(memoryType).ifPresent(memory -> {
+                 ServerLevel poiLevel = server.getLevel(memory.dimension());
+                 if (poiLevel != null) {
++                    // Fish start - Handle Villager POI Access
++                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(poiLevel)) {
++                        me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(poiLevel, () -> {
++                            PoiManager poiManager = poiLevel.getPoiManager();
++                            Optional<Holder<PoiType>> type = poiManager.getType(memory.pos());
++                            BiPredicate<Villager, Holder<PoiType>> poiTypePredicate = POI_MEMORIES.get(memoryType);
++                            if (type.isPresent() && poiTypePredicate.test(this, type.get())) {
++                                poiManager.release(memory.pos());
++                                poiLevel.debugSynchronizers().updatePoi(memory.pos());
++                            }
++                        });
++                    } else { // Fish end - Handle Villager POI Access
+                     PoiManager poiManager = poiLevel.getPoiManager();
+                     Optional<Holder<PoiType>> type = poiManager.getType(memory.pos());
+                     BiPredicate<Villager, Holder<PoiType>> poiTypePredicate = POI_MEMORIES.get(memoryType);
+@@ -682,6 +694,7 @@ public class Villager extends AbstractVillager implements VillagerDataHolder, Re
+                         poiManager.release(memory.pos());
+                         poiLevel.debugSynchronizers().updatePoi(memory.pos());
+                     }
++                    } // Fish - Handle Villager POI Access
+                 }
+             });
+         }
