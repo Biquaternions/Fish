@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Sat, 18 Jul 2026 15:47:07 -0500
+Subject: [PATCH] Fish Handle Entity Scheduler
+
+
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index cff4246db3dd278de34597e3554611cd9efd28b8..e89e19f2cef65cdd7a10f2d0301963c60aa36eeb 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -1771,6 +1771,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         this.server.getScheduler().mainThreadHeartbeat(); // CraftBukkit
+         // Paper start - optimise Folia entity scheduler
+         ((io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler)org.bukkit.Bukkit.getGlobalRegionScheduler()).tick();
++        if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) { // Fish - Handle Entity Schedulers
+         for (io.papermc.paper.threadedregions.EntityScheduler scheduler : this.entitySchedulerTickList.getAllSchedulers()) {
+             if (scheduler.isRetired()) {
+                 continue;
+@@ -1778,6 +1779,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+             scheduler.executeTick();
+         }
++        } // Fish - Handle Entity Schedulers
+         // Paper end - optimise Folia entity scheduler
+         // Paper end - Folia scheduler API
+         io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.ADVENTURE_CLICK_MANAGER.handleQueue(this.tickCount); // Paper
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index b6af62bcdb23e11aff6ab9e2e1f4442331584fea..9217959917d6a93be03b81fe8f199289da860535 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -622,6 +622,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+     public long fish$scheduledTickStart;
+     public long fish$taskExecutionTime;
+     public long fish$nextTickTimeNanos = Util.getNanos();
++    public me.biquaternions.fish.threadedregions.RegionizedWorldData fish$worldData = new me.biquaternions.fish.threadedregions.RegionizedWorldData(this);
+     public ServerLevel(
+         final MinecraftServer server,
+         final Executor executor,
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index 7fdabf824574bb3e48779c0b1a07e700ffa3f2dd..7567b6c13d908dd9fbaba302cfc863730f6bceb3 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -5259,6 +5259,10 @@ public abstract class Entity
+     // Paper end - Folia schedulers
+     // Paper start - optimise Folia entity scheduler
+     public final void registerScheduler() {
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.level instanceof ServerLevel serverLevel) {
++            this.getBukkitEntity().taskScheduler.registerTo(serverLevel.fish$worldData.entitySchedulerTickList);
++            return;
++        }
+         this.getBukkitEntity().taskScheduler.registerTo(net.minecraft.server.MinecraftServer.getServer().entitySchedulerTickList);
+     }
+     // Paper end - optimise Folia entity scheduler

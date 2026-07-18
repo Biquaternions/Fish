@@ -57,6 +57,14 @@ public class AsyncWorldTicking {
                         serverLevel.fish$tickSchedule.setNextPeriod(serverLevel.fish$currentTickStart, tickInterval);
                         serverLevel.fish$nextTickTimeNanos = serverLevel.fish$tickSchedule.getDeadline(tickInterval);
 
+                        for (io.papermc.paper.threadedregions.EntityScheduler scheduler : serverLevel.fish$worldData.entitySchedulerTickList.getAllSchedulers()) {
+                            net.minecraft.world.entity.Entity handle = scheduler.entity.getHandleRaw();
+                            if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(handle) || scheduler.isRetired()) {
+                                continue;
+                            }
+                            scheduler.executeTick();
+                        }
+
                         serverLevel.tick(hasTimeLeft);
                         ((WorldRegionScheduler) Bukkit.getRegionScheduler()).tickWorld(serverLevel);
                         AsyncWorldTicking.recordEndOfTick(serverLevel);

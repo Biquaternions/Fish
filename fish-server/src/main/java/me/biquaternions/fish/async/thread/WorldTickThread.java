@@ -9,12 +9,10 @@ import org.jspecify.annotations.NullMarked;
 public class WorldTickThread extends TickThread {
 
     private final ServerLevel tickingWorld;
-    private final RegionizedWorldData worldData; // Maybe move to world?
 
     public WorldTickThread(Runnable runnable, ServerLevel world) {
         super(runnable, String.format("Fish World [%s] Tick Thread", world.serverLevelData.getLevelName()));
         this.tickingWorld = world;
-        this.worldData = new RegionizedWorldData(this.tickingWorld);
     }
 
     public ServerLevel getTickingWorld() {
@@ -22,7 +20,7 @@ public class WorldTickThread extends TickThread {
     }
 
     public RegionizedWorldData getWorldData() {
-        return this.worldData;
+        return this.tickingWorld.fish$worldData;
     }
 
     public static boolean isWorldTickThread() {
