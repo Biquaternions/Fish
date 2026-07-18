@@ -34,6 +34,10 @@ public class AsyncWorldTicking {
     private static final Queue<Runnable> END_OF_TICK_TASKS = new ConcurrentLinkedQueue<>();
     private static final ServerTickRateManager TICK_RATE_MANAGER = MinecraftServer.getServer().tickRateManager();
 
+    private static final long CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME = 25L * 1000L; // 25us
+    private static final long MAX_CHUNK_EXEC_TIME = 1000L; // 1us
+    private static final long TASK_EXECUTION_FAILURE_BACKOFF = 5L * 1000L; // 5us
+
     public static void tickWorlds(Iterable<ServerLevel> worlds, BooleanSupplier hasTimeLeft) {
 
         long tickInterval = TICK_RATE_MANAGER.isSprinting() ? 0 : TICK_RATE_MANAGER.nanosecondsPerTick();
@@ -237,6 +241,45 @@ public class AsyncWorldTicking {
         LOGGER.warn("A plugin accessed world/block data asynchronously from thread \"{}\".", thread.getName());
         for (StackTraceElement stackTraceElement : thread.getStackTrace()) {
             LOGGER.warn("\tat {}", stackTraceElement);
+        }
+    }
+
+    private static boolean tickMidTickTasks(final me.biquaternions.fish.threadedregions.RegionizedWorldData worldData) {
+        return worldData.world.getChunkSource().pollTask();
+    }
+
+    public static void executeMidTickTasks() {
+        me.biquaternions.fish.threadedregions.RegionizedWorldData worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData();
+        final long startTime = System.nanoTime();
+        if ((startTime - worldData.lastMidTickExecute) <= CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME || (startTime - worldData.lastMidTickExecuteFailure) <= TASK_EXECUTION_FAILURE_BACKOFF) {
+            // it's shown to be bad to constantly hit the queue (chunk loads slow to a crawl), even if no tasks are executed.
+            // so, backoff to prevent this
+            return;
+        }
+
+        for (;;) {
+            final boolean moreTasks = AsyncWorldTicking.tickMidTickTasks(worldData);
+            final long currTime = System.nanoTime();
+            final long diff = currTime - startTime;
+
+            if (!moreTasks || diff >= MAX_CHUNK_EXEC_TIME) {
+                if (!moreTasks) {
+                    worldData.lastMidTickExecuteFailure = currTime;
+                }
+
+                // note: negative values reduce the time
+                long overuse = diff - MAX_CHUNK_EXEC_TIME;
+                if (overuse >= (10L * 1000L * 1000L)) { // 10ms
+                    // make sure something like a GC or dumb plugin doesn't screw us over...
+                    overuse = 10L * 1000L * 1000L; // 10ms
+                }
+
+                final double overuseCount = (double)overuse/(double)MAX_CHUNK_EXEC_TIME;
+                final long extraSleep = Math.round(overuseCount*CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME);
+
+                worldData.lastMidTickExecute = currTime + extraSleep;
+                return;
+            }
         }
     }
 
