@@ -3,6 +3,8 @@ From: Biquaternions <biquaternions@serlith.net>
 Date: Tue, 14 Jul 2026 00:10:33 -0500
 Subject: [PATCH] Fish Handle Redstone Wire Updates
 
+This patch implements Folia's approach to prevent too many chained neighbors race conditions.
+This creates a boolean in WorldData to keep track of neighbors per-world.
 
 diff --git a/io/papermc/paper/redstone/RedstoneWireTurbo.java b/io/papermc/paper/redstone/RedstoneWireTurbo.java
 index 8e03419df1469c6fecfaa82fcb319a58635b39f3..611028130a88ba43d1a745bd1efdccafc24ada8a 100644

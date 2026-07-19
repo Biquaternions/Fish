@@ -3,6 +3,11 @@ From: Biquaternions <biquaternions@serlith.net>
 Date: Sat, 18 Jul 2026 13:59:10 -0500
 Subject: [PATCH] Fish Handle Villager POI Access
 
+This patch ports Folia's fix for villagers trying to access POI across regions.
+We schedule this access to the end of the target world tick, this means it might run during the same tick,
+  or fallback to run in the next tick.
+It is possible to just schedule this at the end of the global tick to guarantee an execution in the same tick,
+  but I want to experiment with this approach for a while.
 
 diff --git a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
 index ba61762e09ace201173999b3984046f930ccfe57..ecac4466b68c515ede358ec7614f69dc10938abd 100644

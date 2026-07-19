@@ -3,6 +3,8 @@ From: Biquaternions <biquaternions@serlith.net>
 Date: Sat, 27 Jun 2026 01:26:33 -0500
 Subject: [PATCH] Fish Health Metrics
 
+This patch ports Folia's TPS (Health) command to work on PWT.
+For health metrics, we now track chunk's load and generation rates.
 
 diff --git a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/task/ChunkFullTask.java b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/task/ChunkFullTask.java
 index 96ccb8f657d755b2e58a8dd0cda00ca0df4886b2..567ae3e3c99f50467831a8653109c92448b30755 100644

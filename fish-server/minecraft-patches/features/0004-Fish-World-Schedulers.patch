@@ -3,12 +3,16 @@ From: Biquaternions <biquaternions@serlith.net>
 Date: Sun, 3 Aug 2025 20:38:56 -0500
 Subject: [PATCH] Fish World Schedulers
 
-This implementation allows async threads to still do async operations as long as the world is not ticking.
-If the world is ticking, the "request" will be scheduled to be run sync at the end of the tick.
-  * Not doing this, means that if the world is always ticking (mspt > 50) there's a chance that the async thread will sleep indefinitely.
-If the world is not ticking, the "request" will be performed async by the calling thread.
-If the world is about to tick, but the async "request" is not done yet, the world will wait until its done and every new "request" will be scheduled.
-This scheduling logic is very performant as long as none of the plugins is spamming world/block requests.
+This patch adds a ReentrantReadWriteLock and RegionizedWorldData.
+RegionizedWorldData bundles an EntityScheduler.EntitySchedulerTickList and a WorldRegionScheduler.Scheduler
+  effectively implementing PWT-compatible versions of Folia's Entity and Location schedulers, instead
+  of using Paper's fallback schedulers, which run on the main thread. This means the task load is now
+  effectively spread across worlds.
+ReentrantReadWriteLock allows consistent read-write blocking logic for scheduling async tasks into world's
+  threads as a compatibility layer for Bukkit plugins. The write requests will be scheduled at the end
+  of the world tick if the world is currently ticking, or will run immediately and temporarily block the
+  read lock if not. This scheduling logic is very performant as long as there're no plugins spamming
+  CraftWorld or CraftBlock requests.
 
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
 index 1e438c545d60958f05f900128ea60dbde963b70b..525fe7338268d4bf93d8d05456ac6249cf874bec 100644

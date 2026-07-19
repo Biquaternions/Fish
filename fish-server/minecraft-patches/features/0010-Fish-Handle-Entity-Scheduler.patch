@@ -3,6 +3,8 @@ From: Biquaternions <biquaternions@serlith.net>
 Date: Sat, 18 Jul 2026 15:47:07 -0500
 Subject: [PATCH] Fish Handle Entity Scheduler
 
+This patch disabled Paper's fallback logic for entity ticking and moves it to
+  the world thread to properly schedule entity tasks into their respective world threads.
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
 index 55a579e48a9bb9db77da0d648b079b429afcc8ac..daf411e2e3df30746a64080d051414462eb14fbc 100644

@@ -3,6 +3,9 @@ From: Biquaternions <biquaternions@serlith.net>
 Date: Sun, 19 Jul 2026 12:39:25 -0500
 Subject: [PATCH] Fish Handle Mid Tick Tasks
 
+This patch re-enabled mid-tick tasks.
+Instead of iterating through all worlds, if the requesting thread is a world thread, it will only
+  execute its own mid-tick tasks.
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
 index daf411e2e3df30746a64080d051414462eb14fbc..3016ce7ed759dfce5f23d7bc18d835679c4c413b 100644

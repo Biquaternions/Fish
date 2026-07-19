@@ -3,6 +3,9 @@ From: Biquaternions <biquaternions@serlith.net>
 Date: Sat, 18 Jul 2026 13:48:30 -0500
 Subject: [PATCH] Fish Handle Enderpearl Teleport
 
+This patch sends the enderpearl teleportation to the end of the tick.
+Similar to Entity Portal Teleportation, we do not need the custom logic, as worlds still have a main thread,
+  we can still rely on the main thread to handle this logic safely.
 
 diff --git a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
 index 50bd8343129b6eafb0d18795aede6e8778e86d83..9ddcecc15c943c37f00292b0b5dcc925f89ed879 100644
