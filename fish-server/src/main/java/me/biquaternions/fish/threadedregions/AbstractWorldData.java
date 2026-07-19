@@ -6,13 +6,13 @@ import net.minecraft.world.level.block.RedStoneWireBlock;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public class GlobalServerData {
+public abstract class AbstractWorldData {
 
     public final RedstoneWireTurbo turbo;
 
     public boolean shouldSignal = true;
 
-    public GlobalServerData() {
+    public AbstractWorldData() {
         this.turbo = new RedstoneWireTurbo((RedStoneWireBlock) Blocks.REDSTONE_WIRE);
     }
 

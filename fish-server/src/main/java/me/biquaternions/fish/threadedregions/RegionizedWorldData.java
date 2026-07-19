@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.RedStoneWireBlock;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public class RegionizedWorldData extends GlobalServerData {
+public class RegionizedWorldData extends AbstractWorldData {
 
     public final ServerLevel world;
     public final EntityScheduler.EntitySchedulerTickList entitySchedulerTickList;

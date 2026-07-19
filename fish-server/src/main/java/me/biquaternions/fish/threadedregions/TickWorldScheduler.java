@@ -7,7 +7,7 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class TickWorldScheduler {
 
-    public static GlobalServerData getCurrentRegionizedWorldData() {
+    public static AbstractWorldData getCurrentRegionizedWorldData() {
         final Thread currentThread = Thread.currentThread();
         if (!(currentThread instanceof WorldTickThread tickThreadRunner)) {
             return MinecraftServer.getServer().fish$globalData;

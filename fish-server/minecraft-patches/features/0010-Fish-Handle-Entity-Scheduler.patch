@@ -5,10 +5,10 @@ Subject: [PATCH] Fish Handle Entity Scheduler
 
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index cff4246db3dd278de34597e3554611cd9efd28b8..e89e19f2cef65cdd7a10f2d0301963c60aa36eeb 100644
+index 55a579e48a9bb9db77da0d648b079b429afcc8ac..daf411e2e3df30746a64080d051414462eb14fbc 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -1771,6 +1771,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1772,6 +1772,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.server.getScheduler().mainThreadHeartbeat(); // CraftBukkit
          // Paper start - optimise Folia entity scheduler
          ((io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler)org.bukkit.Bukkit.getGlobalRegionScheduler()).tick();
@@ -16,7 +16,7 @@ index cff4246db3dd278de34597e3554611cd9efd28b8..e89e19f2cef65cdd7a10f2d0301963c6
          for (io.papermc.paper.threadedregions.EntityScheduler scheduler : this.entitySchedulerTickList.getAllSchedulers()) {
              if (scheduler.isRetired()) {
                  continue;
-@@ -1778,6 +1779,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1779,6 +1780,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
              scheduler.executeTick();
          }
