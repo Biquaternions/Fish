@@ -283,18 +283,10 @@ index 44a7590558fa73fb570f76ba7a4e7db1415d08f7..495ce101efb9416b8120082c8461b278
          }
  
 diff --git a/net/minecraft/world/level/Level.java b/net/minecraft/world/level/Level.java
-index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..861c55eacd275609a7d865d22321483f7f08a754 100644
+index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..542ecc959e8559523dd26850894397b0b979d3e1 100644
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
-@@ -172,6 +172,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
-     }
-     // Paper end - add paper world config
- 
-+    public io.papermc.paper.redstone.RedstoneWireTurbo fish$turbo = new io.papermc.paper.redstone.RedstoneWireTurbo((net.minecraft.world.level.block.RedStoneWireBlock) net.minecraft.world.level.block.Blocks.REDSTONE_WIRE); // SparklyPaper - parallel world ticking (moved to world)
-     public static @Nullable BlockPos lastPhysicsProblem; // Spigot
-     public final Map<ServerExplosion.CacheKey, Float> explosionDensityCache = new java.util.HashMap<>(); // Paper - Optimize explosions
-     public java.util.ArrayDeque<net.minecraft.world.level.block.RedstoneTorchBlock.Toggle> redstoneUpdateInfos; // Paper - Faster redstone torch rapid clock removal; Move from Map in BlockRedstoneTorch to here
-@@ -1054,6 +1055,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -1054,6 +1054,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
  
      @Override
      public boolean setBlock(final BlockPos pos, final BlockState blockState, final @Block.UpdateFlags int updateFlags, final int updateLimit) {
@@ -302,7 +294,7 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..861c55eacd275609a7d865d22321483f
          // CraftBukkit start - tree generation
          if (this.captureTreeGeneration) {
              // Paper start - Protect Bedrock and End Portal/Frames from being destroyed
-@@ -1507,6 +1509,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -1507,6 +1508,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
                  ticker.tick();
                  // Paper start - rewrite chunk system
                  if ((++tickedEntities & 7) == 0) {
@@ -310,7 +302,7 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..861c55eacd275609a7d865d22321483f
                      ((ca.spottedleaf.moonrise.patches.chunk_system.level.ChunkSystemLevel)(Level)(Object)this).moonrise$midTickTasks();
                  }
                  // Paper end - rewrite chunk system
-@@ -1528,6 +1531,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -1528,6 +1530,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
              entity.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DISCARD);
              // Paper end - Prevent block entity and entity crashes
          }
@@ -318,7 +310,7 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..861c55eacd275609a7d865d22321483f
          this.moonrise$midTickTasks(); // Paper - rewrite chunk system
      }
  
-@@ -1679,6 +1683,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -1679,6 +1682,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
  
      @Override
      public @Nullable BlockEntity getBlockEntity(final BlockPos pos) {
@@ -326,7 +318,7 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..861c55eacd275609a7d865d22321483f
          // Paper start - Perf: Optimize capturedTileEntities lookup
          net.minecraft.world.level.block.entity.BlockEntity blockEntity;
          if (!this.capturedBlockEntities.isEmpty() && (blockEntity = this.capturedBlockEntities.get(pos)) != null) {
-@@ -1695,6 +1700,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -1695,6 +1699,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
      }
  
      public void setBlockEntity(final BlockEntity blockEntity) {
@@ -334,7 +326,7 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..861c55eacd275609a7d865d22321483f
          BlockPos pos = blockEntity.getBlockPos();
          if (this.isInValidBounds(pos)) {
              // CraftBukkit start
-@@ -1767,6 +1773,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -1767,6 +1772,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
  
      @Override
      public List<Entity> getEntities(final @Nullable Entity except, final AABB bb, final Predicate<? super Entity> selector) {
@@ -342,7 +334,7 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..861c55eacd275609a7d865d22321483f
          Profiler.get().incrementCounter("getEntities");
          // Paper start - rewrite chunk system
          final List<Entity> ret = new java.util.ArrayList<>();
-@@ -2113,7 +2120,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -2113,7 +2119,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
  
      public abstract RecipeAccess recipeAccess();
  
@@ -378,26 +370,6 @@ index 82ab930bf438e988d637786bdde88e34ea073a2f..461fdc5ce5289339e6a9fccdabee1370
                      SaplingBlock.treeType = org.bukkit.TreeType.CRIMSON_FUNGUS;
                  }
                  return value;
-diff --git a/net/minecraft/world/level/block/RedStoneWireBlock.java b/net/minecraft/world/level/block/RedStoneWireBlock.java
-index 35e49078d8d36ae4683de26988435d971c7f0e89..3fb9600b0301503e9593915a9d96ddbe2863e2f1 100644
---- a/net/minecraft/world/level/block/RedStoneWireBlock.java
-+++ b/net/minecraft/world/level/block/RedStoneWireBlock.java
-@@ -287,6 +287,7 @@ public class RedStoneWireBlock extends Block {
-             if (orientation != null) {
-                 source = pos.relative(orientation.getFront().getOpposite());
-             }
-+            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) worldIn.fish$turbo.updateSurroundingRedstone(worldIn, pos, state, source); else // SparklyPaper - parallel world ticking
-             turbo.updateSurroundingRedstone(worldIn, pos, state, source);
-             return;
-         }
-@@ -311,6 +312,7 @@ public class RedStoneWireBlock extends Block {
-                 // [Space Walker] suppress shape updates and emit those manually to
-                 // bypass the new neighbor update stack.
-                 if (level.setBlock(pos, state, Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS)) {
-+                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) level.fish$turbo.updateNeighborShapes(level, pos, state); else // SparklyPaper - parallel world ticking
-                     turbo.updateNeighborShapes(level, pos, state);
-                 }
-             }
 diff --git a/net/minecraft/world/level/block/SaplingBlock.java b/net/minecraft/world/level/block/SaplingBlock.java
 index cbf7845ca64f1b716af3e50ac8716373d2ae3755..fc2a5f55b9151e6b69c36c004a4f493167840174 100644
 --- a/net/minecraft/world/level/block/SaplingBlock.java

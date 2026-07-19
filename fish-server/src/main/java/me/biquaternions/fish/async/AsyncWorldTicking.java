@@ -2,6 +2,7 @@ package me.biquaternions.fish.async;
 
 import ca.spottedleaf.common.time.TickData;
 import ca.spottedleaf.common.time.TickTime;
+import me.biquaternions.fish.threadedregions.RegionizedWorldData;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.util.Util;
@@ -34,6 +35,10 @@ public class AsyncWorldTicking {
     private static final Queue<Runnable> END_OF_TICK_TASKS = new ConcurrentLinkedQueue<>();
     private static final ServerTickRateManager TICK_RATE_MANAGER = MinecraftServer.getServer().tickRateManager();
 
+    private static final long CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME = 25L * 1000L; // 25us
+    private static final long MAX_CHUNK_EXEC_TIME = 1000L; // 1us
+    private static final long TASK_EXECUTION_FAILURE_BACKOFF = 5L * 1000L; // 5us
+
     public static void tickWorlds(Iterable<ServerLevel> worlds, BooleanSupplier hasTimeLeft) {
 
         long tickInterval = TICK_RATE_MANAGER.isSprinting() ? 0 : TICK_RATE_MANAGER.nanosecondsPerTick();
@@ -52,6 +57,14 @@ public class AsyncWorldTicking {
                         serverLevel.fish$currentTickStart = System.nanoTime();
                         serverLevel.fish$tickSchedule.setNextPeriod(serverLevel.fish$currentTickStart, tickInterval);
                         serverLevel.fish$nextTickTimeNanos = serverLevel.fish$tickSchedule.getDeadline(tickInterval);
+
+                        for (io.papermc.paper.threadedregions.EntityScheduler scheduler : serverLevel.fish$worldData.entitySchedulerTickList.getAllSchedulers()) {
+                            net.minecraft.world.entity.Entity handle = scheduler.entity.getHandleRaw();
+                            if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(handle) || scheduler.isRetired()) {
+                                continue;
+                            }
+                            scheduler.executeTick();
+                        }
 
                         serverLevel.tick(hasTimeLeft);
                         ((WorldRegionScheduler) Bukkit.getRegionScheduler()).tickWorld(serverLevel);
@@ -144,7 +157,7 @@ public class AsyncWorldTicking {
             }
         } else {
             CallableWrapper<T> task = new CallableWrapper<>(callable);
-            level.fish$scheduler.schedule(task);
+            level.fish$worldData.worldScheduler.schedule(task);
             return task.get();
         }
     }
@@ -160,7 +173,7 @@ public class AsyncWorldTicking {
                 level.fish$lock.readLock().unlock();
             }
         } else {
-            level.fish$scheduler.schedule(runnable);
+            level.fish$worldData.worldScheduler.schedule(runnable);
         }
     }
 
@@ -204,7 +217,7 @@ public class AsyncWorldTicking {
     public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         CallableWrapper<T> task = new CallableWrapper<>(callable);
-        level.fish$scheduler.schedule(task);
+        level.fish$worldData.worldScheduler.schedule(task);
         return task.get();
     }
 
@@ -219,7 +232,7 @@ public class AsyncWorldTicking {
      */
     public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        level.fish$scheduler.schedule(runnable);
+        level.fish$worldData.worldScheduler.schedule(runnable);
     }
 
     /**
@@ -237,6 +250,56 @@ public class AsyncWorldTicking {
         LOGGER.warn("A plugin accessed world/block data asynchronously from thread \"{}\".", thread.getName());
         for (StackTraceElement stackTraceElement : thread.getStackTrace()) {
             LOGGER.warn("\tat {}", stackTraceElement);
+        }
+    }
+
+    private static boolean tickMidTickTasks(final ServerLevel world) {
+        boolean executed = false;
+        long currTime = System.nanoTime();
+        if (currTime - world.moonrise$getLastMidTickFailure() <= TASK_EXECUTION_FAILURE_BACKOFF) {
+            return false;
+        }
+        if (!world.getChunkSource().pollTask()) {
+            // we need to back off if this fails
+            world.moonrise$setLastMidTickFailure(currTime);
+        } else {
+            executed = true;
+        }
+        return executed;
+    }
+
+    public static void executeMidTickTasks(final ServerLevel world) {
+        RegionizedWorldData worldData = world.fish$worldData;
+        final long startTime = System.nanoTime();
+        if ((startTime - worldData.lastMidTickExecute) <= CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME || (startTime - worldData.lastMidTickExecuteFailure) <= TASK_EXECUTION_FAILURE_BACKOFF) {
+            // it's shown to be bad to constantly hit the queue (chunk loads slow to a crawl), even if no tasks are executed.
+            // so, backoff to prevent this
+            return;
+        }
+
+        for (;;) {
+            final boolean moreTasks = AsyncWorldTicking.tickMidTickTasks(world);
+            final long currTime = System.nanoTime();
+            final long diff = currTime - startTime;
+
+            if (!moreTasks || diff >= MAX_CHUNK_EXEC_TIME) {
+                if (!moreTasks) {
+                    worldData.lastMidTickExecuteFailure = currTime;
+                }
+
+                // note: negative values reduce the time
+                long overuse = diff - MAX_CHUNK_EXEC_TIME;
+                if (overuse >= (10L * 1000L * 1000L)) { // 10ms
+                    // make sure something like a GC or dumb plugin doesn't screw us over...
+                    overuse = 10L * 1000L * 1000L; // 10ms
+                }
+
+                final double overuseCount = (double)overuse/(double)MAX_CHUNK_EXEC_TIME;
+                final long extraSleep = Math.round(overuseCount*CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME);
+
+                worldData.lastMidTickExecute = currTime + extraSleep;
+                return;
+            }
         }
     }
 

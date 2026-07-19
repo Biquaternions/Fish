@@ -1,53 +1,53 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Taiyou06 <kaandindar21@gmail.com>
-Date: Sat, 2 Aug 2025 22:39:57 -0500
-Subject: [PATCH] Leaf Fix Villager POI Access
+From: Biquaternions <biquaternions@serlith.net>
+Date: Sat, 18 Jul 2026 13:59:10 -0500
+Subject: [PATCH] Fish Handle Villager POI Access
 
+This patch ports Folia's fix for villagers trying to access POI across regions.
+We schedule this access to the end of the target world tick, this means it might run during the same tick,
+  or fallback to run in the next tick.
+It is possible to just schedule this at the end of the global tick to guarantee an execution in the same tick,
+  but I want to experiment with this approach for a while.
 
 diff --git a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
-index ba61762e09ace201173999b3984046f930ccfe57..faadfcde09057d1090730b6933b6183cd4f33b96 100644
+index ba61762e09ace201173999b3984046f930ccfe57..ecac4466b68c515ede358ec7614f69dc10938abd 100644
 --- a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
 +++ b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
-@@ -44,6 +44,20 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
-         potentialJobSitePos.ifPresent(globalPos -> {
+@@ -45,12 +45,23 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
              BlockPos pos = globalPos.pos();
              ServerLevel serverLevel = level.getServer().getLevel(globalPos.dimension());
-+            // Leaf start - Fix cross-dimensional POI access
-+            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
-+                if (serverLevel != null) {
-+                    serverLevel.moonrise$getChunkTaskScheduler().scheduleChunkTask(pos.getX() >> 4, pos.getZ() >> 4, () -> {
+             if (serverLevel != null) {
++                // Fish start - Handle Villager POI Access
++                if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(serverLevel)) {
++                    me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(serverLevel, () -> {
 +                        PoiManager manager = serverLevel.getPoiManager();
 +                        if (manager.exists(pos, p -> true)) {
 +                            manager.release(pos);
 +                        }
-+                    }, ca.spottedleaf.concurrentutil.util.Priority.BLOCKING);
-+                }
-+                level.moonrise$getChunkTaskScheduler().scheduleChunkTask(body.chunkPosition().x(), body.chunkPosition().z(), () -> {
-+                    level.debugSynchronizers().updatePoi(pos);
-+                }, ca.spottedleaf.concurrentutil.util.Priority.BLOCKING);
-+            } else { // Leaf end - Fix cross-dimensional POI access
-             if (serverLevel != null) {
++                        level.debugSynchronizers().updatePoi(pos);
++                    });
++                } else { // Fish end - Handle Villager POI Access
                  PoiManager manager = serverLevel.getPoiManager();
                  if (manager.exists(pos, p -> true)) {
-@@ -52,6 +66,7 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
+                     manager.release(pos);
+                 }
  
                  level.debugSynchronizers().updatePoi(pos);
++                } // Fish - Handle Villager POI Access
              }
-+            } // Leaf - Fix cross-dimensional POI access
          });
          body.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
-     }
 diff --git a/net/minecraft/world/entity/npc/villager/Villager.java b/net/minecraft/world/entity/npc/villager/Villager.java
-index ed6ac2507d58d609aae286a66c9f0b5e39dddbe3..5d44997b46ae1495b3e0d348d66e44fedf80a0fb 100644
+index ed6ac2507d58d609aae286a66c9f0b5e39dddbe3..10802eeaf23d3dfcb96d88f92cd519aeac0230e1 100644
 --- a/net/minecraft/world/entity/npc/villager/Villager.java
 +++ b/net/minecraft/world/entity/npc/villager/Villager.java
 @@ -675,6 +675,18 @@ public class Villager extends AbstractVillager implements VillagerDataHolder, Re
              this.brain.getMemory(memoryType).ifPresent(memory -> {
                  ServerLevel poiLevel = server.getLevel(memory.dimension());
                  if (poiLevel != null) {
-+                    // Leaf start - Fix cross-dimensional POI access
-+                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
-+                        poiLevel.moonrise$getChunkTaskScheduler().scheduleChunkTask(0, 0, () -> {
++                    // Fish start - Handle Villager POI Access
++                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(poiLevel)) {
++                        me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(poiLevel, () -> {
 +                            PoiManager poiManager = poiLevel.getPoiManager();
 +                            Optional<Holder<PoiType>> type = poiManager.getType(memory.pos());
 +                            BiPredicate<Villager, Holder<PoiType>> poiTypePredicate = POI_MEMORIES.get(memoryType);
@@ -55,8 +55,8 @@ index ed6ac2507d58d609aae286a66c9f0b5e39dddbe3..5d44997b46ae1495b3e0d348d66e44fe
 +                                poiManager.release(memory.pos());
 +                                poiLevel.debugSynchronizers().updatePoi(memory.pos());
 +                            }
-+                        }, ca.spottedleaf.concurrentutil.util.Priority.BLOCKING);
-+                    } else { // Leaf end - Fix cross-dimensional POI access
++                        });
++                    } else { // Fish end - Handle Villager POI Access
                      PoiManager poiManager = poiLevel.getPoiManager();
                      Optional<Holder<PoiType>> type = poiManager.getType(memory.pos());
                      BiPredicate<Villager, Holder<PoiType>> poiTypePredicate = POI_MEMORIES.get(memoryType);
@@ -64,7 +64,7 @@ index ed6ac2507d58d609aae286a66c9f0b5e39dddbe3..5d44997b46ae1495b3e0d348d66e44fe
                          poiManager.release(memory.pos());
                          poiLevel.debugSynchronizers().updatePoi(memory.pos());
                      }
-+                    } // Leaf - Fix cross-dimensional POI access
++                    } // Fish - Handle Villager POI Access
                  }
              });
          }

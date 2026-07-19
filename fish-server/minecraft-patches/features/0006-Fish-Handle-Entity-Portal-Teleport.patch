@@ -1,0 +1,89 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Mon, 13 Jul 2026 22:39:22 -0500
+Subject: [PATCH] Fish Handle Entity Portal Teleport
+
+This patch schedules entity teleportation to the end of the tick.
+Folia handles this by completely re-implementing the portal generation logic.
+However, their approach has some limitations when triggering events, and require some
+  synchronization between regions. We do not need such synchronization as we still
+  have a main thread, so we just schedule the task at the end of the main tick.
+
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index 5f78e55a1aa73c0e36547dd79240db807d2f6ab5..7fdabf824574bb3e48779c0b1a07e700ffa3f2dd 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -870,7 +870,6 @@ public abstract class Entity
+     // CraftBukkit start
+     public void postTick() {
+         // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
+-        if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
+         if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
+             this.handlePortal();
+         }
+@@ -3587,6 +3586,37 @@ public abstract class Entity
+                     ProfilerFiller profiler = Profiler.get();
+                     profiler.push("portal");
+                     this.setPortalCooldown();
++                    // Fish start - Handle Entity Portal Teleport
++                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++                        this.portalProcess.fish$teleporting = true;
++                        // We can't use a 1:1 of Folia's strategy as worlds don't tick independently
++                        // We can take advantage of the main thread, and schedule this to the end of the tick
++                        // The vanilla end gateway doesn't really need this, but not being a final class, plugins can do whatever via NMS
++                        me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> {
++                            final PortalProcessor processor = this.portalProcess;
++                            if (processor == null) {
++                                return;
++                            }
++                            try {
++                                if (!processor.fish$teleporting) {
++                                    this.portalProcess = null;
++                                    return;
++                                }
++                                TeleportTransition teleportTransition = this.portalProcess.getPortalDestination(level, this);
++                                if (teleportTransition != null) {
++                                    ServerLevel newLevel = teleportTransition.newLevel();
++                                    if (level.isAllowedToEnterPortal(newLevel) && (newLevel.dimension() == level.dimension() || this.canTeleport(level, newLevel))) {
++                                        this.teleport(teleportTransition);
++                                    }
++                                }
++                            } finally {
++                                processor.fish$teleporting = false;
++                            }
++                        });
++                        profiler.pop();
++                        return;
++                    }
++                    // Fish end - Handle Entity Portal Teleport
+                     TeleportTransition teleportTransition = this.portalProcess.getPortalDestination(level, this);
+                     if (teleportTransition != null) {
+                         ServerLevel newLevel = teleportTransition.newLevel();
+diff --git a/net/minecraft/world/entity/PortalProcessor.java b/net/minecraft/world/entity/PortalProcessor.java
+index 7ec15f3d3a770e1e9e2fbac29dd38e947bb07091..a3316d290813607082d5b16bb454336006777f6d 100644
+--- a/net/minecraft/world/entity/PortalProcessor.java
++++ b/net/minecraft/world/entity/PortalProcessor.java
+@@ -11,6 +11,7 @@ public class PortalProcessor {
+     private BlockPos entryPosition;
+     private int portalTime;
+     private boolean insidePortalThisTick;
++    protected volatile boolean fish$teleporting = false; // Fish - Handle Entity Portal Teleport
+ 
+     public PortalProcessor(final Portal portal, final BlockPos portalEntryPosition) {
+         this.portal = portal;
+@@ -19,6 +20,7 @@ public class PortalProcessor {
+     }
+ 
+     public boolean processPortalTeleportation(final ServerLevel serverLevel, final Entity entity, final boolean allowedToTeleport) {
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.fish$teleporting) return false; // Fish - Handle Entity Portal Teleport
+         if (!this.insidePortalThisTick) {
+             this.decayTick();
+             return false;
+@@ -41,6 +43,7 @@ public class PortalProcessor {
+     }
+ 
+     public boolean hasExpired() {
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !this.fish$teleporting && this.portalTime <= 0; // Fish - Handle Entity Portal Teleport, called from AR
+         return this.portalTime <= 0;
+     }
+ 

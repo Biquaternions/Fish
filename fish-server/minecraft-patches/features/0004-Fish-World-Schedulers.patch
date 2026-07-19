@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Sun, 3 Aug 2025 20:38:56 -0500
+Subject: [PATCH] Fish World Schedulers
+
+This patch adds a ReentrantReadWriteLock and RegionizedWorldData.
+RegionizedWorldData bundles an EntityScheduler.EntitySchedulerTickList and a WorldRegionScheduler.Scheduler
+  effectively implementing PWT-compatible versions of Folia's Entity and Location schedulers, instead
+  of using Paper's fallback schedulers, which run on the main thread. This means the task load is now
+  effectively spread across worlds.
+ReentrantReadWriteLock allows consistent read-write blocking logic for scheduling async tasks into world's
+  threads as a compatibility layer for Bukkit plugins. The write requests will be scheduled at the end
+  of the world tick if the world is currently ticking, or will run immediately and temporarily block the
+  read lock if not. This scheduling logic is very performant as long as there're no plugins spamming
+  CraftWorld or CraftBlock requests.
+
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index cff4246db3dd278de34597e3554611cd9efd28b8..55a579e48a9bb9db77da0d648b079b429afcc8ac 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -336,6 +336,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     private final Set<String> pluginsBlockingSleep = new java.util.HashSet<>(); // Paper - API to allow/disallow tick sleeping
+     public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
+     public gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
++    public me.biquaternions.fish.threadedregions.FallbackWorldData fish$globalData = new me.biquaternions.fish.threadedregions.FallbackWorldData(); // Fish - Global Region
+     // Paper start - improve tick loop
+     public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
+     public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index 1e438c545d60958f05f900128ea60dbde963b70b..525fe7338268d4bf93d8d05456ac6249cf874bec 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -238,6 +238,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+     private static final org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry();
+     public final org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer persistentDataContainer = new org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer(DATA_TYPE_REGISTRY);
+     private final alternate.current.wire.WireHandler wireHandler = new alternate.current.wire.WireHandler(this); // Paper - optimize redstone (Alternate Current)
++    public final java.util.concurrent.locks.ReentrantReadWriteLock fish$lock = new java.util.concurrent.locks.ReentrantReadWriteLock(true); // Fish - Schedule tasks for end of tick
++    public final me.biquaternions.fish.threadedregions.RegionizedWorldData fish$worldData = new me.biquaternions.fish.threadedregions.RegionizedWorldData(); // Fish - World Data
+ 
+     @Override
+     public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {

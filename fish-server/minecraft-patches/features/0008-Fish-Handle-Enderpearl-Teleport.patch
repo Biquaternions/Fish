@@ -1,27 +1,34 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Taiyou06 <kaandindar21@gmail.com>
-Date: Sat, 2 Aug 2025 20:35:47 -0500
-Subject: [PATCH] Leaf Fix Enderpearl Teleport
+From: Biquaternions <biquaternions@serlith.net>
+Date: Sat, 18 Jul 2026 13:48:30 -0500
+Subject: [PATCH] Fish Handle Enderpearl Teleport
 
+This patch sends the enderpearl teleportation to the end of the tick.
+Similar to Entity Portal Teleportation, we do not need the custom logic, as worlds still have a main thread,
+  we can still rely on the main thread to handle this logic safely.
 
 diff --git a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
-index f1a8166b09b985aba4e8a501d3c87f5e3eb9e00f..129818dd1b51ebbc2755188450809eec1464e420 100644
+index 50bd8343129b6eafb0d18795aede6e8778e86d83..9ddcecc15c943c37f00292b0b5dcc925f89ed879 100644
 --- a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
 +++ b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
-@@ -108,6 +108,33 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
+@@ -108,6 +108,37 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                          // Store pre teleportation position as the teleport has been moved up.
                          final double preTeleportX = player.getX(), preTeleportY = player.getY(), preTeleportZ = player.getZ();
                          final float preTeleportYRot = player.getYRot(), preTeleportXRot = player.getXRot();
-+                        // Leaf start - Fix teleport cross-dimension
-+                        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
-+                            player.getBukkitEntity().taskScheduler.schedule((ServerPlayer taskPlayer) -> {
++                        // Fish start - Handle Enderpearl Teleport
++                        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(owner)) {
++                            // It is possible to use a Folia-like strategy, although their implementation doesn't trigger some events
++                            // We can take advantage of the still-existing main thread to handle this at the end of the tick
++                            // For vanilla-parity reasons, this will only trigger if the ender-pearl and the owner are in different worlds
++                            me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> {
++                                // Pearls disappear with the player on disconnection
 +                                ServerPlayer newOwner = player.teleport(new TeleportTransition(
 +                                    level, teleportPos, Vec3.ZERO, 0.0F, 0.0F, Relative.union(Relative.ROTATION, Relative.DELTA), TeleportTransition.DO_NOTHING, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PEARL));
 +                                if (newOwner == null) {
 +                                    this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.HIT);
 +                                    return;
 +                                }
-+                                if (this.random.nextFloat() < 0.05F && level.isSpawningMonsters()) {
++                                if (this.random.nextFloat() < 0.05F && level.isSpawningMonsters() && level.getLevelData().getDifficulty() != Difficulty.PEACEFUL) {
 +                                    Endermite endermite = EntityTypes.ENDERMITE.create(level, EntitySpawnReason.TRIGGERED);
 +                                    if (endermite != null) {
 +                                        endermite.snapTo(preTeleportX, preTeleportY, preTeleportZ, preTeleportYRot, preTeleportXRot); // Paper - spawn endermite at pre teleport position as teleport has been moved up
@@ -37,16 +44,16 @@ index f1a8166b09b985aba4e8a501d3c87f5e3eb9e00f..129818dd1b51ebbc2755188450809eec
 +                                    newOwner.hurtServer(player.level(), this.damageSources().enderPearl().eventEntityDamager(this), 5.0F); // CraftBukkit // Paper - fix DamageSource API
 +                                }
 +                                this.playSound(level, teleportPos);
-+                            }, e -> {}, 0);
-+                        } else { // Leaf end - Fix teleport cross-dimension
++                            });
++                        } else { // Fish end - Handle Enderpearl Teleport
                          ServerPlayer newOwner = player.teleport(new TeleportTransition(
                              level, teleportPos, Vec3.ZERO, 0.0F, 0.0F, Relative.union(Relative.ROTATION, Relative.DELTA), TeleportTransition.DO_NOTHING, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PEARL));
                          if (newOwner == null) {
-@@ -141,6 +168,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
+@@ -141,6 +172,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                          }
  
                          this.playSound(level, teleportPos);
-+                        } // Leaf - Fix teleport cross-dimension
++                        } // Fish - Handle Enderpearl Teleport
                      }
                  } else {
                      Entity newOwner = owner.teleport(

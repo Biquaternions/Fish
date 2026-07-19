@@ -1,7 +1,6 @@
 name: Build 26.2
 on:
   workflow_dispatch:
-  pull_request:
   push:
     branches:
       - "ver/**"

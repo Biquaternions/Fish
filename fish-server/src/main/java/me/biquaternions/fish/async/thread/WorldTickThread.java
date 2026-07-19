@@ -1,6 +1,7 @@
 package me.biquaternions.fish.async.thread;
 
 import ca.spottedleaf.moonrise.common.util.TickThread;
+import me.biquaternions.fish.threadedregions.RegionizedWorldData;
 import net.minecraft.server.level.ServerLevel;
 import org.jspecify.annotations.NullMarked;
 
@@ -16,6 +17,10 @@ public class WorldTickThread extends TickThread {
 
     public ServerLevel getTickingWorld() {
         return this.tickingWorld;
+    }
+
+    public RegionizedWorldData getWorldData() {
+        return this.tickingWorld.fish$worldData;
     }
 
 }
