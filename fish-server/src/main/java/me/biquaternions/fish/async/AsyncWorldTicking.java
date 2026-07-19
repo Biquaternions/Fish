@@ -253,8 +253,19 @@ public class AsyncWorldTicking {
         }
     }
 
-    private static boolean tickMidTickTasks(final me.biquaternions.fish.threadedregions.RegionizedWorldData worldData) {
-        return worldData.taskQueue.executeTask();
+    private static boolean tickMidTickTasks(final ServerLevel world) {
+        boolean executed = false;
+        long currTime = System.nanoTime();
+        if (currTime - world.moonrise$getLastMidTickFailure() <= TASK_EXECUTION_FAILURE_BACKOFF) {
+            return false;
+        }
+        if (!world.getChunkSource().pollTask()) {
+            // we need to back off if this fails
+            world.moonrise$setLastMidTickFailure(currTime);
+        } else {
+            executed = true;
+        }
+        return executed;
     }
 
     public static void executeMidTickTasks(final ServerLevel world) {
@@ -267,7 +278,7 @@ public class AsyncWorldTicking {
         }
 
         for (;;) {
-            final boolean moreTasks = AsyncWorldTicking.tickMidTickTasks(worldData);
+            final boolean moreTasks = AsyncWorldTicking.tickMidTickTasks(world);
             final long currTime = System.nanoTime();
             final long diff = currTime - startTime;
 
