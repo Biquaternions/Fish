@@ -2,6 +2,7 @@ package me.biquaternions.fish.async;
 
 import ca.spottedleaf.common.time.TickData;
 import ca.spottedleaf.common.time.TickTime;
+import me.biquaternions.fish.threadedregions.RegionizedWorldData;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.util.Util;
@@ -253,11 +254,11 @@ public class AsyncWorldTicking {
     }
 
     private static boolean tickMidTickTasks(final me.biquaternions.fish.threadedregions.RegionizedWorldData worldData) {
-        return worldData.world.getChunkSource().pollTask();
+        return worldData.taskQueue.executeTask();
     }
 
-    public static void executeMidTickTasks() {
-        me.biquaternions.fish.threadedregions.RegionizedWorldData worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData();
+    public static void executeMidTickTasks(final ServerLevel world) {
+        RegionizedWorldData worldData = world.fish$worldData;
         final long startTime = System.nanoTime();
         if ((startTime - worldData.lastMidTickExecute) <= CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME || (startTime - worldData.lastMidTickExecuteFailure) <= TASK_EXECUTION_FAILURE_BACKOFF) {
             // it's shown to be bad to constantly hit the queue (chunk loads slow to a crawl), even if no tasks are executed.
