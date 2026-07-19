@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Biquaternions <biquaternions@serlith.net>
 Date: Sun, 3 Aug 2025 20:38:56 -0500
-Subject: [PATCH] Fish Schedule Async Tasks For End Of Tick
+Subject: [PATCH] Fish World Schedulers
 
 This implementation allows async threads to still do async operations as long as the world is not ticking.
 If the world is ticking, the "request" will be scheduled to be run sync at the end of the tick.
