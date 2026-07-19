@@ -23,8 +23,4 @@ public class WorldTickThread extends TickThread {
         return this.tickingWorld.fish$worldData;
     }
 
-    public static boolean isWorldTickThread() {
-        return Thread.currentThread() instanceof WorldTickThread;
-    }
-
 }

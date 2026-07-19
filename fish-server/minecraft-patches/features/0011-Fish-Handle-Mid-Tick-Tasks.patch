@@ -34,10 +34,10 @@ index f3cdeab98548a9d1eb06289f447b7274ccb7913f..8538e9b33b5d417ae4051a853fb988cb
                  continue;
              }
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 9217959917d6a93be03b81fe8f199289da860535..619dd0d472795712dc3df2e54638eca4d65df8f5 100644
+index 525fe7338268d4bf93d8d05456ac6249cf874bec..5ac9b469c7acf694fe39794fa271b4543b292ee7 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -1373,7 +1373,6 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -1372,7 +1372,6 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
          }
          // Paper start - rewrite chunk system
          if ((++this.tickedBlocksOrFluids & 7L) != 0L) {
@@ -45,7 +45,7 @@ index 9217959917d6a93be03b81fe8f199289da860535..619dd0d472795712dc3df2e54638eca4
              ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.server).moonrise$executeMidTickTasks();
          }
          // Paper end - rewrite chunk system
-@@ -1387,7 +1386,6 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -1386,7 +1385,6 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
          }
          // Paper start - rewrite chunk system
          if ((++this.tickedBlocksOrFluids & 7L) != 0L) {

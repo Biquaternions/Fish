@@ -157,7 +157,7 @@ public class AsyncWorldTicking {
             }
         } else {
             CallableWrapper<T> task = new CallableWrapper<>(callable);
-            level.fish$scheduler.schedule(task);
+            level.fish$worldData.worldScheduler.schedule(task);
             return task.get();
         }
     }
@@ -173,7 +173,7 @@ public class AsyncWorldTicking {
                 level.fish$lock.readLock().unlock();
             }
         } else {
-            level.fish$scheduler.schedule(runnable);
+            level.fish$worldData.worldScheduler.schedule(runnable);
         }
     }
 
@@ -217,7 +217,7 @@ public class AsyncWorldTicking {
     public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
         CallableWrapper<T> task = new CallableWrapper<>(callable);
-        level.fish$scheduler.schedule(task);
+        level.fish$worldData.worldScheduler.schedule(task);
         return task.get();
     }
 
@@ -232,7 +232,7 @@ public class AsyncWorldTicking {
      */
     public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
         if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
-        level.fish$scheduler.schedule(runnable);
+        level.fish$worldData.worldScheduler.schedule(runnable);
     }
 
     /**

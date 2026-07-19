@@ -64,7 +64,7 @@ public final class WorldRegionScheduler implements RegionScheduler {
         }
 
         final LocationScheduledTask ret = new LocationScheduledTask(plugin, world, chunkX, chunkZ, -1, task);
-        ((CraftWorld) world).getHandle().fish$scheduler.schedule(ret, delayTicks);
+        ((CraftWorld) world).getHandle().fish$worldData.worldScheduler.schedule(ret, delayTicks);
 
         if (!plugin.isEnabled()) {
             // handle race condition where plugin is disabled asynchronously
@@ -92,7 +92,7 @@ public final class WorldRegionScheduler implements RegionScheduler {
         }
 
         final LocationScheduledTask ret = new LocationScheduledTask(plugin, world, chunkX, chunkZ, periodTicks, task);
-        ((CraftWorld) world).getHandle().fish$scheduler.schedule(ret, initialDelayTicks);
+        ((CraftWorld) world).getHandle().fish$worldData.worldScheduler.schedule(ret, initialDelayTicks);
 
         if (!plugin.isEnabled()) {
             // handle race condition where plugin is disabled asynchronously
@@ -103,7 +103,7 @@ public final class WorldRegionScheduler implements RegionScheduler {
     }
 
     public void tickWorld(final ServerLevel world) {
-        world.fish$scheduler.tick();
+        world.fish$worldData.worldScheduler.tick();
     }
 
     public static final class Scheduler {
@@ -222,7 +222,7 @@ public final class WorldRegionScheduler implements RegionScheduler {
                 if (!reschedule) {
                     this.run = null;
                 } else {
-                    ((CraftWorld) this.world).getHandle().fish$scheduler.schedule(this, this.repeatDelay);
+                    ((CraftWorld) this.world).getHandle().fish$worldData.worldScheduler.schedule(this, this.repeatDelay);
                 }
             }
         }
