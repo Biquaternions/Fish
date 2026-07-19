@@ -11,15 +11,16 @@ If the world is about to tick, but the async "request" is not done yet, the worl
 This scheduling logic is very performant as long as none of the plugins is spamming world/block requests.
 
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 1e438c545d60958f05f900128ea60dbde963b70b..b6af62bcdb23e11aff6ab9e2e1f4442331584fea 100644
+index 1e438c545d60958f05f900128ea60dbde963b70b..8502cd5ef3369bb9c2064b2df3bae131d101c8a2 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -238,6 +238,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -238,6 +238,9 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
      private static final org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry();
      public final org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer persistentDataContainer = new org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer(DATA_TYPE_REGISTRY);
      private final alternate.current.wire.WireHandler wireHandler = new alternate.current.wire.WireHandler(this); // Paper - optimize redstone (Alternate Current)
 +    public final java.util.concurrent.locks.ReentrantReadWriteLock fish$lock = new java.util.concurrent.locks.ReentrantReadWriteLock(true); // Fish - Schedule tasks for end of tick
 +    public final me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler.Scheduler fish$scheduler = new me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler.Scheduler(); // Fish - Schedule tasks for end of tick
++    public final me.biquaternions.fish.threadedregions.RegionizedWorldData fish$worldData = new me.biquaternions.fish.threadedregions.RegionizedWorldData(this); // Fish - World Data
  
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {

@@ -24,18 +24,6 @@ index 55a579e48a9bb9db77da0d648b079b429afcc8ac..daf411e2e3df30746a64080d05141446
          // Paper end - optimise Folia entity scheduler
          // Paper end - Folia scheduler API
          io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.ADVENTURE_CLICK_MANAGER.handleQueue(this.tickCount); // Paper
-diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index b6af62bcdb23e11aff6ab9e2e1f4442331584fea..9217959917d6a93be03b81fe8f199289da860535 100644
---- a/net/minecraft/server/level/ServerLevel.java
-+++ b/net/minecraft/server/level/ServerLevel.java
-@@ -622,6 +622,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
-     public long fish$scheduledTickStart;
-     public long fish$taskExecutionTime;
-     public long fish$nextTickTimeNanos = Util.getNanos();
-+    public me.biquaternions.fish.threadedregions.RegionizedWorldData fish$worldData = new me.biquaternions.fish.threadedregions.RegionizedWorldData(this);
-     public ServerLevel(
-         final MinecraftServer server,
-         final Executor executor,
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
 index 7fdabf824574bb3e48779c0b1a07e700ffa3f2dd..7567b6c13d908dd9fbaba302cfc863730f6bceb3 100644
 --- a/net/minecraft/world/entity/Entity.java
