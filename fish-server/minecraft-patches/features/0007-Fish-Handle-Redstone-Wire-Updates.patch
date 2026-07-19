@@ -36,18 +36,6 @@ index 8e03419df1469c6fecfaa82fcb319a58635b39f3..611028130a88ba43d1a745bd1efdccaf
  
          // The variable 'k' holds the maximum redstone power value of any adjacent blocks.
          // If 'k' has the highest level of all neighbors, then the power level of this
-diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index cff4246db3dd278de34597e3554611cd9efd28b8..55a579e48a9bb9db77da0d648b079b429afcc8ac 100644
---- a/net/minecraft/server/MinecraftServer.java
-+++ b/net/minecraft/server/MinecraftServer.java
-@@ -336,6 +336,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
-     private final Set<String> pluginsBlockingSleep = new java.util.HashSet<>(); // Paper - API to allow/disallow tick sleeping
-     public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
-     public gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
-+    public me.biquaternions.fish.threadedregions.FallbackWorldData fish$globalData = new me.biquaternions.fish.threadedregions.FallbackWorldData(); // Fish - Global Region
-     // Paper start - improve tick loop
-     public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
-     public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
 diff --git a/net/minecraft/world/level/block/RedStoneWireBlock.java b/net/minecraft/world/level/block/RedStoneWireBlock.java
 index 35e49078d8d36ae4683de26988435d971c7f0e89..9342bec7ed2215ce75f4b3bf3124d662beeeeccd 100644
 --- a/net/minecraft/world/level/block/RedStoneWireBlock.java
