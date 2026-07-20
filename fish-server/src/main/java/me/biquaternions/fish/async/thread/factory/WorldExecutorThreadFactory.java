@@ -14,7 +14,7 @@ public class WorldExecutorThreadFactory implements ThreadFactory {
 
     public WorldExecutorThreadFactory(@NonNull ServerLevel world) {
         this.world = world;
-        this.logger = LogManager.getLogger(String.format("World %s", this.world.serverLevelData.getLevelName()));
+        this.logger = LogManager.getLogger(String.format("World (%s)", this.world.dimension().identifier()));
     }
 
     @Override

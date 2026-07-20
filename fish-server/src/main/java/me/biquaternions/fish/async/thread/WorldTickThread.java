@@ -11,7 +11,7 @@ public class WorldTickThread extends TickThread {
     private final ServerLevel tickingWorld;
 
     public WorldTickThread(Runnable runnable, ServerLevel world) {
-        super(runnable, String.format("Fish World [%s] Tick Thread", world.serverLevelData.getLevelName()));
+        super(runnable, String.format("Fish World [%s] Tick Thread", world.dimension().identifier()));
         this.tickingWorld = world;
     }
 
