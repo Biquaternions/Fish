@@ -81,7 +81,9 @@ private boolean supportsParallelWorldTicking() {
         }
 
         LOGGER.info("Parallel World Ticking is available but not enabled!");
-    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassCastException ignore) {
+    } catch (InvocationTargetException | IllegalAccessException | ClassCastException exception) {
+        LOGGER.error("Please, contact your fork developer to properly implement their Parallel World Ticking API", exception);
+    } catch (NoSuchMethodException ignore) {
     }
     
     return false;
