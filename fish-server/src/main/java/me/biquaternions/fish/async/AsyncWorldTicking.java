@@ -71,7 +71,7 @@ public class AsyncWorldTicking {
                         AsyncWorldTicking.recordEndOfTick(serverLevel);
 
                     } catch (Throwable var7) {
-                        CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world [" + serverLevel.getWorld().getName() + "]");
+                        CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world [" + serverLevel.dimension().identifier() + "]");
                         serverLevel.fillReportDetails(crashReport);
                         throw new ReportedException(crashReport);
                     } finally {
