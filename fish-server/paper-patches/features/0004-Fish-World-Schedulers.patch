@@ -23,13 +23,6 @@ This patch implements region schedulers for each world and a compatibility layer
   This is done via a ReentrantReadWriteLock, which gives priority to the world ticking thread rather
   than plugins trying to perform read/writes.
 
-This implementation allows async threads to still do async operations as long as the world is not ticking.
-If the world is ticking, the "request" will be scheduled to be run sync at the end of the tick.
-  * Not doing this, means that if the world is always ticking (mspt > 50) there's a chance that the async thread will sleep indefinitely.
-If the world is not ticking, the "request" will be performed async by the calling thread.
-If the world is about to tick, but the async "request" is not done yet, the world will wait until its done and every new "request" will be scheduled.
-This scheduling logic is very performant as long as none of the plugins is spamming world/block requests.
-
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 index 83b8d44c7c8fc3cabb371c4e6ab9e1a9320ead35..13dacc8083dd15389356e324e9c906f3ddedfaa5 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
