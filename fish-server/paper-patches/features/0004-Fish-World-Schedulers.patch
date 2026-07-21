@@ -1,7 +1,27 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Biquaternions <biquaternions@serlith.net>
 Date: Mon, 4 Aug 2025 13:36:48 -0500
-Subject: [PATCH] Fish Schedule Async Tasks For End Of Tick
+Subject: [PATCH] Fish World Schedulers
+
+This patch implements region schedulers for each world and a compatibility layer for plugins that
+  perform asynchronous operations over CraftBlock, CraftWorld and other Bukkit classes:
+
+1. Plugins that make use of the location scheduler for Folia support will now schedule those tasks into
+  the corresponding world thread, which will grant a performance boost to the server, as this won't be
+  handled in the main thread anymore, and will allow plugin developers to properly support PWT
+  without requiring explicit API.
+
+2. Plugins that perform asynchronous operations over CraftBlock or CraftWorld classes will now perform
+  reads completely unblocked, as the chunk system already takes care of handling asynchronous calls.
+  This doesn't mean reading asynchronously is safe, this only means it is equally-as-bad as it is to do
+  it on Paper. This behavior has to be validated on every Minecraft release.
+  On the contrary, while the world is ticking, writes will now ve scheduled to run on the end of the
+  world or global tick (depending on the task) if they do not expect a result, or will block the calling
+  thread if they do.
+  If the task arrives while the world is not ticking, they will block the world from ticking, and
+  perform the task asynchronously, again, equally-as-bad as it is on Paper.
+  This is done via a ReentrantReadWriteLock, which gives priority to the world ticking thread rather
+  than plugins trying to perform read/writes.
 
 This implementation allows async threads to still do async operations as long as the world is not ticking.
 If the world is ticking, the "request" will be scheduled to be run sync at the end of the tick.
