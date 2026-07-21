@@ -15,14 +15,14 @@ ReentrantReadWriteLock allows consistent read-write blocking logic for schedulin
   CraftWorld or CraftBlock requests.
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index cff4246db3dd278de34597e3554611cd9efd28b8..55a579e48a9bb9db77da0d648b079b429afcc8ac 100644
+index cff4246db3dd278de34597e3554611cd9efd28b8..b80df37247a898ad3dcd0e1e8200ed14147b6920 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -336,6 +336,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      private final Set<String> pluginsBlockingSleep = new java.util.HashSet<>(); // Paper - API to allow/disallow tick sleeping
      public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
      public gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
-+    public me.biquaternions.fish.threadedregions.FallbackWorldData fish$globalData = new me.biquaternions.fish.threadedregions.FallbackWorldData(); // Fish - Global Region
++    public final me.biquaternions.fish.threadedregions.FallbackWorldData fish$globalData = new me.biquaternions.fish.threadedregions.FallbackWorldData(); // Fish - Global Region
      // Paper start - improve tick loop
      public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
      public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
