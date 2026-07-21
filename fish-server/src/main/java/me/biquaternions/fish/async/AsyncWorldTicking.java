@@ -67,6 +67,7 @@ public class AsyncWorldTicking {
                         }
 
                         serverLevel.tick(hasTimeLeft);
+                        serverLevel.explosionDensityCache.clear(); // Paper - Optimize explosions
                         ((WorldRegionScheduler) Bukkit.getRegionScheduler()).tickWorld(serverLevel);
                         AsyncWorldTicking.recordEndOfTick(serverLevel);
 
@@ -79,13 +80,13 @@ public class AsyncWorldTicking {
                         SEMAPHORE.release();
                     }
                 }, Objects.requireNonNull(serverLevel.fish$tickExecutor)));
-                serverLevel.explosionDensityCache.clear(); // Paper - Optimize explosions
             }
             CompletableFuture.allOf(tasks.toArray(EMPTY_ARRAY)).join();
             AsyncWorldTicking.processScheduledTasks();
 
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (InterruptedException exception) {
+            CrashReport crashReport = CrashReport.forThrowable(exception, "Interrupted world ticking");
+            throw new ReportedException(crashReport);
         }
 
     }
@@ -98,7 +99,6 @@ public class AsyncWorldTicking {
         level.fish$scheduledTickStart = level.fish$nextTickTimeNanos; // set scheduledStart for next tick
 
         final long now = Util.getNanos();
-
         final TickTime time = new TickTime(
             prevStart,
             scheduledStart,
@@ -110,8 +110,8 @@ public class AsyncWorldTicking {
             0L,
             false
         );
-        level.fish$taskExecutionTime = 0L;
 
+        level.fish$taskExecutionTime = 0L;
         AsyncWorldTicking.addTickTime(level, time);
     }
 
