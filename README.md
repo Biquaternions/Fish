@@ -65,8 +65,8 @@ Same as before (again), I don't use datapacks and neither should you, not even i
 Only real scenario where I see datapacks having a value is if you're running vanilla or the datapack does not contain ANY `.mcfunction` files (and even then, you can still have some compat-issues even in Paper).
 
 ## Supporting Fish (Or Parallel World Ticking in general)
-Given forks use any package name they want, and some don't even give credits, the best way to support PWT universally
-is to use the Parallel World Ticking API, which is bound to Bukkit classes, so any fork that takes the PWT patch
+Given forks use any package name they want, and some don't even give credits, the best way to detect PWT universally
+is to use the Parallel World Ticking API, which is bound to Bukkit classes, so any fork that takes this PWT patch
 should also take the API patch. \
 Example on how to check for the existence of the PWT API and if it's enabled or not:
 ```java
@@ -88,7 +88,11 @@ private boolean supportsParallelWorldTicking() {
 }
 ```
 
-You can see an implementation of this logic on [PurpurBars](https://github.com/SerlithNetwork/PurpurBars/blob/d4500647212f6308330bac3e0d4f9f2d4cd23f92/src/main/java/net/serlith/purpur/PurpurBars.java#L157).
+You can see an implementation of this logic on [PurpurBars](https://github.com/SerlithNetwork/PurpurBars/blob/d4500647212f6308330bac3e0d4f9f2d4cd23f92/src/main/java/net/serlith/purpur/PurpurBars.java#L157). \
+Then, after detecting that Parallel World Ticking is enabled, you can just follow the same tips you'd follow
+to support [Folia and Paper](https://docs.papermc.io/paper/dev/folia-support/#schedulers). \
+If your plugin already supports Folia, you only need to enable the Folia logic to run if PWT is detected. Or just let
+your Folia logic run in Paper by default. Paper will properly handle your schedulers.
 
 ## Our Mission
 _Credimus in Piscem, sanctam creaturam aquarum, principium vitae et mysterium abyssorum.
