@@ -3,7 +3,7 @@ From: Biquaternions <biquaternions@serlith.net>
 Date: Sun, 3 Aug 2025 20:38:56 -0500
 Subject: [PATCH] Fish World Schedulers
 
-This patch adds a ReentrantReadWriteLock and RegionizedWorldData.
+This patch adds a ReentrantReadWriteLock, RegionizedWorldData and Folia's Entity Scheduler.
 RegionizedWorldData bundles an EntityScheduler.EntitySchedulerTickList and a WorldRegionScheduler.Scheduler
   effectively implementing PWT-compatible versions of Folia's Entity and Location schedulers, instead
   of using Paper's fallback schedulers, which run on the main thread. This means the task load is now
@@ -13,9 +13,14 @@ ReentrantReadWriteLock allows consistent read-write blocking logic for schedulin
   of the world tick if the world is currently ticking, or will run immediately and temporarily block the
   read lock if not. This scheduling logic is very performant as long as there're no plugins spamming
   CraftWorld or CraftBlock requests.
+The Folia Entity Scheduler allows running tasks in whatever thread the region that owns the entity is ticking.
+  In Paper, the Entity Scheduler falls back to executing in the main thread before entity ticking, effectively
+  making it compatible with PWT. This has been improved by moving the entity scheduler into the world thread,
+  keeping the compatibility, but allowing to execute these tasks in its corresponding threads, leveraging most
+  of the load off the main thread. This also allows plugins to support PWT without explicit API.
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index cff4246db3dd278de34597e3554611cd9efd28b8..b80df37247a898ad3dcd0e1e8200ed14147b6920 100644
+index cff4246db3dd278de34597e3554611cd9efd28b8..f35cc7d3ae819cd51602d9b8490979bdc86bbe50 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -336,6 +336,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -26,6 +31,22 @@ index cff4246db3dd278de34597e3554611cd9efd28b8..b80df37247a898ad3dcd0e1e8200ed14
      // Paper start - improve tick loop
      public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
      public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
+@@ -1771,6 +1772,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         this.server.getScheduler().mainThreadHeartbeat(); // CraftBukkit
+         // Paper start - optimise Folia entity scheduler
+         ((io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler)org.bukkit.Bukkit.getGlobalRegionScheduler()).tick();
++        if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) { // Fish - Handle Entity Schedulers
+         for (io.papermc.paper.threadedregions.EntityScheduler scheduler : this.entitySchedulerTickList.getAllSchedulers()) {
+             if (scheduler.isRetired()) {
+                 continue;
+@@ -1778,6 +1780,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+             scheduler.executeTick();
+         }
++        } // Fish - Handle Entity Schedulers
+         // Paper end - optimise Folia entity scheduler
+         // Paper end - Folia scheduler API
+         io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.ADVENTURE_CLICK_MANAGER.handleQueue(this.tickCount); // Paper
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
 index 1e438c545d60958f05f900128ea60dbde963b70b..525fe7338268d4bf93d8d05456ac6249cf874bec 100644
 --- a/net/minecraft/server/level/ServerLevel.java
@@ -39,3 +60,18 @@ index 1e438c545d60958f05f900128ea60dbde963b70b..525fe7338268d4bf93d8d05456ac6249
  
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index 5f78e55a1aa73c0e36547dd79240db807d2f6ab5..a2bd55812376789c61c02471706e9f9320ba3625 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -5229,6 +5229,10 @@ public abstract class Entity
+     // Paper end - Folia schedulers
+     // Paper start - optimise Folia entity scheduler
+     public final void registerScheduler() {
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.level instanceof ServerLevel serverLevel) {
++            this.getBukkitEntity().taskScheduler.registerTo(serverLevel.fish$worldData.entitySchedulerTickList);
++            return;
++        }
+         this.getBukkitEntity().taskScheduler.registerTo(net.minecraft.server.MinecraftServer.getServer().entitySchedulerTickList);
+     }
+     // Paper end - optimise Folia entity scheduler

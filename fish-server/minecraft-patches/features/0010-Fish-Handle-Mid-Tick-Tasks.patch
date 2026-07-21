@@ -8,7 +8,7 @@ Instead of iterating through all worlds, if the requesting thread is a world thr
   execute its own mid-tick tasks.
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index daf411e2e3df30746a64080d051414462eb14fbc..3016ce7ed759dfce5f23d7bc18d835679c4c413b 100644
+index f35cc7d3ae819cd51602d9b8490979bdc86bbe50..9147b503b5cc80f8878d34ff5852974f4c39ac81 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -464,6 +464,12 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
