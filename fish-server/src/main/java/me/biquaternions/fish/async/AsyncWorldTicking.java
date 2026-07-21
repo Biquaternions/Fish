@@ -253,6 +253,13 @@ public class AsyncWorldTicking {
         }
     }
 
+    /**
+     * Ticks mid-tick tasks for a single world.
+     * See {@link MinecraftServer#moonrise$executeMidTickTasks()}
+     *
+     * @param world World to tick mid-tick tasks
+     * @return If a task was executed
+     */
     private static boolean tickMidTickTasks(final ServerLevel world) {
         boolean executed = false;
         long currTime = System.nanoTime();
@@ -268,6 +275,16 @@ public class AsyncWorldTicking {
         return executed;
     }
 
+    /**
+     * Ticks mid-tick tasks for a single world.
+     * The world will use its own mid-tick statistics, which means it will only consider task stats for
+     *   itself, completely ignoring the execution stats of the main thread.
+     * This will alter the behavior of the first task that gets executed, as the rest will use the
+     *   updated stats after the first's success/failure.
+     * See {@link MinecraftServer#moonrise$executeMidTickTasks()}
+     *
+     * @param world World to tick mid-tick tasks
+     */
     public static void executeMidTickTasks(final ServerLevel world) {
         RegionizedWorldData worldData = world.fish$worldData;
         final long startTime = System.nanoTime();
