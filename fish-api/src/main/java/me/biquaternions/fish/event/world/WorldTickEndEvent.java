@@ -11,23 +11,14 @@ public class WorldTickEndEvent extends WorldEvent {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
-    private final int tickNumber;
     private final double tickDuration;
     private final long timeEnd;
 
     @ApiStatus.Internal
-    public WorldTickEndEvent(final World world, final int tickNumber, final double tickDuration, final long timeRemaining) {
+    public WorldTickEndEvent(final World world, final double tickDuration, final long timeRemaining) {
         super(world, false);
-        this.tickNumber = tickNumber;
         this.tickDuration = tickDuration;
         this.timeEnd = System.nanoTime() + timeRemaining;
-    }
-
-    /**
-     * @return What tick this was since start (first tick = 1)
-     */
-    public int getTickNumber() {
-        return this.tickNumber;
     }
 
     /**
