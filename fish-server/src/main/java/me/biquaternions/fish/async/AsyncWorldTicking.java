@@ -2,6 +2,8 @@ package me.biquaternions.fish.async;
 
 import ca.spottedleaf.common.time.TickData;
 import ca.spottedleaf.common.time.TickTime;
+import me.biquaternions.fish.event.world.WorldTickEndEvent;
+import me.biquaternions.fish.event.world.WorldTickStartEvent;
 import me.biquaternions.fish.threadedregions.RegionizedWorldData;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -58,6 +60,7 @@ public class AsyncWorldTicking {
                         serverLevel.fish$tickSchedule.setNextPeriod(serverLevel.fish$currentTickStart, tickInterval);
                         serverLevel.fish$nextTickTimeNanos = serverLevel.fish$tickSchedule.getDeadline(tickInterval);
 
+                        new WorldTickStartEvent(serverLevel.getWorld()).callEvent();
                         for (io.papermc.paper.threadedregions.EntityScheduler scheduler : serverLevel.fish$worldData.entitySchedulerTickList.getAllSchedulers()) {
                             net.minecraft.world.entity.Entity handle = scheduler.entity.getHandleRaw();
                             if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(handle) || scheduler.isRetired()) {
@@ -70,6 +73,10 @@ public class AsyncWorldTicking {
                         serverLevel.explosionDensityCache.clear(); // Paper - Optimize explosions
                         ((WorldRegionScheduler) Bukkit.getRegionScheduler()).tickWorld(serverLevel);
                         AsyncWorldTicking.recordEndOfTick(serverLevel);
+
+                        long endTime = System.nanoTime();
+                        long remaining = serverLevel.fish$nextTickTimeNanos - endTime;
+                        new WorldTickEndEvent(serverLevel.getWorld(), ((double)(endTime - serverLevel.fish$currentTickStart) / 1000000D), remaining).callEvent();
 
                     } catch (Throwable var7) {
                         CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world [" + serverLevel.dimension().identifier() + "]");
