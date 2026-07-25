@@ -19,8 +19,28 @@ index 9147b503b5cc80f8878d34ff5852974f4c39ac81..a2db57c254f5315cbb2da9d8989f11eb
              profiler.push(() -> level + " " + level.dimension().identifier());
              profiler.push("tick");
  
+diff --git a/net/minecraft/world/level/block/entity/BlockEntity.java b/net/minecraft/world/level/block/entity/BlockEntity.java
+index ae0df53c3be7ebcf48886adbedfaa2c071a94023..ebe40f22c41f469a5c6bb496340b438db7d8ae11 100644
+--- a/net/minecraft/world/level/block/entity/BlockEntity.java
++++ b/net/minecraft/world/level/block/entity/BlockEntity.java
+@@ -40,6 +40,7 @@ import org.slf4j.Logger;
+ 
+ public abstract class BlockEntity implements DebugValueSource, TypedInstance<BlockEntityType<?>> {
+     static boolean ignoreBlockEntityUpdates; // Paper - Perf: Optimize Hoppers
++    static final ThreadLocal<Boolean> FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL = ThreadLocal.withInitial(() -> Boolean.FALSE);
+     // CraftBukkit start - data containers
+     private static final org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry();
+     public final org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer persistentDataContainer;
+@@ -210,6 +211,7 @@ public abstract class BlockEntity implements DebugValueSource, TypedInstance<Blo
+ 
+     public void setChanged() {
+         if (this.level != null) {
++            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) { if (FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.get()) return; } else
+             if (ignoreBlockEntityUpdates) return; // Paper - Perf: Optimize Hoppers
+             setChanged(this.level, this.worldPosition, this.blockState);
+         }
 diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index fef616d7b92454a721f7a14941b62a8963080cc5..e71ae54085d481d6cf131eeb66119eed830c77e0 100644
+index fef616d7b92454a721f7a14941b62a8963080cc5..36aaffab859d49590b3eef695baa62fb592eec8f 100644
 --- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -223,7 +223,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
@@ -52,7 +72,18 @@ index fef616d7b92454a721f7a14941b62a8963080cc5..e71ae54085d481d6cf131eeb66119eed
              movedItem = callPullMoveEvent(hopper, container, movedItem);
              if (movedItem == null) { // cancelled
                  origItemStack.setCount(originalItemCount);
-@@ -320,7 +322,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -294,8 +296,10 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+                 origItemStack.setCount(originalItemCount - movedItemCount + remainingItemCount);
+             }
+ 
++            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(true); else
+             ignoreBlockEntityUpdates = true;
+             container.setItem(i, origItemStack);
++            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(false); else
+             ignoreBlockEntityUpdates = false;
+             container.setChanged();
+             return true;
+@@ -320,7 +324,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
          );
          final boolean result = event.callEvent();
          if (!event.calledGetItem && !event.calledSetItem) {
@@ -62,7 +93,7 @@ index fef616d7b92454a721f7a14941b62a8963080cc5..e71ae54085d481d6cf131eeb66119eed
          }
          if (!result) {
              applyCooldown(hopper);
-@@ -343,7 +346,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -343,7 +348,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
          final io.papermc.paper.event.inventory.PaperInventoryMoveItemEvent event = new io.papermc.paper.event.inventory.PaperInventoryMoveItemEvent(sourceInventory, org.bukkit.craftbukkit.inventory.CraftItemStack.asCraftMirror(itemstack), destination, false);
          final boolean result = event.callEvent();
          if (!event.calledGetItem && !event.calledSetItem) {
@@ -72,7 +103,7 @@ index fef616d7b92454a721f7a14941b62a8963080cc5..e71ae54085d481d6cf131eeb66119eed
          }
          if (!result) {
              applyCooldown(hopper);
-@@ -480,8 +484,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -480,8 +486,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
          BlockState blockState = level.getBlockState(blockPos);
          Container container = getSourceContainer(level, hopper, blockPos, blockState);
          if (container != null) {
@@ -83,3 +114,14 @@ index fef616d7b92454a721f7a14941b62a8963080cc5..e71ae54085d481d6cf131eeb66119eed
  
              for (int slot : getSlots(container, direction)) {
                  if (tryTakeInItemFromSlot(hopper, container, slot, direction, level)) { // Spigot
+@@ -585,8 +592,10 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+                     itemStack = itemStack.split(container.getMaxStackSize());
+                 }
+                 // Spigot end
++                if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(true); else
+                 ignoreBlockEntityUpdates = true; // Paper - Perf: Optimize Hoppers
+                 container.setItem(slot, itemStack);
++                if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(false); else
+                 ignoreBlockEntityUpdates = false; // Paper - Perf: Optimize Hoppers
+                 itemStack = leftover; // Paper - Make hoppers respect inventory max stack size
+                 success = true;
