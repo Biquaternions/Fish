@@ -11,6 +11,9 @@ public abstract class AbstractWorldData {
     public final RedstoneWireTurbo turbo;
 
     public boolean shouldSignal = true;
+    public boolean skipHopperEvents;
+    public boolean skipPullModeEventFire;
+    public boolean skipPushModeEventFire;
 
     public AbstractWorldData() {
         this.turbo = new RedstoneWireTurbo((RedStoneWireBlock) Blocks.REDSTONE_WIRE);

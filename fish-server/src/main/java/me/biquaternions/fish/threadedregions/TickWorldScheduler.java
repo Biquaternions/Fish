@@ -9,10 +9,10 @@ public class TickWorldScheduler {
 
     public static AbstractWorldData getCurrentRegionizedWorldData() {
         final Thread currentThread = Thread.currentThread();
-        if (!(currentThread instanceof WorldTickThread tickThreadRunner)) {
-            return MinecraftServer.getServer().fish$globalData;
+        if (currentThread instanceof WorldTickThread tickThreadRunner) {
+            return tickThreadRunner.getWorldData();
         }
-        return tickThreadRunner.getWorldData();
+        return MinecraftServer.getServer().fish$globalData;
     }
 
 }

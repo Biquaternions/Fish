@@ -1,0 +1,85 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Fri, 24 Jul 2026 20:07:14 -0500
+Subject: [PATCH] Fish Handle Hopper Events Optimization
+
+Without this, all worlds will get the movement event disabled if the last world has the event disabled.
+It can even happen while ticking hoppers, as worlds are ticking in parallel now.
+
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index 9147b503b5cc80f8878d34ff5852974f4c39ac81..a2db57c254f5315cbb2da9d8989f11eb55f54483 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -1832,7 +1832,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             level.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
+             level.hasEntityMoveEvent = io.papermc.paper.event.entity.EntityMoveEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - Add EntityMoveEvent
+             level.updateLagCompensationTick(); // Paper - lag compensation
+-            net.minecraft.world.level.block.entity.HopperBlockEntity.skipHopperEvents = level.paperConfig().hopper.disableMoveEvent || org.bukkit.event.inventory.InventoryMoveItemEvent.getHandlerList().getRegisteredListeners().length == 0; // Paper - Perf: Optimize Hoppers
++            this.fish$globalData.skipHopperEvents = level.paperConfig().hopper.disableMoveEvent || org.bukkit.event.inventory.InventoryMoveItemEvent.getHandlerList().getRegisteredListeners().length == 0; // Paper - Perf: Optimize Hoppers // Fish - Handle Hopper Events Optimizations
+             profiler.push(() -> level + " " + level.dimension().identifier());
+             profiler.push("tick");
+ 
+diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+index fef616d7b92454a721f7a14941b62a8963080cc5..e71ae54085d481d6cf131eeb66119eed830c77e0 100644
+--- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+@@ -223,7 +223,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+     private static boolean skipPushModeEventFire;
+ 
+     private static boolean hopperPush(final Level level, final Container destination, final Direction direction, final HopperBlockEntity hopper) {
+-        skipPushModeEventFire = skipHopperEvents;
++        me.biquaternions.fish.threadedregions.AbstractWorldData worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData(); // Fish - Handle Hopper Events Optimizations
++        worldData.skipPushModeEventFire = worldData.skipHopperEvents; // Fish - Handle Hopper Events Optimizations
+         boolean foundItem = false;
+         for (int i = 0; i < hopper.getContainerSize(); ++i) {
+             final ItemStack item = hopper.getItem(i);
+@@ -238,7 +239,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+ 
+                 // We only need to fire the event once to give protection plugins a chance to cancel this event
+                 // Because nothing uses getItem, every event call should end up the same result.
+-                if (!skipPushModeEventFire) {
++                if (!worldData.skipPushModeEventFire) { // Fish - Handle Hopper Events Optimizations
+                     movedItem = callPushMoveEvent(destination, movedItem, hopper);
+                     if (movedItem == null) { // cancelled
+                         origItemStack.setCount(originalItemCount);
+@@ -274,7 +275,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         container.setChanged(); // original logic always marks source inv as changed even if no move happens.
+         movedItem.setCount(movedItemCount);
+ 
+-        if (!skipPullModeEventFire) {
++        me.biquaternions.fish.threadedregions.AbstractWorldData worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData(); // Fish - Handle Hopper Events Optimizations
++        if (!worldData.skipPullModeEventFire) { // Fish - Handle Hopper Events Optimizations
+             movedItem = callPullMoveEvent(hopper, container, movedItem);
+             if (movedItem == null) { // cancelled
+                 origItemStack.setCount(originalItemCount);
+@@ -320,7 +322,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         );
+         final boolean result = event.callEvent();
+         if (!event.calledGetItem && !event.calledSetItem) {
+-            skipPushModeEventFire = true;
++            me.biquaternions.fish.threadedregions.AbstractWorldData worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData(); // Fish - Handle Hopper Events Optimizations
++            worldData.skipPushModeEventFire = true; // Fish - Handle Hopper Events Optimizations
+         }
+         if (!result) {
+             applyCooldown(hopper);
+@@ -343,7 +346,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         final io.papermc.paper.event.inventory.PaperInventoryMoveItemEvent event = new io.papermc.paper.event.inventory.PaperInventoryMoveItemEvent(sourceInventory, org.bukkit.craftbukkit.inventory.CraftItemStack.asCraftMirror(itemstack), destination, false);
+         final boolean result = event.callEvent();
+         if (!event.calledGetItem && !event.calledSetItem) {
+-            skipPullModeEventFire = true;
++            me.biquaternions.fish.threadedregions.AbstractWorldData worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData(); // Fish - Handle Hopper Events Optimizations
++            worldData.skipPullModeEventFire = true; // Fish - Handle Hopper Events Optimizations
+         }
+         if (!result) {
+             applyCooldown(hopper);
+@@ -480,8 +484,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         BlockState blockState = level.getBlockState(blockPos);
+         Container container = getSourceContainer(level, hopper, blockPos, blockState);
+         if (container != null) {
++            me.biquaternions.fish.threadedregions.AbstractWorldData worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData(); // Fish - Handle Hopper Events Optimizations
+             Direction direction = Direction.DOWN;
+-            skipPullModeEventFire = skipHopperEvents; // Paper - Perf: Optimize Hoppers
++            worldData.skipPullModeEventFire = worldData.skipHopperEvents; // Paper - Perf: Optimize Hoppers // Fish - Handle Hopper Events Optimizations
+ 
+             for (int slot : getSlots(container, direction)) {
+                 if (tryTakeInItemFromSlot(hopper, container, slot, direction, level)) { // Spigot
