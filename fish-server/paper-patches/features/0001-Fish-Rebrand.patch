@@ -32,20 +32,20 @@ index 96997fcdeb98fd74fedbb0a0f103e34cde991f50..ed4edde93a64551b2ac680955fa5e11c
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
                      Map<String, Map<String, Integer>> map = new HashMap<>();
 diff --git a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
-index 3b04f982b3a31ecdaed412390941e9c9b1e7e0f6..b606a684c8c6cb925a42c8566cb591defc7c5a33 100644
+index 6f51bf5fd79f2f136c6985eff4d2a8a44295d1b9..c03ddc93f11f14b3d760e9edae09c0733b71d628 100644
 --- a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
 +++ b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
-@@ -20,7 +20,7 @@ public final class PaperConsole extends SimpleTerminalConsole {
+@@ -21,7 +21,7 @@ public final class PaperConsole extends SimpleTerminalConsole {
      @Override
      protected LineReader buildReader(LineReaderBuilder builder) {
          builder
 -                .appName("Pufferfish") // Pufferfish - Rebrand
 +                .appName("Fish") // Pufferfish - Rebrand // Fish - Rebrand
-                 .variable(LineReader.HISTORY_FILE, java.nio.file.Paths.get(".console_history"))
+                 .variable(LineReader.HISTORY_FILE, PaperCacheDir.moveFromServerRootAndGet(".console_history", "console_history"))
                  .completer(new ConsoleCommandCompleter(this.server))
                  .option(LineReader.Option.COMPLETE_IN_WORD, true);
 diff --git a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
-index c1639f79b5a5e53d3a276458e4aa8f44e6841464..c2db124be7aa58682b93c139728a57c347cb0403 100644
+index 9c9c3658a458e76d93785ae63744850d61a46fc3..fa379d281b3868ca8406fe57a6178f0f4bbee90c 100644
 --- a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
 +++ b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
 @@ -32,6 +32,7 @@ public record ServerBuildInfoImpl(
@@ -82,7 +82,7 @@ index 8aa4e2286704e43503abbdae0d88ccfd5e0bf7e4..1c6a7e867bde69da73e5010ed2e0b109
                  // (async tasks must live with race-conditions if they attempt to cancel between these few lines of code)
              }
 diff --git a/src/main/java/org/spigotmc/WatchdogThread.java b/src/main/java/org/spigotmc/WatchdogThread.java
-index df5ebe43026e6924541125b94f6423126334ddce..fd70b150706fed9de310dec69c6102b3147e4a7d 100644
+index 9febe16a4202373aef707967cce6929b4922061d..346e789376ddbf5166bf4bc13f8e0aec319f2357 100644
 --- a/src/main/java/org/spigotmc/WatchdogThread.java
 +++ b/src/main/java/org/spigotmc/WatchdogThread.java
 @@ -25,7 +25,7 @@ public class WatchdogThread extends ca.spottedleaf.moonrise.common.util.TickThre

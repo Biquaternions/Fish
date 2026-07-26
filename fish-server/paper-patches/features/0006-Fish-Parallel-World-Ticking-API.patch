@@ -13,10 +13,10 @@ With this approach only new methods are added into already existing Bukkit API, 
   get standarized.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 13dacc8083dd15389356e324e9c906f3ddedfaa5..78c3778828d1cdae15074c51f59887ccb8e808b9 100644
+index dd071d0a9377e084bd547de4ca35b9f85957b9e9..d0f7cf81959cf4a594a8e5efff1aa74b1a91b8ba 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -2962,4 +2962,11 @@ public final class CraftServer implements Server {
+@@ -2961,4 +2961,11 @@ public final class CraftServer implements Server {
      public void allowPausing(final Plugin plugin, final boolean value) {
          this.console.addPluginAllowingSleep(plugin.getName(), value);
      }

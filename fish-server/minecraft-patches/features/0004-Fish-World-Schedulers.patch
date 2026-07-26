@@ -20,7 +20,7 @@ The Folia Entity Scheduler allows running tasks in whatever thread the region th
   of the load off the main thread. This also allows plugins to support PWT without explicit API.
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index cff4246db3dd278de34597e3554611cd9efd28b8..f35cc7d3ae819cd51602d9b8490979bdc86bbe50 100644
+index a7a8550a85fe42407d4972bca947e6c08263cec4..b9d7f1fe82a75da51bd54a06b3d838af1e95b3ad 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -336,6 +336,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -61,10 +61,10 @@ index 1e438c545d60958f05f900128ea60dbde963b70b..525fe7338268d4bf93d8d05456ac6249
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 5f78e55a1aa73c0e36547dd79240db807d2f6ab5..a2bd55812376789c61c02471706e9f9320ba3625 100644
+index 23cb2e27dca1066f46b35ef9c1ae3f9b7b2a1f05..d23c983002dbddcac628efeabe119425d89bbb60 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -5229,6 +5229,10 @@ public abstract class Entity
+@@ -5236,6 +5236,10 @@ public abstract class Entity
      // Paper end - Folia schedulers
      // Paper start - optimise Folia entity scheduler
      public final void registerScheduler() {

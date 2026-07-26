@@ -5,10 +5,10 @@ Subject: [PATCH] Fish Added Config And Command
 
 
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index ac744cee72a62ef25e112a9dc6ff08489f0b373f..b2332a385ebc853b6a789f3e7c5e5aa49289c7c9 100644
+index 59d9d78a02445c7aaea4bf1490c276fdd619ca16..0b8a9423feb56d0427ad008b2ab0469be5436ac8 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
-@@ -107,6 +107,7 @@ public class Main {
+@@ -110,6 +110,7 @@ public class Main {
                  JvmProfiler.INSTANCE.start(Environment.SERVER);
              }
  
@@ -17,7 +17,7 @@ index ac744cee72a62ef25e112a9dc6ff08489f0b373f..b2332a385ebc853b6a789f3e7c5e5aa4
              Bootstrap.bootStrap();
              Bootstrap.validate();
 diff --git a/net/minecraft/server/ReloadableServerResources.java b/net/minecraft/server/ReloadableServerResources.java
-index fcc1c2ca594f543a91e59c680c1892cdddacca36..1692f0037bf348beb324103a3d906b6e5fc5b1cc 100644
+index 6db3af5861a25cff70fc940d1cd467ea81d4c29f..6d8a08ac361a7caa118a9ff4e6e3085adebda9ec 100644
 --- a/net/minecraft/server/ReloadableServerResources.java
 +++ b/net/minecraft/server/ReloadableServerResources.java
 @@ -49,6 +49,7 @@ public class ReloadableServerResources {
@@ -29,7 +29,7 @@ index fcc1c2ca594f543a91e59c680c1892cdddacca36..1692f0037bf348beb324103a3d906b6e
          this.functionLibrary = new ServerFunctionLibrary(functionCompilationPermissions, this.commands.getDispatcher());
      }
 diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
-index d3dc03775c08b252fb88a20c94fad91eacf9a032..5157bb02995b4ed3071c8221996403503aeb8918 100644
+index 694c57bf8443adb5d3500721e50ad77babd5a17d..eb9520582e8f1cb62d8a55c13232f11fc6088bce 100644
 --- a/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -252,6 +252,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface

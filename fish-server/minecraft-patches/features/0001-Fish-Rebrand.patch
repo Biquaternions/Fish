@@ -31,10 +31,10 @@ index e20f504473bb7a9c3b415aa32b6c9df64bae907a..d6cdf8232d2846478420c352b02e4bf4
                  LOGGER.warn("Failed to save {}", this.file, e);
              }
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index a4d608d64b7d3477c9144d93547fd3b4f39a1b02..b2b4349a1f0b3457aecfa8b945d55b32aa0f5178 100644
+index e2939cc39a8c103e4c4d7b01d39b5546486e4fbc..59d9d78a02445c7aaea4bf1490c276fdd619ca16 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
-@@ -157,6 +157,17 @@ public class Main {
+@@ -166,6 +166,17 @@ public class Main {
                  return;
              }
  
@@ -103,7 +103,7 @@ index 023cca49c6dd0f2961cf30f02c7cd74601f73f8b..04b5396520f83f70f05629201c83ad1e
          JPanel panel = new JPanel(new BorderLayout());
          JTextArea chatArea = new JTextArea();
 diff --git a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
-index 39a127243304c52840595e0721531ed6a85ae90a..de488370c011074437b7aa75e1bc7a9d52e53597 100644
+index 3c7f825c01553207f9618e16c157943a82c821cd..66dca3b5f170bebc6321756031c79e85fd529757 100644
 --- a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 @@ -309,7 +309,7 @@ public class RegionFileStorage implements AutoCloseable, ca.spottedleaf.moonrise

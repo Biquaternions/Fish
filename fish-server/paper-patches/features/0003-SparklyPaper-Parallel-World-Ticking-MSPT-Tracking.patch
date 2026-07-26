@@ -4,15 +4,14 @@ Date: Sun, 25 May 2025 21:39:32 -0300
 Subject: [PATCH] SparklyPaper Parallel World Ticking MSPT Tracking
 
 
-diff --git a/src/main/java/io/papermc/paper/command/MSPTCommand.java b/src/main/java/io/papermc/paper/command/MSPTCommand.java
-index 04b8097b147350f97fdee16c0b8aa78a87fddd33..ce588421fd33ff07d7bd0bb57ace37c8c1876f1a 100644
---- a/src/main/java/io/papermc/paper/command/MSPTCommand.java
-+++ b/src/main/java/io/papermc/paper/command/MSPTCommand.java
-@@ -82,6 +82,49 @@ public final class MSPTCommand extends Command {
+diff --git a/src/main/java/io/papermc/paper/command/PaperMSPTCommand.java b/src/main/java/io/papermc/paper/command/PaperMSPTCommand.java
+index c4e9a5771f8015c75bbd16c04040607d8c7e5fbd..f5d11bf6d498749027ae4fa50d8c5676492c7b43 100644
+--- a/src/main/java/io/papermc/paper/command/PaperMSPTCommand.java
++++ b/src/main/java/io/papermc/paper/command/PaperMSPTCommand.java
+@@ -76,6 +76,47 @@ public class PaperMSPTCommand {
                  )
              )
          );
-+
 +        // SparklyPaper start - track world's MSPT
 +        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
 +            sender.sendMessage(text());
@@ -54,7 +53,6 @@ index 04b8097b147350f97fdee16c0b8aa78a87fddd33..ce588421fd33ff07d7bd0bb57ace37c8
 +            }
 +        }
 +        // SparklyPaper end
-+
-         return true;
+         return Command.SINGLE_SUCCESS;
      }
  

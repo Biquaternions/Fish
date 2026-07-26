@@ -53,7 +53,7 @@ index 162d7890f204315b0476467e757de5c9dd84aeca..9360a5215c8292dc283ff504889a1933
                  }
                  // Paper end
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 4adee6df680e949013ae9c476aa6ee2d324b99ea..cff4246db3dd278de34597e3554611cd9efd28b8 100644
+index 306fb41f897ab69e1d1cb7b2f75a19174d4794af..a7a8550a85fe42407d4972bca947e6c08263cec4 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -1815,6 +1815,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -185,7 +185,7 @@ index 7f77d5c5c25ec019a33103ed47d448b9f9bab4c4..1e438c545d60958f05f900128ea60dbd
          entity.generation = false; // Paper - Don't fire sync event during generation; Reset flag if it was added during a ServerLevel generation process
          // Paper start - extra debug info
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index c063fa617ea79b758b9c4ef0456889a91e341ad4..b815e8f662ff19647052badb7bf5a9627f1efcc3 100644
+index 3cd4e850f223100b61ac6831a87dd38f3a3bb58f..2306d1f7e34c3b8ae2728f9f42730ffc58658050 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
 @@ -715,8 +715,10 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
@@ -199,7 +199,7 @@ index c063fa617ea79b758b9c4ef0456889a91e341ad4..b815e8f662ff19647052badb7bf5a962
          // CraftBukkit start
          if (this.joining) {
              this.joining = false;
-@@ -1541,6 +1543,7 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+@@ -1520,6 +1522,7 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
              return this;
          }
  
@@ -207,7 +207,7 @@ index c063fa617ea79b758b9c4ef0456889a91e341ad4..b815e8f662ff19647052badb7bf5a962
          this.isChangingDimension = true;
          LevelData levelData = newLevel.getLevelData();
          this.connection.send(new ClientboundRespawnPacket(this.createCommonSpawnInfo(newLevel), ClientboundRespawnPacket.KEEP_ALL_DATA));
-@@ -1862,6 +1865,12 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+@@ -1841,6 +1844,12 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
  
              return OptionalInt.empty();
          } else {
@@ -249,7 +249,7 @@ index baec5d072b8f2d9379dba850b04e881e5267ca6b..1e3c4206fa656d8fe0254068a482f4d6
          player.restoreFrom(serverPlayer, keepAllPlayerData);
          player.setId(serverPlayer.getId());
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 09676b5bae60a825fd803d0161c8306c67ed3f84..5f78e55a1aa73c0e36547dd79240db807d2f6ab5 100644
+index c74a2f214c4265f0e610e608a56df2c80883716e..23cb2e27dca1066f46b35ef9c1ae3f9b7b2a1f05 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -870,6 +870,7 @@ public abstract class Entity
