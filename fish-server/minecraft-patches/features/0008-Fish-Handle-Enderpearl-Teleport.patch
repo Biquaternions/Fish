@@ -23,7 +23,7 @@ index 8d3c6abd387acc4cec27a33b96bcd24255fd01ac..c659b4e2d1529f8749ea2fb844d17f90
 +                            me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> {
 +                                // Pearls disappear with the player on disconnection
 +                                ServerPlayer newOwner = player.teleport(new TeleportTransition(
-+                                    level, teleportPos, Vec3.ZERO, 0.0F, 0.0F, Relative.union(Relative.ROTATION, Relative.DELTA), TeleportTransition.DO_NOTHING, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PEARL));
++                                    level, teleportPos, Vec3.ZERO, 0.0F, 0.0F, Relative.union(Relative.ROTATION, Relative.DELTA), TeleportTransition.DO_NOTHING).withCause(org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PEARL));
 +                                if (newOwner == null) {
 +                                    this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.HIT);
 +                                    return;
