@@ -8,7 +8,7 @@ protected net.minecraft.server.waypoints.ServerWaypointManager createConnection(
 protected net.minecraft.server.waypoints.ServerWaypointManager updateConnection(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/waypoints/WaypointTransmitter;Lnet/minecraft/world/waypoints/WaypointTransmitter$Connection;)V
 
 diff --git a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
-index 05d374f679919d082064e8f2bb363a419bc9648e..fa535497c0ee04ca820be7a18db1bfea0acda085 100644
+index e418820359c430b91bb91eb65d137b9cdbe2db4b..c1031bc693fb58f58893d9e41e480225e0aef800 100644
 --- a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
 +++ b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
 @@ -1129,7 +1129,7 @@ public final class ChunkHolderManager {
@@ -53,10 +53,10 @@ index 162d7890f204315b0476467e757de5c9dd84aeca..9360a5215c8292dc283ff504889a1933
                  }
                  // Paper end
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 306fb41f897ab69e1d1cb7b2f75a19174d4794af..a7a8550a85fe42407d4972bca947e6c08263cec4 100644
+index b8657126b94b97cb027e65a0149f11dfbbdfa467..42eb6f83485aabbdf0fbb8366fb4396404623808 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -1815,6 +1815,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1814,6 +1814,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.updateEffectiveRespawnData();
  
          this.isIteratingOverLevels = true; // Paper - Throw exception on world create while being ticked
@@ -67,7 +67,7 @@ index 306fb41f897ab69e1d1cb7b2f75a19174d4794af..a7a8550a85fe42407d4972bca947e6c0
          for (ServerLevel level : this.getAllLevels()) {
              level.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
              level.hasEntityMoveEvent = io.papermc.paper.event.entity.EntityMoveEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - Add EntityMoveEvent
-@@ -1835,6 +1839,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1834,6 +1838,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              profiler.pop();
              level.explosionDensityCache.clear(); // Paper - Optimize explosions
          }
@@ -75,7 +75,7 @@ index 306fb41f897ab69e1d1cb7b2f75a19174d4794af..a7a8550a85fe42407d4972bca947e6c0
          this.isIteratingOverLevels = false; // Paper - Throw exception on world create while being ticked
  
          profiler.popPush("connection");
-@@ -1925,6 +1930,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1924,6 +1929,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          Map<ResourceKey<Level>, ServerLevel> oldLevels = this.levels;
          Map<ResourceKey<Level>, ServerLevel> newLevels = Maps.newLinkedHashMap(oldLevels);
          newLevels.remove(level.dimension());
@@ -96,7 +96,7 @@ index 8538e9b33b5d417ae4051a853fb988cbedc50c8a..f3cdeab98548a9d1eb06289f447b7274
                  continue;
              }
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 7f77d5c5c25ec019a33103ed47d448b9f9bab4c4..1e438c545d60958f05f900128ea60dbde963b70b 100644
+index 135b2bec89b5255f3b3e354e74cfd75d66ffdc54..368ada1896f97f4642cbc37710a0adfd5d11f924 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -196,7 +196,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -249,10 +249,10 @@ index baec5d072b8f2d9379dba850b04e881e5267ca6b..1e3c4206fa656d8fe0254068a482f4d6
          player.restoreFrom(serverPlayer, keepAllPlayerData);
          player.setId(serverPlayer.getId());
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index c74a2f214c4265f0e610e608a56df2c80883716e..23cb2e27dca1066f46b35ef9c1ae3f9b7b2a1f05 100644
+index 2eee30ee82b79f0f304b914e9ad9f1e966fce6d7..507090270f212ac55bfb661fce686ea348a270a3 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -870,6 +870,7 @@ public abstract class Entity
+@@ -871,6 +871,7 @@ public abstract class Entity
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
@@ -260,7 +260,7 @@ index c74a2f214c4265f0e610e608a56df2c80883716e..23cb2e27dca1066f46b35ef9c1ae3f9b
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
-@@ -4177,6 +4178,7 @@ public abstract class Entity
+@@ -4179,6 +4180,7 @@ public abstract class Entity
      }
  
      private @Nullable Entity teleportCrossDimension(final ServerLevel oldLevel, final ServerLevel newLevel, final TeleportTransition transition) {

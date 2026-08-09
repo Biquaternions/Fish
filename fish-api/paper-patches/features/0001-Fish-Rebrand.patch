@@ -5,10 +5,10 @@ Subject: [PATCH] Fish Rebrand
 
 
 diff --git a/src/main/java/io/papermc/paper/ServerBuildInfo.java b/src/main/java/io/papermc/paper/ServerBuildInfo.java
-index fbf2859a784bcc25d6a29d48469f5b4728f4a8a1..854055c5c00db5c5a1e1b1904a08dbfec5ee650d 100644
+index b73e8d6aba63213127dfeece1f3eb331c9782d5d..3efbdb3f19377aaaa2f8cd40fac46aeb127d7f51 100644
 --- a/src/main/java/io/papermc/paper/ServerBuildInfo.java
 +++ b/src/main/java/io/papermc/paper/ServerBuildInfo.java
-@@ -19,6 +19,7 @@ public interface ServerBuildInfo {
+@@ -17,6 +17,7 @@ public interface ServerBuildInfo {
       */
      Key BRAND_PAPER_ID = Key.key("papermc", "paper");
      Key BRAND_PUFFERFISH_ID = Key.key("pufferfish", "pufferfish"); // Pufferfish - Rebrand

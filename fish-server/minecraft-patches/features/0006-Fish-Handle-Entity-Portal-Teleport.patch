@@ -10,10 +10,10 @@ However, their approach has some limitations when triggering events, and require
   have a main thread, so we just schedule the task at the end of the main tick.
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 5f78e55a1aa73c0e36547dd79240db807d2f6ab5..7fdabf824574bb3e48779c0b1a07e700ffa3f2dd 100644
+index 05e624e8db9b88b73f57c37fcd50a932e304c281..a438e29d94c7407ef4c554d3d705b8d7931e57b4 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -870,7 +870,6 @@ public abstract class Entity
+@@ -871,7 +871,6 @@ public abstract class Entity
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
@@ -21,7 +21,7 @@ index 5f78e55a1aa73c0e36547dd79240db807d2f6ab5..7fdabf824574bb3e48779c0b1a07e700
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
-@@ -3587,6 +3586,37 @@ public abstract class Entity
+@@ -3589,6 +3588,37 @@ public abstract class Entity
                      ProfilerFiller profiler = Profiler.get();
                      profiler.push("portal");
                      this.setPortalCooldown();

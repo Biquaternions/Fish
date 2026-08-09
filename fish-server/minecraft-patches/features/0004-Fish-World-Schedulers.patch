@@ -20,7 +20,7 @@ The Folia Entity Scheduler allows running tasks in whatever thread the region th
   of the load off the main thread. This also allows plugins to support PWT without explicit API.
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index a7a8550a85fe42407d4972bca947e6c08263cec4..b9d7f1fe82a75da51bd54a06b3d838af1e95b3ad 100644
+index 42eb6f83485aabbdf0fbb8366fb4396404623808..024a6aaea2f871d7e667fee180cb7b772613683d 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -336,6 +336,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -31,7 +31,7 @@ index a7a8550a85fe42407d4972bca947e6c08263cec4..b9d7f1fe82a75da51bd54a06b3d838af
      // Paper start - improve tick loop
      public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
      public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
-@@ -1771,6 +1772,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1770,6 +1771,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.server.getScheduler().mainThreadHeartbeat(); // CraftBukkit
          // Paper start - optimise Folia entity scheduler
          ((io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler)org.bukkit.Bukkit.getGlobalRegionScheduler()).tick();
@@ -39,7 +39,7 @@ index a7a8550a85fe42407d4972bca947e6c08263cec4..b9d7f1fe82a75da51bd54a06b3d838af
          for (io.papermc.paper.threadedregions.EntityScheduler scheduler : this.entitySchedulerTickList.getAllSchedulers()) {
              if (scheduler.isRetired()) {
                  continue;
-@@ -1778,6 +1780,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1777,6 +1779,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
              scheduler.executeTick();
          }
@@ -48,7 +48,7 @@ index a7a8550a85fe42407d4972bca947e6c08263cec4..b9d7f1fe82a75da51bd54a06b3d838af
          // Paper end - Folia scheduler API
          io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.ADVENTURE_CLICK_MANAGER.handleQueue(this.tickCount); // Paper
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 1e438c545d60958f05f900128ea60dbde963b70b..525fe7338268d4bf93d8d05456ac6249cf874bec 100644
+index 368ada1896f97f4642cbc37710a0adfd5d11f924..7c101623253dc18ad0059c34dc7aa64fc4d86cb0 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -238,6 +238,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -61,10 +61,10 @@ index 1e438c545d60958f05f900128ea60dbde963b70b..525fe7338268d4bf93d8d05456ac6249
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 23cb2e27dca1066f46b35ef9c1ae3f9b7b2a1f05..d23c983002dbddcac628efeabe119425d89bbb60 100644
+index 507090270f212ac55bfb661fce686ea348a270a3..05e624e8db9b88b73f57c37fcd50a932e304c281 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -5236,6 +5236,10 @@ public abstract class Entity
+@@ -5243,6 +5243,10 @@ public abstract class Entity
      // Paper end - Folia schedulers
      // Paper start - optimise Folia entity scheduler
      public final void registerScheduler() {

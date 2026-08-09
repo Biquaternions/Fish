@@ -13,10 +13,10 @@ With this approach only new methods are added into already existing Bukkit API, 
   get standarized.
 
 diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
-index 62341f72e8457c5547994bee1f3fda9faade6ce0..775d9b360033018ad00fbb051a24d5c1af8c5f55 100644
+index a8e67888e63ae1d387e432827dc96590767b7b7f..eb387943162bb68de88ee6954a87edb26f5a7006 100644
 --- a/src/main/java/org/bukkit/Server.java
 +++ b/src/main/java/org/bukkit/Server.java
-@@ -2776,4 +2776,15 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+@@ -2774,4 +2774,15 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
       */
      void allowPausing(@NotNull org.bukkit.plugin.Plugin plugin, boolean value);
      // Paper end - API to check if the server is sleeping
