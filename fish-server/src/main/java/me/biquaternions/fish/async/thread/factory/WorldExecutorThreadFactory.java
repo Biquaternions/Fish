@@ -21,7 +21,7 @@ public class WorldExecutorThreadFactory implements ThreadFactory {
     public Thread newThread(@NonNull final Runnable r) {
         Thread thread = new WorldTickThread(r, this.world);
         thread.setDaemon(false);
-        thread.setPriority(Thread.NORM_PRIORITY + 1);
+        thread.setPriority(Thread.NORM_PRIORITY + 2);
         thread.setUncaughtExceptionHandler((t, e) -> this.logger.fatal("An exception was thrown while ticking {}", t.getName(), e));
         return thread;
     }
