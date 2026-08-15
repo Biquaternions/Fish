@@ -41,7 +41,7 @@ public final class WorldRegionScheduler implements RegionScheduler {
         Objects.requireNonNull(world, "World may not be null");
         Objects.requireNonNull(run, "Runnable may not be null");
 
-        AsyncWorldTicking.scheduleVoidForEndOfWorldTick(((CraftWorld) world).getHandle(), wrap(plugin, world, chunkX, chunkZ, run));
+        AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(((CraftWorld) world).getHandle(), wrap(plugin, world, chunkX, chunkZ, run));
     }
 
     @Override
