@@ -71,7 +71,7 @@ jobs:
       - name: Publish Fish Version
         uses: fjogeleit/http-request-action@v1
         with:
-          url: https://version.serlith.net/submit
+          url: https://version.serlith.net/api/v1/project/submit
           method: 'POST'
-          customHeaders: '{"Content-Type": "application/json", "Authorization": "${{ secrets.VERSION_TOKEN }}", "Server-Software": "Fish"}'
-          data: '{ "software": "Fish", "version": "26.2", "build": ${{ env.BUILD_NUMBER }} }'
+          customHeaders: '{"Content-Type": "application/json", "X-API-Token": "${{ secrets.VERSION_TOKEN }}"}'
+          data: '{ "software": "fish", "version": "26.2", "build": ${{ env.BUILD_NUMBER }} }'

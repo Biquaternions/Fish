@@ -5,10 +5,10 @@ Subject: [PATCH] Fish Rebrand
 
 
 diff --git a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
-index 33c46afb69f7dff6538406c562968c7458c3f031..5b345c0130d1d391deefb0c84adf751b8092c193 100644
+index dacf11be8ef83d2a66ea89d27b9f5833113afc95..ceefe1fc74fbe6761dcddd0ae5f097caa8982b7a 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
 +++ b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
-@@ -31,11 +31,11 @@ import static net.minecraft.server.MinecraftServer.COMPONENT_LOGGER;
+@@ -32,11 +32,11 @@ import static net.minecraft.server.MinecraftServer.COMPONENT_LOGGER;
  
  public class PufferfishVersionFetcher extends PaperVersionFetcher {
  
@@ -23,19 +23,19 @@ index 33c46afb69f7dff6538406c562968c7458c3f031..5b345c0130d1d391deefb0c84adf751b
  
      private static final int DISTANCE_ERROR = -1;
      private static final int DISTANCE_UNKNOWN = -2;
-@@ -92,7 +92,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
+@@ -93,7 +93,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
  
      private static int fetchDistanceFromSiteApi(final int actionsBuild) {
          try {
--            final URL buildsUrl = URI.create("https://version.serlith.net/projects/pufferfish/" + PufferfishVersionFetcher.BUILD_INFO.minecraftVersionId() + "/latest").toURL();
-+            final URL buildsUrl = URI.create("https://version.serlith.net/projects/fish/" + PufferfishVersionFetcher.BUILD_INFO.minecraftVersionId() + "/latest").toURL(); // Fish - Rebrand
+-            final URL buildsUrl = URI.create("https://version.serlith.net/api/v1/project/fetch/pufferfish/" + PufferfishVersionFetcher.BUILD_INFO.minecraftVersionId() + "/latest/build").toURL();
++            final URL buildsUrl = URI.create("https://version.serlith.net/api/v1/project/fetch/fish/" + PufferfishVersionFetcher.BUILD_INFO.minecraftVersionId() + "/latest/build").toURL(); // Fish - Rebrand
              final HttpURLConnection connection = (HttpURLConnection) buildsUrl.openConnection();
              connection.setConnectTimeout(5000);
              connection.setReadTimeout(5000);
-@@ -103,7 +103,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
+@@ -104,7 +104,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
                  final int latest = json.getAsInt();
                  return Math.max(latest - actionsBuild, 0);
-             } catch (final JsonSyntaxException ex) {
+             } catch (final JsonSyntaxException | MalformedJsonException ex) {
 -                LOGGER.error("Error parsing json from Pufferfish's downloads API", ex);
 +                LOGGER.error("Error parsing json from Fish's downloads API", ex); // Fish - Rebrand
                  return DISTANCE_ERROR;
