@@ -19,6 +19,30 @@ The Folia Entity Scheduler allows running tasks in whatever thread the region th
   keeping the compatibility, but allowing to execute these tasks in its corresponding threads, leveraging most
   of the load off the main thread. This also allows plugins to support PWT without explicit API.
 
+Additionally, PacketUtil requires validating against the current ticking thread (world or main thread), instead
+  of only the main thread. This prevents issues when scheduling tasks into the world thread like opening
+  an inventory while another is currently opened in a scheduled task.
+
+diff --git a/net/minecraft/network/protocol/PacketUtils.java b/net/minecraft/network/protocol/PacketUtils.java
+index 144c18c08bf8f03d907b97f968aa171a9fbf997f..cc02eb4b026da782836d84d58a5032f90e97b09a 100644
+--- a/net/minecraft/network/protocol/PacketUtils.java
++++ b/net/minecraft/network/protocol/PacketUtils.java
+@@ -15,6 +15,15 @@ public class PacketUtils {
+     private static final Logger LOGGER = LogUtils.getLogger();
+ 
+     public static <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final ServerLevel level) throws RunningOnDifferentThreadException {
++        // Fish start - Location scheduler handling
++        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++            if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(level)) {
++                level.getServer().packetProcessor().scheduleIfPossible(listener, packet);
++                throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
++            }
++            return;
++        }
++        // Fish start - Location scheduler handling
+         ensureRunningOnSameThread(packet, listener, level.getServer().packetProcessor());
+     }
+ 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
 index 42eb6f83485aabbdf0fbb8366fb4396404623808..024a6aaea2f871d7e667fee180cb7b772613683d 100644
 --- a/net/minecraft/server/MinecraftServer.java
