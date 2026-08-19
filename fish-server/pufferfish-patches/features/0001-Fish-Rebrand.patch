@@ -5,10 +5,10 @@ Subject: [PATCH] Fish Rebrand
 
 
 diff --git a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
-index dacf11be8ef83d2a66ea89d27b9f5833113afc95..ceefe1fc74fbe6761dcddd0ae5f097caa8982b7a 100644
+index 924e968f46507b5c44ac052f027f25eea3b9da08..08af6df01a3ac5c042b1a1a86029c4c89e7dc56f 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
 +++ b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
-@@ -32,11 +32,11 @@ import static net.minecraft.server.MinecraftServer.COMPONENT_LOGGER;
+@@ -34,12 +34,12 @@ import static net.minecraft.server.MinecraftServer.COMPONENT_LOGGER;
  
  public class PufferfishVersionFetcher extends PaperVersionFetcher {
  
@@ -18,12 +18,14 @@ index dacf11be8ef83d2a66ea89d27b9f5833113afc95..ceefe1fc74fbe6761dcddd0ae5f097ca
  
 -    private static final String REPOSITORY = "SerlithNetwork/Puffernot";
 -    private static final String DOWNLOAD_PAGE = "https://github.com/SerlithNetwork/Puffernot/releases";
+-    private static final TextColor COLOR_SECONDARY = TextColor.color(0x87, 0xDD, 0xFF);
 +    private static final String REPOSITORY = "Biquaternions/Fish"; // Fish - Rebrand
 +    private static final String DOWNLOAD_PAGE = "https://github.com/Biquaternions/Fish/releases"; // Fish - Rebrand
++    private static final TextColor COLOR_SECONDARY = TextColor.color(0xA1, 0xF9, 0xFF); // Fish - Rebrand
  
      private static final int DISTANCE_ERROR = -1;
      private static final int DISTANCE_UNKNOWN = -2;
-@@ -93,7 +93,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
+@@ -105,7 +105,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
  
      private static int fetchDistanceFromSiteApi(final int actionsBuild) {
          try {
@@ -32,7 +34,7 @@ index dacf11be8ef83d2a66ea89d27b9f5833113afc95..ceefe1fc74fbe6761dcddd0ae5f097ca
              final HttpURLConnection connection = (HttpURLConnection) buildsUrl.openConnection();
              connection.setConnectTimeout(5000);
              connection.setReadTimeout(5000);
-@@ -104,7 +104,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
+@@ -116,7 +116,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
                  final int latest = json.getAsInt();
                  return Math.max(latest - actionsBuild, 0);
              } catch (final JsonSyntaxException | MalformedJsonException ex) {

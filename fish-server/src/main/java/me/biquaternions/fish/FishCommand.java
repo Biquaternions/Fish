@@ -27,14 +27,14 @@ import java.util.Set;
 
 public class FishCommand {
 
-    private static final Component PREFIX = MiniMessage.miniMessage().deserialize("<white><gradient:#feabff:#94ffeb>Fish</gradient> <#e79eff>⮞</#e79eff> </white>");
+    private static final Component PREFIX = MiniMessage.miniMessage().deserialize("<white><gradient:#33F4FF:#B0FBFF:#33F4FF>Fish</gradient> <color:#B0FBFF>⮞</color> </white>");
     private static final Component FEEDBACK_RELOAD_SUCCESS = PREFIX.append(Component.text("Fish configuration has been reloaded.", NamedTextColor.WHITE));
     private static final Component FEEDBACK_RELOAD_FAILED = PREFIX.append(Component.text("Failed to reload.", NamedTextColor.RED));
     private static Component FEEDBACK_CURRENT_VERSION = null;
 
     private static final Component MARK = Component.text("■ ", TextColor.color(0x94ffeb)); // ■ ⏹
-    private static final TextColor COLOR_PINK = TextColor.color(0xfeabff);
-    private static final TextColor COLOR_PINK_LIGHT = TextColor.color(0xffd4ff);
+    private static final TextColor COLOR_MAIN = TextColor.color(0x66CFFF);
+    private static final TextColor COLOR_MAIN_LIGHT = TextColor.color(0x8CFCFF);
 
     private static final ThreadLocal<DecimalFormat> TWO_DECIMAL_PLACES = ThreadLocal.withInitial(() -> new DecimalFormat("#,##0.00"));
     private static final ThreadLocal<DecimalFormat> ONE_DECIMAL_PLACES = ThreadLocal.withInitial(() -> new DecimalFormat("#,##0.0"));
@@ -148,12 +148,12 @@ public class FishCommand {
                     int chunks = level.moonrise$getLoadedChunks().size();
                     detailsFullMessages.addAll(
                         List.of(
-                            MARK.append(Component.text("World ", NamedTextColor.WHITE)).append(Component.text(String.format("[%s]", level.dimension().identifier()), COLOR_PINK_LIGHT)).append(Component.text(":", NamedTextColor.WHITE)),
+                            MARK.append(Component.text("World ", NamedTextColor.WHITE)).append(Component.text(String.format("[%s]", level.dimension().identifier()), COLOR_MAIN_LIGHT)).append(Component.text(":", NamedTextColor.WHITE)),
                             Component.text("   ").append(Component.text(ONE_DECIMAL_PLACES.get().format(entry.getLeft() * 100.0), getUtilisationColorRegion(entry.getLeft()))).append(Component.text("% util at ", NamedTextColor.WHITE))
                                 .append(Component.text(TWO_DECIMAL_PLACES.get().format(mspt), getColorForMSPT(mspt))).append(Component.text(" MSPT", NamedTextColor.WHITE)),
-                            Component.text("   ").append(Component.text("Chunks: ", NamedTextColor.WHITE)).append(Component.text(chunks, COLOR_PINK_LIGHT))
-                                .append(Component.text(" Players: ", NamedTextColor.WHITE)).append(Component.text(players, COLOR_PINK_LIGHT))
-                                .append(Component.text(" Entities: ", NamedTextColor.WHITE)).append(Component.text(entities, COLOR_PINK_LIGHT))
+                            Component.text("   ").append(Component.text("Chunks: ", NamedTextColor.WHITE)).append(Component.text(chunks, COLOR_MAIN_LIGHT))
+                                .append(Component.text(" Players: ", NamedTextColor.WHITE)).append(Component.text(players, COLOR_MAIN_LIGHT))
+                                .append(Component.text(" Entities: ", NamedTextColor.WHITE)).append(Component.text(entities, COLOR_MAIN_LIGHT))
                         )
                     );
                 }
@@ -163,7 +163,7 @@ public class FishCommand {
             );
 
             extraMessages.add(
-                Component.text("Highest ", COLOR_PINK, TextDecoration.BOLD).append(Component.text(worlds, COLOR_PINK_LIGHT, TextDecoration.BOLD)).append(Component.text(" utilisation worlds", COLOR_PINK, TextDecoration.BOLD))
+                Component.text("Highest ", COLOR_MAIN, TextDecoration.BOLD).append(Component.text(worlds, COLOR_MAIN_LIGHT, TextDecoration.BOLD)).append(Component.text(" utilisation worlds", COLOR_MAIN, TextDecoration.BOLD))
             );
             extraMessages.addAll(detailsFullMessages);
 
@@ -175,13 +175,13 @@ public class FishCommand {
         }
 
         List<Component> messages = Lists.newArrayList(
-            PREFIX.append(Component.text("Server Health Report", COLOR_PINK, TextDecoration.BOLD)),
-            MARK.append(Component.text("Online Players: ", NamedTextColor.WHITE)).append(Component.text(Bukkit.getOnlinePlayers().size(), COLOR_PINK_LIGHT)),
-            MARK.append(Component.text("Total Worlds: ", NamedTextColor.WHITE)).append(Component.text(Bukkit.getWorlds().size(), COLOR_PINK_LIGHT)),
+            PREFIX.append(Component.text("Server Health Report", COLOR_MAIN, TextDecoration.BOLD)),
+            MARK.append(Component.text("Online Players: ", NamedTextColor.WHITE)).append(Component.text(Bukkit.getOnlinePlayers().size(), COLOR_MAIN_LIGHT)),
+            MARK.append(Component.text("Total Worlds: ", NamedTextColor.WHITE)).append(Component.text(Bukkit.getWorlds().size(), COLOR_MAIN_LIGHT)),
             MARK.append(Component.text("Utilisation: ", NamedTextColor.WHITE)).append(Component.text(ONE_DECIMAL_PLACES.get().format(utilisationTotal * 100), getUtilisationColorRegion(utilisationTotal / (double) threads)))
-                .append(Component.text("% / ", NamedTextColor.WHITE)).append(Component.text(ONE_DECIMAL_PLACES.get().format(threads * 100.0), COLOR_PINK_LIGHT)).append(Component.text("%", NamedTextColor.WHITE)),
-            MARK.append(Component.text("Load rate: ", NamedTextColor.WHITE)).append(Component.text(TWO_DECIMAL_PLACES.get().format(loadRate), COLOR_PINK_LIGHT))
-                .append(Component.text(", Gen rate: ", NamedTextColor.WHITE)).append(Component.text(TWO_DECIMAL_PLACES.get().format(genRate), COLOR_PINK_LIGHT))
+                .append(Component.text("% / ", NamedTextColor.WHITE)).append(Component.text(ONE_DECIMAL_PLACES.get().format(threads * 100.0), COLOR_MAIN_LIGHT)).append(Component.text("%", NamedTextColor.WHITE)),
+            MARK.append(Component.text("Load rate: ", NamedTextColor.WHITE)).append(Component.text(TWO_DECIMAL_PLACES.get().format(loadRate), COLOR_MAIN_LIGHT))
+                .append(Component.text(", Gen rate: ", NamedTextColor.WHITE)).append(Component.text(TWO_DECIMAL_PLACES.get().format(genRate), COLOR_MAIN_LIGHT))
         );
 
         messages.addAll(extraMessages);
