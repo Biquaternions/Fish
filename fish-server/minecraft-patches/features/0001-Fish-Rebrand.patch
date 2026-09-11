@@ -31,24 +31,26 @@ index e20f504473bb7a9c3b415aa32b6c9df64bae907a..d6cdf8232d2846478420c352b02e4bf4
                  LOGGER.warn("Failed to save {}", this.file, e);
              }
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index e2939cc39a8c103e4c4d7b01d39b5546486e4fbc..59d9d78a02445c7aaea4bf1490c276fdd619ca16 100644
+index 693ce1c23c7be6406eda22da57aa4a1b86a08f5f..a685c8a98d7602f9b0d609d0d722f36dd11f506c 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
-@@ -166,6 +166,17 @@ public class Main {
+@@ -166,6 +166,19 @@ public class Main {
                  return;
              }
  
-+            // Fish start - Rebrand, we just love ascii arts
-+            LOGGER.info("");
-+            LOGGER.info("         /`·.¸");
-+            LOGGER.info("        /¸...¸`:·");
-+            LOGGER.info("    ¸.·´  ¸   `·.¸.·´)   ╔═╗┬┌─┐┬ ┬");
-+            LOGGER.info("   : © ):´;      ¸  {    ╠╣ │└─┐├─┤");
-+            LOGGER.info("    `·.¸ `·  ¸.·´\\`·¸)   ╚  ┴└─┘┴ ┴");
-+            LOGGER.info("        `\\\\´´\\¸.·´");
-+            LOGGER.info("");
-+            // Fish end - Rebrand, we just love ascii arts
-+
++            // Fish start - Rebrand, I just love ascii arts
++            java.util.stream.Stream.of(
++                "",
++                    "<color:#8FFFF6>         /`·.¸                     </color>",
++                    "<color:#8FFFF6>        /¸...¸`:·                  </color>",
++                    "<color:#8FFFF6>    ¸.·´  ¸   `·.¸.·´)   </color><color:#47ABFF>╔═╗┬┌─┐┬ ┬</color>",
++                    "<color:#8FFFF6>   : © ):´;      ¸  {    </color><color:#47ABFF>╠╣ │└─┐├─┤</color>",
++                    "<color:#8FFFF6>    `·.¸ `·  ¸.·´\\`·¸)   </color><color:#47ABFF>╚  ┴└─┘┴ ┴</color>",
++                    "<color:#8FFFF6>        `\\\\´´\\¸.·´                 </color>",
++                ""
++            ).map(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage()::deserialize)
++                .forEach(net.kyori.adventure.text.logger.slf4j.ComponentLogger.logger()::info);
++            // Fish end - Rebrand, I just love ascii arts
              // Paper start - Detect headless JRE
              String awtException = io.papermc.paper.util.ServerEnvironment.awtDependencyCheck();
              if (awtException != null) {
