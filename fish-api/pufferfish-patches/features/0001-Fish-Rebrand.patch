@@ -5,15 +5,15 @@ Subject: [PATCH] Fish Rebrand
 
 
 diff --git a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionOverride.java b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionOverride.java
-index 8a8667a640ab3aa00ea39b0a4a8b1f9ff4d6d15b..4f9ca338b65544f47d31cbabfc4e2f618ab10a06 100644
+index caa92d31086d7cab31e44dd9e2da2d467a624af2..5a76d449a04e1911c8c789d8194bfaec5947e336 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionOverride.java
 +++ b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionOverride.java
 @@ -20,9 +20,9 @@ public class PufferfishVersionOverride {
      }
  
      private static final Component HEADER = MiniMessage.miniMessage().deserialize(
--        "<gradient:#0069FF:#96CCFF:#0069FF><st>    </st>[ <white><b>Pufferfish</b></white> ]<st>                                         </st></gradient>"
-+        "<gradient:#33F4FF:#B0FBFF:#33F4FF><st>    </st>[ <white><b>Fish</b></white> ]<st>                                         </st></gradient>" // Fish - Rebrand
+-        "<gradient:#0069FF:#96CCFF:#0069FF><st>    </st>[ <white><b>Pufferfish</b></white> ]<st>                                                 </st></gradient>"
++        "<gradient:#33F4FF:#B0FBFF:#33F4FF><st>    </st>[ <white><b>Fish</b></white> ]<st>                                                 </st></gradient>" // Fish - Rebrand
      );
 -    private static final TextColor COLOR_PRIMARY = TextColor.color(0x00, 0xAA, 0xFF);
 +    private static final TextColor COLOR_PRIMARY = TextColor.color(0x78, 0xF8, 0xFF); // Fish - Rebrand
