@@ -123,9 +123,7 @@ Ibi habitabimus in pace, ad finem temporum._
 </div>
 
 ## License
-All patches are licensed under the MIT license.
-
-[![MIT License](https://img.shields.io/github/license/PurpurMC/Purpur?&logo=github)](LICENSE)
+Being based on Folia's code, all patches are licensed under the GPL license.
 
 See [PaperMC/Paper](https://github.com/PaperMC/Paper), and [PaperMC/Paperweight](https://github.com/PaperMC/paperweight) for the license of material used by this project.
 
