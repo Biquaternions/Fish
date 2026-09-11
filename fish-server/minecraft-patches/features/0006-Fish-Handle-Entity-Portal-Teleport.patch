@@ -10,14 +10,14 @@ However, their approach has some limitations when triggering events, and require
   have a main thread, so we just schedule the task at the end of the main tick.
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 05e624e8db9b88b73f57c37fcd50a932e304c281..a438e29d94c7407ef4c554d3d705b8d7931e57b4 100644
+index db3be0c67ab88ebdcec51ff4b92a75bc9d2d1d68..5c3c009d97fe7d1cb046c370960eb2a48fbca18b 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -871,7 +871,6 @@ public abstract class Entity
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
--        if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
+-        if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
@@ -26,7 +26,7 @@ index 05e624e8db9b88b73f57c37fcd50a932e304c281..a438e29d94c7407ef4c554d3d705b8d7
                      profiler.push("portal");
                      this.setPortalCooldown();
 +                    // Fish start - Handle Entity Portal Teleport
-+                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
 +                        this.portalProcess.fish$teleporting = true;
 +                        // We can't use a 1:1 of Folia's strategy as worlds don't tick independently
 +                        // We can take advantage of the main thread, and schedule this to the end of the tick
@@ -60,7 +60,7 @@ index 05e624e8db9b88b73f57c37fcd50a932e304c281..a438e29d94c7407ef4c554d3d705b8d7
                      if (teleportTransition != null) {
                          ServerLevel newLevel = teleportTransition.newLevel();
 diff --git a/net/minecraft/world/entity/PortalProcessor.java b/net/minecraft/world/entity/PortalProcessor.java
-index 7ec15f3d3a770e1e9e2fbac29dd38e947bb07091..a3316d290813607082d5b16bb454336006777f6d 100644
+index 7ec15f3d3a770e1e9e2fbac29dd38e947bb07091..9a179599fc3f25881ba0d2edf29a5d84ce8cf1ac 100644
 --- a/net/minecraft/world/entity/PortalProcessor.java
 +++ b/net/minecraft/world/entity/PortalProcessor.java
 @@ -11,6 +11,7 @@ public class PortalProcessor {
@@ -75,7 +75,7 @@ index 7ec15f3d3a770e1e9e2fbac29dd38e947bb07091..a3316d290813607082d5b16bb4543360
      }
  
      public boolean processPortalTeleportation(final ServerLevel serverLevel, final Entity entity, final boolean allowedToTeleport) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.fish$teleporting) return false; // Fish - Handle Entity Portal Teleport
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.fish$teleporting) return false; // Fish - Handle Entity Portal Teleport
          if (!this.insidePortalThisTick) {
              this.decayTick();
              return false;
@@ -83,7 +83,7 @@ index 7ec15f3d3a770e1e9e2fbac29dd38e947bb07091..a3316d290813607082d5b16bb4543360
      }
  
      public boolean hasExpired() {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !this.fish$teleporting && this.portalTime <= 0; // Fish - Handle Entity Portal Teleport, called from AR
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) return !this.fish$teleporting && this.portalTime <= 0; // Fish - Handle Entity Portal Teleport, called from AR
          return this.portalTime <= 0;
      }
  

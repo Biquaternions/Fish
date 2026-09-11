@@ -24,7 +24,7 @@ Additionally, PacketUtil requires validating against the current ticking thread 
   an inventory while another is currently opened in a scheduled task.
 
 diff --git a/net/minecraft/network/protocol/PacketUtils.java b/net/minecraft/network/protocol/PacketUtils.java
-index 144c18c08bf8f03d907b97f968aa171a9fbf997f..cc02eb4b026da782836d84d58a5032f90e97b09a 100644
+index 144c18c08bf8f03d907b97f968aa171a9fbf997f..ac531086508f38d6af31670968d6ae710a2aea1c 100644
 --- a/net/minecraft/network/protocol/PacketUtils.java
 +++ b/net/minecraft/network/protocol/PacketUtils.java
 @@ -15,6 +15,15 @@ public class PacketUtils {
@@ -32,7 +32,7 @@ index 144c18c08bf8f03d907b97f968aa171a9fbf997f..cc02eb4b026da782836d84d58a5032f9
  
      public static <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final ServerLevel level) throws RunningOnDifferentThreadException {
 +        // Fish start - Location scheduler handling
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
 +            if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(level)) {
 +                level.getServer().packetProcessor().scheduleIfPossible(listener, packet);
 +                throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
@@ -44,7 +44,7 @@ index 144c18c08bf8f03d907b97f968aa171a9fbf997f..cc02eb4b026da782836d84d58a5032f9
      }
  
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 42eb6f83485aabbdf0fbb8366fb4396404623808..024a6aaea2f871d7e667fee180cb7b772613683d 100644
+index ae49363368d1d6d22611d7a075a54d8b238219c7..68c6a91b08b5c593eb0a822157bbb909288504bb 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -336,6 +336,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -59,7 +59,7 @@ index 42eb6f83485aabbdf0fbb8366fb4396404623808..024a6aaea2f871d7e667fee180cb7b77
          this.server.getScheduler().mainThreadHeartbeat(); // CraftBukkit
          // Paper start - optimise Folia entity scheduler
          ((io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler)org.bukkit.Bukkit.getGlobalRegionScheduler()).tick();
-+        if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) { // Fish - Handle Entity Schedulers
++        if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) { // Fish - Handle Entity Schedulers
          for (io.papermc.paper.threadedregions.EntityScheduler scheduler : this.entitySchedulerTickList.getAllSchedulers()) {
              if (scheduler.isRetired()) {
                  continue;
@@ -72,7 +72,7 @@ index 42eb6f83485aabbdf0fbb8366fb4396404623808..024a6aaea2f871d7e667fee180cb7b77
          // Paper end - Folia scheduler API
          io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.ADVENTURE_CLICK_MANAGER.handleQueue(this.tickCount); // Paper
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 368ada1896f97f4642cbc37710a0adfd5d11f924..7c101623253dc18ad0059c34dc7aa64fc4d86cb0 100644
+index 05d9b505245729c2939bbe4832e891434c62dc23..c90cc7a9c82a715a83700ca7f733bff64335277f 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -238,6 +238,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -85,14 +85,14 @@ index 368ada1896f97f4642cbc37710a0adfd5d11f924..7c101623253dc18ad0059c34dc7aa64f
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 507090270f212ac55bfb661fce686ea348a270a3..05e624e8db9b88b73f57c37fcd50a932e304c281 100644
+index 7f7e179ab67cc1f7439e963b6c06a2328a0acb85..db3be0c67ab88ebdcec51ff4b92a75bc9d2d1d68 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -5243,6 +5243,10 @@ public abstract class Entity
      // Paper end - Folia schedulers
      // Paper start - optimise Folia entity scheduler
      public final void registerScheduler() {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && this.level instanceof ServerLevel serverLevel) {
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) {
 +            this.getBukkitEntity().taskScheduler.registerTo(serverLevel.fish$worldData.entitySchedulerTickList);
 +            return;
 +        }

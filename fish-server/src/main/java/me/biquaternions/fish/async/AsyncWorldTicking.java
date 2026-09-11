@@ -30,7 +30,7 @@ import java.util.function.BooleanSupplier;
 public class AsyncWorldTicking {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("Fish World Ticking");
-    private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.ASYNC.WORLD_TICKING._THREADS);
+    private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.getInstance().async.worldTicking.threads);
     private static final CompletableFuture<?>[] EMPTY_ARRAY = new CompletableFuture[0];
     private static final Queue<Runnable> END_OF_TICK_TASKS = new ConcurrentLinkedQueue<>();
     private static final ServerTickRateManager TICK_RATE_MANAGER = MinecraftServer.getServer().tickRateManager();
@@ -146,7 +146,7 @@ public class AsyncWorldTicking {
     }
 
     public static <T> T scheduleForEndOfWorldTick(ServerLevel level, Callable<T> callable) {
-        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
+        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
         if (level.fish$lock.readLock().tryLock()) {
             try {
                 return callable.call();
@@ -163,7 +163,7 @@ public class AsyncWorldTicking {
     }
 
     public static void scheduleVoidForEndOfWorldTick(ServerLevel level, Runnable runnable) {
-        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
+        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
         if (level.fish$lock.readLock().tryLock()) {
             try {
                 runnable.run();
@@ -183,7 +183,7 @@ public class AsyncWorldTicking {
      * Possible use for teams plugins.
      */
     public static <T> T scheduleForEndOfTick(Callable<T> callable) {
-        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
+        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
         CallableWrapper<T> task = new CallableWrapper<>(callable);
         END_OF_TICK_TASKS.offer(task);
         return task.get();
@@ -195,7 +195,7 @@ public class AsyncWorldTicking {
      * Possible use for async respawn in practice plugins (those calls shouldn't be async imo, but IDK).
      */
     public static void scheduleVoidForEndOfTick(Runnable runnable) {
-        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
+        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
         END_OF_TICK_TASKS.offer(runnable);
     }
 
@@ -215,7 +215,7 @@ public class AsyncWorldTicking {
      *
      */
     public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
-        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
+        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
         CallableWrapper<T> task = new CallableWrapper<>(callable);
         level.fish$worldData.worldScheduler.schedule(task);
         return task.get();
@@ -231,7 +231,7 @@ public class AsyncWorldTicking {
      *
      */
     public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
-        if (FishConfig.ASYNC.WORLD_TICKING.LOG_ASYNC_ACCESSES) AsyncWorldTicking.logAsyncAccess();
+        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
         level.fish$worldData.worldScheduler.schedule(runnable);
     }
 

@@ -8,7 +8,7 @@ Instead of iterating through all worlds, if the requesting thread is a world thr
   execute its own mid-tick tasks.
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index f35cc7d3ae819cd51602d9b8490979bdc86bbe50..9147b503b5cc80f8878d34ff5852974f4c39ac81 100644
+index 68c6a91b08b5c593eb0a822157bbb909288504bb..4d25d75700e6d37fe958bc084ddc992285b519d2 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -464,6 +464,12 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -16,7 +16,7 @@ index f35cc7d3ae819cd51602d9b8490979bdc86bbe50..9147b503b5cc80f8878d34ff5852974f
      @Override
      public final void moonrise$executeMidTickTasks() {
 +        // Fish start - Handle Mid-Tick Tasks
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && Thread.currentThread() instanceof me.biquaternions.fish.async.thread.WorldTickThread worldThread) {
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && Thread.currentThread() instanceof me.biquaternions.fish.async.thread.WorldTickThread worldThread) {
 +            me.biquaternions.fish.async.AsyncWorldTicking.executeMidTickTasks(worldThread.getTickingWorld());
 +            return;
 +        }
@@ -25,26 +25,26 @@ index f35cc7d3ae819cd51602d9b8490979bdc86bbe50..9147b503b5cc80f8878d34ff5852974f
          if ((startTime - this.lastMidTickExecute) <= CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME || (startTime - this.lastMidTickExecuteFailure) <= TASK_EXECUTION_FAILURE_BACKOFF) {
              // it's shown to be bad to constantly hit the queue (chunk loads slow to a crawl), even if no tasks are executed.
 diff --git a/net/minecraft/server/level/ServerChunkCache.java b/net/minecraft/server/level/ServerChunkCache.java
-index f3cdeab98548a9d1eb06289f447b7274ccb7913f..8538e9b33b5d417ae4051a853fb988cbedc50c8a 100644
+index de8720adb8cabf0826025dac5703d302f741597f..e3beaa4fa4d9a0cfcbeb226cd3b3d50d52ce85ed 100644
 --- a/net/minecraft/server/level/ServerChunkCache.java
 +++ b/net/minecraft/server/level/ServerChunkCache.java
 @@ -175,7 +175,6 @@ public class ServerChunkCache extends ChunkSource implements ca.spottedleaf.moon
  
              // call mid-tick tasks for chunk system
              if ((i & 7) == 0) {
--                if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking (only run mid-tick at the end of each tick / fixes concurrency bugs related to executeMidTickTasks)
+-                if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking (only run mid-tick at the end of each tick / fixes concurrency bugs related to executeMidTickTasks)
                  ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.level.getServer()).moonrise$executeMidTickTasks();
                  continue;
              }
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 525fe7338268d4bf93d8d05456ac6249cf874bec..5ac9b469c7acf694fe39794fa271b4543b292ee7 100644
+index c90cc7a9c82a715a83700ca7f733bff64335277f..fd8170fda36e15f0b20be8b157346ebde8f6da84 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -1372,7 +1372,6 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
          }
          // Paper start - rewrite chunk system
          if ((++this.tickedBlocksOrFluids & 7L) != 0L) {
--            if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking
+-            if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
              ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.server).moonrise$executeMidTickTasks();
          }
          // Paper end - rewrite chunk system
@@ -52,19 +52,19 @@ index 525fe7338268d4bf93d8d05456ac6249cf874bec..5ac9b469c7acf694fe39794fa271b454
          }
          // Paper start - rewrite chunk system
          if ((++this.tickedBlocksOrFluids & 7L) != 0L) {
--            if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking
+-            if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
              ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.server).moonrise$executeMidTickTasks();
          }
          // Paper end - rewrite chunk system
 diff --git a/net/minecraft/world/level/Level.java b/net/minecraft/world/level/Level.java
-index 542ecc959e8559523dd26850894397b0b979d3e1..531f06b97e9e779e525bef2a9e22dc9ddf973362 100644
+index 7d8f67f4b9e23b4ec5f3e6657e7afae673113350..0fdf2847c646db3a77eb59007cc5f2cc098646b2 100644
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
 @@ -1508,7 +1508,6 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
                  ticker.tick();
                  // Paper start - rewrite chunk system
                  if ((++tickedEntities & 7) == 0) {
--                    if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking
+-                    if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
                      ((ca.spottedleaf.moonrise.patches.chunk_system.level.ChunkSystemLevel)(Level)(Object)this).moonrise$midTickTasks();
                  }
                  // Paper end - rewrite chunk system
@@ -72,7 +72,7 @@ index 542ecc959e8559523dd26850894397b0b979d3e1..531f06b97e9e779e525bef2a9e22dc9d
              entity.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DISCARD);
              // Paper end - Prevent block entity and entity crashes
          }
--        if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking
+-        if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
          this.moonrise$midTickTasks(); // Paper - rewrite chunk system
      }
  

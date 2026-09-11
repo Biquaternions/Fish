@@ -39,7 +39,7 @@ index e418820359c430b91bb91eb65d137b9cdbe2db4b..c1031bc693fb58f58893d9e41e480225
          if (!PlatformHooks.get().allowAsyncTicketUpdates() && isTickThread) {
              TickThread.ensureTickThread("Cannot asynchronously process ticket updates");
 diff --git a/net/minecraft/core/dispenser/DispenseItemBehavior.java b/net/minecraft/core/dispenser/DispenseItemBehavior.java
-index 162d7890f204315b0476467e757de5c9dd84aeca..9360a5215c8292dc283ff504889a19336471be9e 100644
+index 162d7890f204315b0476467e757de5c9dd84aeca..a9554b82c916c2f25fffaea07e56beccea213452 100644
 --- a/net/minecraft/core/dispenser/DispenseItemBehavior.java
 +++ b/net/minecraft/core/dispenser/DispenseItemBehavior.java
 @@ -307,7 +307,8 @@ public interface DispenseItemBehavior {
@@ -47,13 +47,13 @@ index 162d7890f204315b0476467e757de5c9dd84aeca..9360a5215c8292dc283ff504889a1933
                      level.capturedBlockStates.clear();
  
 -                    treeType = net.minecraft.world.level.block.SaplingBlock.treeType;
-+                    treeType = me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.get() : net.minecraft.world.level.block.SaplingBlock.treeType; // SparklyPaper - parallel world ticking
-+                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.remove(); else // SparklyPaper - parallel world ticking
++                    treeType = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.get() : net.minecraft.world.level.block.SaplingBlock.treeType; // SparklyPaper - parallel world ticking
++                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.remove(); else // SparklyPaper - parallel world ticking
                      net.minecraft.world.level.block.SaplingBlock.treeType = null;
                  }
                  // Paper end
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index b8657126b94b97cb027e65a0149f11dfbbdfa467..42eb6f83485aabbdf0fbb8366fb4396404623808 100644
+index 48aee19db9513c86fad3b178d5fb158bf6cda14d..ae49363368d1d6d22611d7a075a54d8b238219c7 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -1814,6 +1814,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -61,7 +61,7 @@ index b8657126b94b97cb027e65a0149f11dfbbdfa467..42eb6f83485aabbdf0fbb8366fb43964
  
          this.isIteratingOverLevels = true; // Paper - Throw exception on world create while being ticked
 +        // SparklyPaper start - parallel world ticking
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
 +            me.biquaternions.fish.async.AsyncWorldTicking.tickWorlds(this.getAllLevels(), haveTime);
 +        } else {  // SparklyPaper end - parallel world ticking
          for (ServerLevel level : this.getAllLevels()) {
@@ -84,19 +84,19 @@ index b8657126b94b97cb027e65a0149f11dfbbdfa467..42eb6f83485aabbdf0fbb8366fb43964
      }
      // CraftBukkit end
 diff --git a/net/minecraft/server/level/ServerChunkCache.java b/net/minecraft/server/level/ServerChunkCache.java
-index 8538e9b33b5d417ae4051a853fb988cbedc50c8a..f3cdeab98548a9d1eb06289f447b7274ccb7913f 100644
+index e3beaa4fa4d9a0cfcbeb226cd3b3d50d52ce85ed..de8720adb8cabf0826025dac5703d302f741597f 100644
 --- a/net/minecraft/server/level/ServerChunkCache.java
 +++ b/net/minecraft/server/level/ServerChunkCache.java
 @@ -175,6 +175,7 @@ public class ServerChunkCache extends ChunkSource implements ca.spottedleaf.moon
  
              // call mid-tick tasks for chunk system
              if ((i & 7) == 0) {
-+                if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking (only run mid-tick at the end of each tick / fixes concurrency bugs related to executeMidTickTasks)
++                if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking (only run mid-tick at the end of each tick / fixes concurrency bugs related to executeMidTickTasks)
                  ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.level.getServer()).moonrise$executeMidTickTasks();
                  continue;
              }
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 135b2bec89b5255f3b3e354e74cfd75d66ffdc54..368ada1896f97f4642cbc37710a0adfd5d11f924 100644
+index 64add57f3ef0d33ef8ff9b722ed5c5524294a874..05d9b505245729c2939bbe4832e891434c62dc23 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -196,7 +196,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -104,7 +104,7 @@ index 135b2bec89b5255f3b3e354e74cfd75d66ffdc54..368ada1896f97f4642cbc37710a0adfd
      private final MinecraftServer server;
      public final io.papermc.paper.world.saveddata.PaperLevelOverrides serverLevelData; // Paper - type
 -    public final EntityTickList entityTickList = new EntityTickList();
-+    public final EntityTickList entityTickList = me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? new me.biquaternions.fish.async.world.WorldEntityTickList(this) : new EntityTickList(); // SparklyPaper - parallel world ticking
++    public final EntityTickList entityTickList = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.async.world.WorldEntityTickList(this) : new EntityTickList(); // SparklyPaper - parallel world ticking
      private final ServerWaypointManager waypointManager;
      private EnvironmentAttributeSystem environmentAttributes;
      // Paper - rewrite chunk system
@@ -140,7 +140,7 @@ index 135b2bec89b5255f3b3e354e74cfd75d66ffdc54..368ada1896f97f4642cbc37710a0adfd
          this.sleepStatus = new SleepStatus();
          this.gameEventDispatcher = new GameEventDispatcher(this);
 -        this.waypointManager = new ServerWaypointManager(this); // Paper - optimize ServerWaypointManager with locator bar disabled
-+        this.waypointManager =  me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? new me.biquaternions.fish.async.world.WorldWaypointManager(this) : new ServerWaypointManager(this); // SparklyPaper - parallel world ticking
++        this.waypointManager =  me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.async.world.WorldWaypointManager(this) : new ServerWaypointManager(this); // SparklyPaper - parallel world ticking
          this.environmentAttributes = EnvironmentAttributeSystem.builder().addDefaultLayers(this).build();
          this.updateSkyBrightness();
          // Paper start - rewrite chunk system
@@ -148,7 +148,7 @@ index 135b2bec89b5255f3b3e354e74cfd75d66ffdc54..368ada1896f97f4642cbc37710a0adfd
          this.chunkDataController = new ca.spottedleaf.moonrise.patches.chunk_system.io.datacontroller.ChunkDataController((ServerLevel)(Object)this, this.chunkTaskScheduler);
          // Paper end - rewrite chunk system
          this.getCraftServer().addWorld(this.getWorld()); // CraftBukkit
-+        this.fish$tickExecutor = me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? java.util.concurrent.Executors.newSingleThreadExecutor(new me.biquaternions.fish.async.thread.factory.WorldExecutorThreadFactory(this)) : null; // SparklyPaper - parallel world ticking
++        this.fish$tickExecutor = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? java.util.concurrent.Executors.newSingleThreadExecutor(new me.biquaternions.fish.async.thread.factory.WorldExecutorThreadFactory(this)) : null; // SparklyPaper - parallel world ticking
      }
  
      // Paper start
@@ -156,7 +156,7 @@ index 135b2bec89b5255f3b3e354e74cfd75d66ffdc54..368ada1896f97f4642cbc37710a0adfd
          }
          // Paper start - rewrite chunk system
          if ((++this.tickedBlocksOrFluids & 7L) != 0L) {
-+            if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking
++            if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
              ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.server).moonrise$executeMidTickTasks();
          }
          // Paper end - rewrite chunk system
@@ -164,7 +164,7 @@ index 135b2bec89b5255f3b3e354e74cfd75d66ffdc54..368ada1896f97f4642cbc37710a0adfd
          }
          // Paper start - rewrite chunk system
          if ((++this.tickedBlocksOrFluids & 7L) != 0L) {
-+            if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking
++            if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
              ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.server).moonrise$executeMidTickTasks();
          }
          // Paper end - rewrite chunk system
@@ -172,7 +172,7 @@ index 135b2bec89b5255f3b3e354e74cfd75d66ffdc54..368ada1896f97f4642cbc37710a0adfd
      }
  
      private void addPlayer(final ServerPlayer player) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot add player off-main"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot add player off-main"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          Entity existing = this.getEntity(player.getUUID());
          if (existing != null) {
              LOGGER.warn("Force-added player with duplicate UUID {}", player.getUUID());
@@ -180,12 +180,12 @@ index 135b2bec89b5255f3b3e354e74cfd75d66ffdc54..368ada1896f97f4642cbc37710a0adfd
  
      // CraftBukkit start
      private boolean addEntity(final Entity entity, final org.bukkit.event.entity.CreatureSpawnEvent.@Nullable SpawnReason spawnReason) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot add entity off-main"); else // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot add entity off-main"); else // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          org.spigotmc.AsyncCatcher.catchOp("entity add"); // Spigot
          entity.generation = false; // Paper - Don't fire sync event during generation; Reset flag if it was added during a ServerLevel generation process
          // Paper start - extra debug info
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index 3cd4e850f223100b61ac6831a87dd38f3a3bb58f..2306d1f7e34c3b8ae2728f9f42730ffc58658050 100644
+index 3cd4e850f223100b61ac6831a87dd38f3a3bb58f..24aa53fb6bee575fe1cd1b532c9bb021973fd1e1 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
 @@ -715,8 +715,10 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
@@ -203,7 +203,7 @@ index 3cd4e850f223100b61ac6831a87dd38f3a3bb58f..2306d1f7e34c3b8ae2728f9f42730ffc
              return this;
          }
  
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureOnlyTickThread("Cannot change dimension of a player off-main, from world " + oldLevel.getWorld().getName() + " to world " + newLevel.getWorld().getName()); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureOnlyTickThread("Cannot change dimension of a player off-main, from world " + oldLevel.getWorld().getName() + " to world " + newLevel.getWorld().getName()); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          this.isChangingDimension = true;
          LevelData levelData = newLevel.getLevelData();
          this.connection.send(new ClientboundRespawnPacket(this.createCommonSpawnInfo(newLevel), ClientboundRespawnPacket.KEEP_ALL_DATA));
@@ -212,7 +212,7 @@ index 3cd4e850f223100b61ac6831a87dd38f3a3bb58f..2306d1f7e34c3b8ae2728f9f42730ffc
              return OptionalInt.empty();
          } else {
 +            // SparklyPaper start - parallel world ticking
-+            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && !this.fish$hasTickedAtLeastOnceInNewWorld) {
++            if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && !this.fish$hasTickedAtLeastOnceInNewWorld) {
 +                MinecraftServer.LOGGER.warn("Ignoring request to open container {} because we haven't ticked in the current world yet!", menu, new Throwable());
 +                return OptionalInt.empty();
 +            }
@@ -221,14 +221,14 @@ index 3cd4e850f223100b61ac6831a87dd38f3a3bb58f..2306d1f7e34c3b8ae2728f9f42730ffc
              this.containerMenu = menu; // Moved up
              if (!this.isImmobile()) {
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index baec5d072b8f2d9379dba850b04e881e5267ca6b..1e3c4206fa656d8fe0254068a482f4d6b3634a70 100644
+index baec5d072b8f2d9379dba850b04e881e5267ca6b..ec6d3ef364b2f6e4a6a89f23db2832db926fa03c 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
 @@ -156,6 +156,7 @@ public abstract class PlayerList {
      abstract public void loadAndSaveFiles(); // Paper - fix converting txt to json file; moved from DedicatedPlayerList constructor
  
      public void placeNewPlayer(final Connection connection, final ServerPlayer player, final CommonListenerCookie cookie) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureOnlyTickThread("Cannot place new player off-main"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureOnlyTickThread("Cannot place new player off-main"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          player.isRealPlayer = true; // Paper
          player.loginTime = System.currentTimeMillis(); // Paper - Replace OfflinePlayer#getLastPlayed
          NameAndId gameProfile = player.nameAndId();
@@ -236,7 +236,7 @@ index baec5d072b8f2d9379dba850b04e881e5267ca6b..1e3c4206fa656d8fe0254068a482f4d6
  
      // Paper start - respawn event
      public ServerPlayer respawn(final ServerPlayer serverPlayer, final boolean keepAllPlayerData, final Entity.RemovalReason removalReason, final org.bukkit.event.player.PlayerRespawnEvent.RespawnReason respawnReason) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureOnlyTickThread("Cannot respawn player off-main, respawning in world " + serverPlayer.level().getWorld().getName()); // SparklyPaper start - Parallel world ticking
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureOnlyTickThread("Cannot respawn player off-main, respawning in world " + serverPlayer.level().getWorld().getName()); // SparklyPaper start - Parallel world ticking
          ServerPlayer.RespawnResult result = serverPlayer.findRespawnPositionAndUseSpawnBlock0(!keepAllPlayerData, TeleportTransition.DO_NOTHING, respawnReason);
          if (result == null) { // disconnected player during the respawn event
              return serverPlayer;
@@ -249,14 +249,14 @@ index baec5d072b8f2d9379dba850b04e881e5267ca6b..1e3c4206fa656d8fe0254068a482f4d6
          player.restoreFrom(serverPlayer, keepAllPlayerData);
          player.setId(serverPlayer.getId());
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 2eee30ee82b79f0f304b914e9ad9f1e966fce6d7..507090270f212ac55bfb661fce686ea348a270a3 100644
+index a3ce3fd2e680c26dc66466e51d06960cf2e6e0f8..7f7e179ab67cc1f7439e963b6c06a2328a0acb85 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -871,6 +871,7 @@ public abstract class Entity
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
-+        if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
++        if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
@@ -264,12 +264,12 @@ index 2eee30ee82b79f0f304b914e9ad9f1e966fce6d7..507090270f212ac55bfb661fce686ea3
      }
  
      private @Nullable Entity teleportCrossDimension(final ServerLevel oldLevel, final ServerLevel newLevel, final TeleportTransition transition) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(oldLevel, "Cannot teleport entity to another world off-main, from world " + oldLevel.getWorld().getName() + " to world " + newLevel.getWorld().getName()); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(oldLevel, "Cannot teleport entity to another world off-main, from world " + oldLevel.getWorld().getName() + " to world " + newLevel.getWorld().getName()); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          List<Entity> oldPassengers = this.getPassengers();
          List<Entity> newPassengers = new ArrayList<>(oldPassengers.size());
          this.ejectPassengers();
 diff --git a/net/minecraft/world/item/ItemStack.java b/net/minecraft/world/item/ItemStack.java
-index 44a7590558fa73fb570f76ba7a4e7db1415d08f7..495ce101efb9416b8120082c8461b2786830c15f 100644
+index 44a7590558fa73fb570f76ba7a4e7db1415d08f7..401617f736b847f3bbe09876b5b662427961cdec 100644
 --- a/net/minecraft/world/item/ItemStack.java
 +++ b/net/minecraft/world/item/ItemStack.java
 @@ -403,7 +403,8 @@ public final class ItemStack implements DataComponentHolder, ItemInstance {
@@ -277,20 +277,20 @@ index 44a7590558fa73fb570f76ba7a4e7db1415d08f7..495ce101efb9416b8120082c8461b278
              level.capturedBlockEntities.clear();
  
 -            treeType = net.minecraft.world.level.block.SaplingBlock.treeType;
-+            treeType = me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.get() : net.minecraft.world.level.block.SaplingBlock.treeType; // SparklyPaper - parallel world ticking
-+            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.remove(); else // SparklyPaper - parallel world ticking
++            treeType = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.get() : net.minecraft.world.level.block.SaplingBlock.treeType; // SparklyPaper - parallel world ticking
++            if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.remove(); else // SparklyPaper - parallel world ticking
              net.minecraft.world.level.block.SaplingBlock.treeType = null;
          }
  
 diff --git a/net/minecraft/world/level/Level.java b/net/minecraft/world/level/Level.java
-index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..542ecc959e8559523dd26850894397b0b979d3e1 100644
+index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..7d8f67f4b9e23b4ec5f3e6657e7afae673113350 100644
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
 @@ -1054,6 +1054,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
  
      @Override
      public boolean setBlock(final BlockPos pos, final BlockState blockState, final @Block.UpdateFlags int updateFlags, final int updateLimit) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, pos, "Updating block asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, pos, "Updating block asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          // CraftBukkit start - tree generation
          if (this.captureTreeGeneration) {
              // Paper start - Protect Bedrock and End Portal/Frames from being destroyed
@@ -298,7 +298,7 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..542ecc959e8559523dd26850894397b0
                  ticker.tick();
                  // Paper start - rewrite chunk system
                  if ((++tickedEntities & 7) == 0) {
-+                    if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking
++                    if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
                      ((ca.spottedleaf.moonrise.patches.chunk_system.level.ChunkSystemLevel)(Level)(Object)this).moonrise$midTickTasks();
                  }
                  // Paper end - rewrite chunk system
@@ -306,7 +306,7 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..542ecc959e8559523dd26850894397b0
              entity.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DISCARD);
              // Paper end - Prevent block entity and entity crashes
          }
-+        if (!me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) // SparklyPaper - parallel world ticking
++        if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
          this.moonrise$midTickTasks(); // Paper - rewrite chunk system
      }
  
@@ -314,7 +314,7 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..542ecc959e8559523dd26850894397b0
  
      @Override
      public @Nullable BlockEntity getBlockEntity(final BlockPos pos) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThreadOrAsyncThread((ServerLevel) this, "Cannot read world asynchronously"); // SparklyPaper - parallel world ticking
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThreadOrAsyncThread((ServerLevel) this, "Cannot read world asynchronously"); // SparklyPaper - parallel world ticking
          // Paper start - Perf: Optimize capturedTileEntities lookup
          net.minecraft.world.level.block.entity.BlockEntity blockEntity;
          if (!this.capturedBlockEntities.isEmpty() && (blockEntity = this.capturedBlockEntities.get(pos)) != null) {
@@ -322,7 +322,7 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..542ecc959e8559523dd26850894397b0
      }
  
      public void setBlockEntity(final BlockEntity blockEntity) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread((ServerLevel) this, "Cannot modify world asynchronously"); // SparklyPaper - parallel world ticking
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread((ServerLevel) this, "Cannot modify world asynchronously"); // SparklyPaper - parallel world ticking
          BlockPos pos = blockEntity.getBlockPos();
          if (this.isInValidBounds(pos)) {
              // CraftBukkit start
@@ -330,7 +330,7 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..542ecc959e8559523dd26850894397b0
  
      @Override
      public List<Entity> getEntities(final @Nullable Entity except, final AABB bb, final Predicate<? super Entity> selector) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread((ServerLevel)this, bb, "Cannot getEntities asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread((ServerLevel)this, bb, "Cannot getEntities asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          Profiler.get().incrementCounter("getEntities");
          // Paper start - rewrite chunk system
          final List<Entity> ret = new java.util.ArrayList<>();
@@ -344,34 +344,34 @@ index 9286d9bcf3ec4069e77d3133f3d7bf29b2370c5a..542ecc959e8559523dd26850894397b0
          int val = this.randValue >> 2;
          return new BlockPos(xo + (val & 15), yo + (val >> 16 & yMask), zo + (val >> 8 & 15));
 diff --git a/net/minecraft/world/level/block/MushroomBlock.java b/net/minecraft/world/level/block/MushroomBlock.java
-index 8d466e5a3e187cb151a7513de3e78d3350b32277..901226476a01970be3250771eb2823024e9d8445 100644
+index 8d466e5a3e187cb151a7513de3e78d3350b32277..9a32fce921bf71481a678da2663138d0838e7940 100644
 --- a/net/minecraft/world/level/block/MushroomBlock.java
 +++ b/net/minecraft/world/level/block/MushroomBlock.java
 @@ -94,6 +94,7 @@ public class MushroomBlock extends VegetationBlock implements BonemealableBlock
          }
  
          level.removeBlock(pos, false);
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) SaplingBlock.fish$treeTypeTL.set((this == Blocks.BROWN_MUSHROOM) ? org.bukkit.TreeType.BROWN_MUSHROOM : org.bukkit.TreeType.RED_MUSHROOM); else // SparklyPaper - parallel world ticking
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) SaplingBlock.fish$treeTypeTL.set((this == Blocks.BROWN_MUSHROOM) ? org.bukkit.TreeType.BROWN_MUSHROOM : org.bukkit.TreeType.RED_MUSHROOM); else // SparklyPaper - parallel world ticking
          SaplingBlock.treeType = (this == Blocks.BROWN_MUSHROOM) ? org.bukkit.TreeType.BROWN_MUSHROOM : org.bukkit.TreeType.RED_MUSHROOM; // CraftBukkit
          if (feature.get().value().place(level, level.getChunkSource().getGenerator(), random, pos)) {
              return true;
 diff --git a/net/minecraft/world/level/block/NetherFungusBlock.java b/net/minecraft/world/level/block/NetherFungusBlock.java
-index 82ab930bf438e988d637786bdde88e34ea073a2f..461fdc5ce5289339e6a9fccdabee1370b98b7a8e 100644
+index 82ab930bf438e988d637786bdde88e34ea073a2f..55881e4cc6e5639cbba950288e36b33be9028cfd 100644
 --- a/net/minecraft/world/level/block/NetherFungusBlock.java
 +++ b/net/minecraft/world/level/block/NetherFungusBlock.java
 @@ -84,8 +84,10 @@ public class NetherFungusBlock extends VegetationBlock implements BonemealableBl
              // CraftBukkit start
              .map((value) -> {
                  if (this == Blocks.WARPED_FUNGUS) {
-+                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) SaplingBlock.fish$treeTypeTL.set(org.bukkit.TreeType.WARPED_FUNGUS); else // SparklyPaper - parallel world ticking
++                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) SaplingBlock.fish$treeTypeTL.set(org.bukkit.TreeType.WARPED_FUNGUS); else // SparklyPaper - parallel world ticking
                      SaplingBlock.treeType = org.bukkit.TreeType.WARPED_FUNGUS;
                  } else if (this == Blocks.CRIMSON_FUNGUS) {
-+                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) SaplingBlock.fish$treeTypeTL.set(org.bukkit.TreeType.CRIMSON_FUNGUS); else // SparklyPaper - parallel world ticking
++                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) SaplingBlock.fish$treeTypeTL.set(org.bukkit.TreeType.CRIMSON_FUNGUS); else // SparklyPaper - parallel world ticking
                      SaplingBlock.treeType = org.bukkit.TreeType.CRIMSON_FUNGUS;
                  }
                  return value;
 diff --git a/net/minecraft/world/level/block/SaplingBlock.java b/net/minecraft/world/level/block/SaplingBlock.java
-index cbf7845ca64f1b716af3e50ac8716373d2ae3755..fc2a5f55b9151e6b69c36c004a4f493167840174 100644
+index cbf7845ca64f1b716af3e50ac8716373d2ae3755..2a83cb3e5ed6591ce0c57d7bf4ea0a537f645bdd 100644
 --- a/net/minecraft/world/level/block/SaplingBlock.java
 +++ b/net/minecraft/world/level/block/SaplingBlock.java
 @@ -25,6 +25,7 @@ public class SaplingBlock extends VegetationBlock implements BonemealableBlock {
@@ -387,13 +387,13 @@ index cbf7845ca64f1b716af3e50ac8716373d2ae3755..fc2a5f55b9151e6b69c36c004a4f4931
                      level.capturedBlockStates.clear();
  
 -                    treeType = SaplingBlock.treeType;
-+                    treeType = me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? SaplingBlock.fish$treeTypeTL.get() : SaplingBlock.treeType; // SparklyPaper - parallel world ticking
-+                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) SaplingBlock.fish$treeTypeTL.remove(); else // SparklyPaper - parallel world ticking
++                    treeType = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? SaplingBlock.fish$treeTypeTL.get() : SaplingBlock.treeType; // SparklyPaper - parallel world ticking
++                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) SaplingBlock.fish$treeTypeTL.remove(); else // SparklyPaper - parallel world ticking
                      SaplingBlock.treeType = null;
                  }
                  if (!capturedBlockStates.isEmpty()) {
 diff --git a/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java b/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
-index 0e594121b60aa5a01b5bbe94b80350f2fc698b1a..dd5ea35b0e891e28daf4291f01eab54b79a6815c 100644
+index 0e594121b60aa5a01b5bbe94b80350f2fc698b1a..561acb3c702a45c49d4f0338c88aa3986a49db7f 100644
 --- a/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
 @@ -66,6 +66,12 @@ public abstract class BaseContainerBlockEntity extends BlockEntity implements Co
@@ -401,7 +401,7 @@ index 0e594121b60aa5a01b5bbe94b80350f2fc698b1a..dd5ea35b0e891e28daf4291f01eab54b
  
      public boolean canOpen(final Player player) {
 +        // SparklyPaper start - parallel world ticking (see: PARALLEL_NOTES.md - Opening an inventory after a world switch)
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && this.getLevel() != serverPlayer.level()) {
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && this.getLevel() != serverPlayer.level()) {
 +            net.minecraft.server.MinecraftServer.LOGGER.warn("Player " + serverPlayer.getScoreboardName() + " (" + serverPlayer.getUUID() + ") attempted to open a BlockEntity @ " + this.getLevel().getWorld().getName() + " " + this.getBlockPos().getX() + ", " + this.getBlockPos().getY() + ", " + this.getBlockPos().getZ() + " while they were in a different world " + serverPlayer.level().getWorld().getName() + " than the block themselves!");
 +            return false;
 +        }
@@ -410,22 +410,22 @@ index 0e594121b60aa5a01b5bbe94b80350f2fc698b1a..dd5ea35b0e891e28daf4291f01eab54b
      }
  
 diff --git a/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java b/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
-index 4aa2d141eba2596e782fc4ab4890c5e2d80eb811..e60b4630523c331996ca850e150292b56378ffd6 100644
+index 4aa2d141eba2596e782fc4ab4890c5e2d80eb811..3e4f18618df3d4cb90b1fa8c68258f3ec79f6f41 100644
 --- a/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
 @@ -44,8 +44,10 @@ public class SculkCatalystBlockEntity extends BlockEntity implements GameEventLi
      // Paper end - Fix NPE in SculkBloomEvent world access
  
      public static void serverTick(final Level level, final BlockPos pos, final BlockState state, final SculkCatalystBlockEntity entity) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) org.bukkit.craftbukkit.event.CraftEventFactory.fish$sourceBlockOverrideTL.set(pos); else // SparklyPaper - parallel world ticking
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) org.bukkit.craftbukkit.event.CraftEventFactory.fish$sourceBlockOverrideTL.set(pos); else // SparklyPaper - parallel world ticking
          org.bukkit.craftbukkit.event.CraftEventFactory.sourceBlockOverride = pos; // CraftBukkit - SPIGOT-7068: Add source block override, not the most elegant way but better than passing down a BlockPos up to five methods deep.
          entity.catalystListener.getSculkSpreader().updateCursors(level, pos, level.getRandom(), true);
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) org.bukkit.craftbukkit.event.CraftEventFactory.fish$sourceBlockOverrideTL.remove(); else // SparklyPaper - parallel world ticking
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) org.bukkit.craftbukkit.event.CraftEventFactory.fish$sourceBlockOverrideTL.remove(); else // SparklyPaper - parallel world ticking
          org.bukkit.craftbukkit.event.CraftEventFactory.sourceBlockOverride = null; // CraftBukkit
      }
  
 diff --git a/net/minecraft/world/level/block/grower/TreeGrower.java b/net/minecraft/world/level/block/grower/TreeGrower.java
-index 2a537a329b635d48865e59c03589b89594ef012e..ebcac606c2e1a4d6874fd81325184e40262721fd 100644
+index 2a537a329b635d48865e59c03589b89594ef012e..8936b0febe80b030772524172f889e5045ae0c43 100644
 --- a/net/minecraft/world/level/block/grower/TreeGrower.java
 +++ b/net/minecraft/world/level/block/grower/TreeGrower.java
 @@ -215,55 +215,58 @@ public final class TreeGrower {
@@ -505,25 +505,25 @@ index 2a537a329b635d48865e59c03589b89594ef012e..ebcac606c2e1a4d6874fd81325184e40
          } else {
              throw new IllegalArgumentException("Unknown tree generator " + feature);
          }
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.set(treeType); // SparklyPaper - parallel world ticking
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.set(treeType); // SparklyPaper - parallel world ticking
 +        else net.minecraft.world.level.block.SaplingBlock.treeType = treeType; // SparklyPaper - parallel world ticking
      }
      // CraftBukkit end
  }
 diff --git a/net/minecraft/world/level/chunk/LevelChunk.java b/net/minecraft/world/level/chunk/LevelChunk.java
-index e01cb8281addeb07108959979192e1854a6d542d..70179102344b6bee25a34ffd4993210179e9b903 100644
+index e01cb8281addeb07108959979192e1854a6d542d..af3a5444b6d68125c78864ce15114efff7c4fc49 100644
 --- a/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -378,6 +378,7 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
  
      @Override
      public @Nullable BlockState setBlockState(final BlockPos pos, final BlockState state, final @Block.UpdateFlags int flags) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.level, pos, "Updating block asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.level, pos, "Updating block asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          int y = pos.getY();
          LevelChunkSection section = this.getSection(this.getSectionIndex(y));
          boolean wasEmpty = section.hasOnlyAir();
 diff --git a/net/minecraft/world/level/saveddata/maps/MapIndex.java b/net/minecraft/world/level/saveddata/maps/MapIndex.java
-index 6b3ce2ded53a7ea46cf7f0cb49043a022f6d9ee7..220123b30648600eb98c5d2578f40378c0d144b1 100644
+index 6b3ce2ded53a7ea46cf7f0cb49043a022f6d9ee7..8b4f1c8e7691eecfc8637734f35b21cebdfd1199 100644
 --- a/net/minecraft/world/level/saveddata/maps/MapIndex.java
 +++ b/net/minecraft/world/level/saveddata/maps/MapIndex.java
 @@ -26,6 +26,15 @@ public class MapIndex extends SavedData {
@@ -531,7 +531,7 @@ index 6b3ce2ded53a7ea46cf7f0cb49043a022f6d9ee7..220123b30648600eb98c5d2578f40378
  
      public MapId getNextMapId() {
 +        // SparklyPaper start - parallel world ticking
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
 +            synchronized (TYPE) {
 +                MapId mapId = new MapId(++this.lastMapId);
 +                this.setDirty();

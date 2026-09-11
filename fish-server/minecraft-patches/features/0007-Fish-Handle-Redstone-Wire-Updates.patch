@@ -7,7 +7,7 @@ This patch implements Folia's approach to prevent too many chained neighbors rac
 This creates a boolean in WorldData to keep track of neighbors per-world.
 
 diff --git a/io/papermc/paper/redstone/RedstoneWireTurbo.java b/io/papermc/paper/redstone/RedstoneWireTurbo.java
-index 8e03419df1469c6fecfaa82fcb319a58635b39f3..611028130a88ba43d1a745bd1efdccafc24ada8a 100644
+index 8e03419df1469c6fecfaa82fcb319a58635b39f3..0d58914e636702378f15eef9013d4fc4474d32ee 100644
 --- a/io/papermc/paper/redstone/RedstoneWireTurbo.java
 +++ b/io/papermc/paper/redstone/RedstoneWireTurbo.java
 @@ -827,14 +827,24 @@ public final class RedstoneWireTurbo {
@@ -16,7 +16,7 @@ index 8e03419df1469c6fecfaa82fcb319a58635b39f3..611028130a88ba43d1a745bd1efdccaf
  
 +        // Fish start - Fix too many chained neighbors
 +        final int k;
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
 +            me.biquaternions.fish.threadedregions.AbstractWorldData fish$worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData();
 +            fish$worldData.shouldSignal = false;
 +            k = worldIn.getBestNeighborSignal(upd.self);
@@ -37,14 +37,14 @@ index 8e03419df1469c6fecfaa82fcb319a58635b39f3..611028130a88ba43d1a745bd1efdccaf
          // The variable 'k' holds the maximum redstone power value of any adjacent blocks.
          // If 'k' has the highest level of all neighbors, then the power level of this
 diff --git a/net/minecraft/world/level/block/RedStoneWireBlock.java b/net/minecraft/world/level/block/RedStoneWireBlock.java
-index 35e49078d8d36ae4683de26988435d971c7f0e89..9342bec7ed2215ce75f4b3bf3124d662beeeeccd 100644
+index 35e49078d8d36ae4683de26988435d971c7f0e89..84ce972425442e929650d7233cbd4423f1585c0c 100644
 --- a/net/minecraft/world/level/block/RedStoneWireBlock.java
 +++ b/net/minecraft/world/level/block/RedStoneWireBlock.java
 @@ -287,6 +287,7 @@ public class RedStoneWireBlock extends Block {
              if (orientation != null) {
                  source = pos.relative(orientation.getFront().getOpposite());
              }
-+            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && worldIn instanceof ServerLevel serverLevel) serverLevel.fish$worldData.turbo.updateSurroundingRedstone(worldIn, pos, state, source); else // SparklyPaper - parallel world ticking
++            if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && worldIn instanceof ServerLevel serverLevel) serverLevel.fish$worldData.turbo.updateSurroundingRedstone(worldIn, pos, state, source); else // SparklyPaper - parallel world ticking
              turbo.updateSurroundingRedstone(worldIn, pos, state, source);
              return;
          }
@@ -52,7 +52,7 @@ index 35e49078d8d36ae4683de26988435d971c7f0e89..9342bec7ed2215ce75f4b3bf3124d662
                  // [Space Walker] suppress shape updates and emit those manually to
                  // bypass the new neighbor update stack.
                  if (level.setBlock(pos, state, Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS)) {
-+                    if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED && level instanceof ServerLevel serverLevel) serverLevel.fish$worldData.turbo.updateNeighborShapes(level, pos, state); else // SparklyPaper - parallel world ticking
++                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && level instanceof ServerLevel serverLevel) serverLevel.fish$worldData.turbo.updateNeighborShapes(level, pos, state); else // SparklyPaper - parallel world ticking
                      turbo.updateNeighborShapes(level, pos, state);
                  }
              }
@@ -60,7 +60,7 @@ index 35e49078d8d36ae4683de26988435d971c7f0e89..9342bec7ed2215ce75f4b3bf3124d662
      }
  
      public int getBlockSignal(final Level level, final BlockPos pos) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
 +            me.biquaternions.fish.threadedregions.AbstractWorldData fish$worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData();
 +            fish$worldData.shouldSignal = false;
 +            int blockSignal = level.getBestNeighborSignal(pos);
@@ -74,14 +74,14 @@ index 35e49078d8d36ae4683de26988435d971c7f0e89..9342bec7ed2215ce75f4b3bf3124d662
  
      @Override
      protected int getDirectSignal(final BlockState state, final BlockGetter level, final BlockPos pos, final Direction direction) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return !me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal ? Redstone.SIGNAL_MIN : state.getSignal(level, pos, direction);
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) return !me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal ? Redstone.SIGNAL_MIN : state.getSignal(level, pos, direction);
          return !this.shouldSignal ? Redstone.SIGNAL_MIN : state.getSignal(level, pos, direction);
      }
  
      @Override
      protected int getSignal(final BlockState state, final BlockGetter level, final BlockPos pos, final Direction direction) {
 -        if (this.shouldSignal && direction != Direction.DOWN) {
-+        boolean shouldSignal0 = me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED ? me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal : this.shouldSignal;
++        boolean shouldSignal0 = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal : this.shouldSignal;
 +        if (shouldSignal0 && direction != Direction.DOWN) {
              int power = this.ownSignal(state, level, pos);
              if (power == 0) {
@@ -90,7 +90,7 @@ index 35e49078d8d36ae4683de26988435d971c7f0e89..9342bec7ed2215ce75f4b3bf3124d662
  
      @Override
      protected boolean isSignalSource(final BlockState state) {
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) return me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal;
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) return me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal;
          return this.shouldSignal;
      }
  

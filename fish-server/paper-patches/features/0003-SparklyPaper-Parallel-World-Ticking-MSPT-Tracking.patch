@@ -5,7 +5,7 @@ Subject: [PATCH] SparklyPaper Parallel World Ticking MSPT Tracking
 
 
 diff --git a/src/main/java/io/papermc/paper/command/PaperMSPTCommand.java b/src/main/java/io/papermc/paper/command/PaperMSPTCommand.java
-index c4e9a5771f8015c75bbd16c04040607d8c7e5fbd..f5d11bf6d498749027ae4fa50d8c5676492c7b43 100644
+index c4e9a5771f8015c75bbd16c04040607d8c7e5fbd..14df765e3400a0c8b2ff1a9e4142b0d13f9ac143 100644
 --- a/src/main/java/io/papermc/paper/command/PaperMSPTCommand.java
 +++ b/src/main/java/io/papermc/paper/command/PaperMSPTCommand.java
 @@ -76,6 +76,47 @@ public class PaperMSPTCommand {
@@ -13,7 +13,7 @@ index c4e9a5771f8015c75bbd16c04040607d8c7e5fbd..f5d11bf6d498749027ae4fa50d8c5676
              )
          );
 +        // SparklyPaper start - track world's MSPT
-+        if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
++        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
 +            sender.sendMessage(text());
 +            sender.sendMessage(text().content("World tick times ").color(GOLD)
 +                .append(text().color(YELLOW)

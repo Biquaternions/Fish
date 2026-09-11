@@ -5,7 +5,7 @@ Subject: [PATCH] Fish Rebrand
 
 
 diff --git a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
-index 924e968f46507b5c44ac052f027f25eea3b9da08..08af6df01a3ac5c042b1a1a86029c4c89e7dc56f 100644
+index d7ae8d9f402fd3031a80beaa5b7bab1a2c1ce622..ad9cef44fe796905a3ae528fd7d7124dfcded384 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
 +++ b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
 @@ -34,12 +34,12 @@ import static net.minecraft.server.MinecraftServer.COMPONENT_LOGGER;
@@ -25,7 +25,7 @@ index 924e968f46507b5c44ac052f027f25eea3b9da08..08af6df01a3ac5c042b1a1a86029c4c8
  
      private static final int DISTANCE_ERROR = -1;
      private static final int DISTANCE_UNKNOWN = -2;
-@@ -105,7 +105,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
+@@ -102,7 +102,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
  
      private static int fetchDistanceFromSiteApi(final int actionsBuild) {
          try {
@@ -34,7 +34,7 @@ index 924e968f46507b5c44ac052f027f25eea3b9da08..08af6df01a3ac5c042b1a1a86029c4c8
              final HttpURLConnection connection = (HttpURLConnection) buildsUrl.openConnection();
              connection.setConnectTimeout(5000);
              connection.setReadTimeout(5000);
-@@ -116,7 +116,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
+@@ -117,7 +117,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
                  final int latest = json.getAsInt();
                  return Math.max(latest - actionsBuild, 0);
              } catch (final JsonSyntaxException | MalformedJsonException ex) {
@@ -42,7 +42,7 @@ index 924e968f46507b5c44ac052f027f25eea3b9da08..08af6df01a3ac5c042b1a1a86029c4c8
 +                LOGGER.error("Error parsing json from Fish's downloads API", ex); // Fish - Rebrand
                  return DISTANCE_ERROR;
              } catch (final SocketTimeoutException ex) {
-                 return 0;
+                 return DISTANCE_ERROR;
 diff --git a/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java b/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
 index 5ad53edffc891bf1fc35977e7c09cfaaa72af4d1..6d521d524b1e256f3c1905a08793546dfb230da9 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java

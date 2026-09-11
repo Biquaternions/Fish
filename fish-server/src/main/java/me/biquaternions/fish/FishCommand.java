@@ -47,7 +47,7 @@ public class FishCommand {
                     CommandSender sender = ctx.getSource().getSender();
                     MinecraftServer console = MinecraftServer.getServer();
                     try {
-                        FishConfig.INSTANCE.load();
+                        FishConfig.getInstance().reload();
                     } catch (Exception e) {
                         sender.sendMessage(FEEDBACK_RELOAD_FAILED);
                         console.server.getLogger().severe(e.getMessage());
@@ -100,7 +100,7 @@ public class FishCommand {
         double utilisationTotal = reportGlobal == null ? 0.0 : reportGlobal.utilisation();
         List<Component> extraMessages = Lists.newArrayList();
 
-        if (FishConfig.ASYNC.WORLD_TICKING._ENABLED) {
+        if (FishConfig.getInstance().async.worldTicking.enabled) {
             PriorityQueue<Triple<Double, Double, ServerLevel>> levelsQueue = new PriorityQueue<>((a, b) -> b.getLeft().compareTo(a.getLeft()));
             Iterable<ServerLevel> levels = server.getAllLevels();
 
@@ -123,7 +123,7 @@ public class FishCommand {
             // Global util = world highest util + global tasks
             utilisationTotal -= highestUtilisation; // This avoids duplication of the highest util
 
-            threads = Math.min(levelsQueue.size(), FishConfig.ASYNC.WORLD_TICKING._THREADS);
+            threads = Math.min(levelsQueue.size(), FishConfig.getInstance().async.worldTicking.threads);
             List<Component> detailsFullMessages = Lists.newArrayList();
             Triple<Double, Double, ServerLevel> entry;
 

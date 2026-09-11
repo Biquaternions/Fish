@@ -7,7 +7,7 @@ Without this, all worlds will get the movement event disabled if the last world 
 It can even happen while ticking hoppers, as worlds are ticking in parallel now.
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 95865ae7a921a6fa348daf061372a0b6231bbfc6..2c60472e0f7d7036a9dd74fc7705e29ec1f4d00c 100644
+index 4d25d75700e6d37fe958bc084ddc992285b519d2..8fac38653fc94a7fc1ed3f967d17738a58d7fa76 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -1831,7 +1831,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -20,7 +20,7 @@ index 95865ae7a921a6fa348daf061372a0b6231bbfc6..2c60472e0f7d7036a9dd74fc7705e29e
              profiler.push("tick");
  
 diff --git a/net/minecraft/world/level/block/entity/BlockEntity.java b/net/minecraft/world/level/block/entity/BlockEntity.java
-index ae0df53c3be7ebcf48886adbedfaa2c071a94023..ebe40f22c41f469a5c6bb496340b438db7d8ae11 100644
+index ae0df53c3be7ebcf48886adbedfaa2c071a94023..e9e5f69691d62da5b6a48b78956dc87e0f658fd8 100644
 --- a/net/minecraft/world/level/block/entity/BlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BlockEntity.java
 @@ -40,6 +40,7 @@ import org.slf4j.Logger;
@@ -35,12 +35,12 @@ index ae0df53c3be7ebcf48886adbedfaa2c071a94023..ebe40f22c41f469a5c6bb496340b438d
  
      public void setChanged() {
          if (this.level != null) {
-+            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) { if (FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.get()) return; } else
++            if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) { if (FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.get()) return; } else
              if (ignoreBlockEntityUpdates) return; // Paper - Perf: Optimize Hoppers
              setChanged(this.level, this.worldPosition, this.blockState);
          }
 diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index fef616d7b92454a721f7a14941b62a8963080cc5..36aaffab859d49590b3eef695baa62fb592eec8f 100644
+index fef616d7b92454a721f7a14941b62a8963080cc5..4674a1a37f7a851a79ad992b4ee21be417f3a3db 100644
 --- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -223,7 +223,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
@@ -76,10 +76,10 @@ index fef616d7b92454a721f7a14941b62a8963080cc5..36aaffab859d49590b3eef695baa62fb
                  origItemStack.setCount(originalItemCount - movedItemCount + remainingItemCount);
              }
  
-+            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(true); else
++            if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(true); else
              ignoreBlockEntityUpdates = true;
              container.setItem(i, origItemStack);
-+            if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(false); else
++            if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(false); else
              ignoreBlockEntityUpdates = false;
              container.setChanged();
              return true;
@@ -118,10 +118,10 @@ index fef616d7b92454a721f7a14941b62a8963080cc5..36aaffab859d49590b3eef695baa62fb
                      itemStack = itemStack.split(container.getMaxStackSize());
                  }
                  // Spigot end
-+                if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(true); else
++                if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(true); else
                  ignoreBlockEntityUpdates = true; // Paper - Perf: Optimize Hoppers
                  container.setItem(slot, itemStack);
-+                if (me.biquaternions.fish.FishConfig.ASYNC.WORLD_TICKING._ENABLED) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(false); else
++                if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(false); else
                  ignoreBlockEntityUpdates = false; // Paper - Perf: Optimize Hoppers
                  itemStack = leftover; // Paper - Make hoppers respect inventory max stack size
                  success = true;

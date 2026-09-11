@@ -5,14 +5,14 @@ Subject: [PATCH] Fish Added Config And Command
 
 
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index 59d9d78a02445c7aaea4bf1490c276fdd619ca16..0b8a9423feb56d0427ad008b2ab0469be5436ac8 100644
+index 49f9e3aa446372389442eee835a9c829b23101b8..699c6db7ce21f301dd1eecb44be2a382a18257c2 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
 @@ -110,6 +110,7 @@ public class Main {
                  JvmProfiler.INSTANCE.start(Environment.SERVER);
              }
  
-+            new me.biquaternions.fish.FishConfig().load(); // Fish - Config and command
++            me.biquaternions.fish.FishConfig.init(); // Fish - Config and command
              io.papermc.paper.plugin.PluginInitializerManager.load(options); // Paper
              Bootstrap.bootStrap();
              Bootstrap.validate();
@@ -28,15 +28,3 @@ index 6db3af5861a25cff70fc940d1cd467ea81d4c29f..6d8a08ac361a7caa118a9ff4e6e3085a
          this.advancements = new ServerAdvancementManager(loadingContext);
          this.functionLibrary = new ServerFunctionLibrary(functionCompilationPermissions, this.commands.getDispatcher());
      }
-diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
-index 694c57bf8443adb5d3500721e50ad77babd5a17d..eb9520582e8f1cb62d8a55c13232f11fc6088bce 100644
---- a/net/minecraft/server/dedicated/DedicatedServer.java
-+++ b/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -252,6 +252,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
-         com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics(); // Paper - start metrics
-         com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
-         new gg.pufferfish.pufferfish.PufferfishConfig().load(); // Pufferfish - Config and command
-+        me.biquaternions.fish.FishConfig.init(); // Fish start - Config and command
- 
-         // this.worldData.setGameType(properties.gameMode.get()); // CraftBukkit - moved to world loading
-         LOGGER.info("Default game type: {}", properties.gameMode.get());
