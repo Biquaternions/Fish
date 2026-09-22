@@ -5,11 +5,11 @@ Subject: [PATCH] Fish Rebrand
 
 
 diff --git a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
-index d7ae8d9f402fd3031a80beaa5b7bab1a2c1ce622..ad9cef44fe796905a3ae528fd7d7124dfcded384 100644
+index 506b6a32c2be1ff599c3205f00b34870001f9c46..ca0783676874ecc33b90dcc9f0eaf7d5c4837fb9 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
 +++ b/src/main/java/gg/pufferfish/pufferfish/PufferfishVersionFetcher.java
-@@ -34,12 +34,12 @@ import static net.minecraft.server.MinecraftServer.COMPONENT_LOGGER;
- 
+@@ -35,12 +35,12 @@ import static net.minecraft.server.MinecraftServer.COMPONENT_LOGGER;
+ @NullMarked
  public class PufferfishVersionFetcher extends PaperVersionFetcher {
  
 -    private static final Logger LOGGER = LoggerFactory.getLogger(PufferfishVersionFetcher.class.getSimpleName());
@@ -25,7 +25,7 @@ index d7ae8d9f402fd3031a80beaa5b7bab1a2c1ce622..ad9cef44fe796905a3ae528fd7d7124d
  
      private static final int DISTANCE_ERROR = -1;
      private static final int DISTANCE_UNKNOWN = -2;
-@@ -102,7 +102,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
+@@ -103,7 +103,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
  
      private static int fetchDistanceFromSiteApi(final int actionsBuild) {
          try {
@@ -34,7 +34,7 @@ index d7ae8d9f402fd3031a80beaa5b7bab1a2c1ce622..ad9cef44fe796905a3ae528fd7d7124d
              final HttpURLConnection connection = (HttpURLConnection) buildsUrl.openConnection();
              connection.setConnectTimeout(5000);
              connection.setReadTimeout(5000);
-@@ -117,7 +117,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
+@@ -118,7 +118,7 @@ public class PufferfishVersionFetcher extends PaperVersionFetcher {
                  final int latest = json.getAsInt();
                  return Math.max(latest - actionsBuild, 0);
              } catch (final JsonSyntaxException | MalformedJsonException ex) {
@@ -44,10 +44,10 @@ index d7ae8d9f402fd3031a80beaa5b7bab1a2c1ce622..ad9cef44fe796905a3ae528fd7d7124d
              } catch (final SocketTimeoutException ex) {
                  return DISTANCE_ERROR;
 diff --git a/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java b/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
-index 5ad53edffc891bf1fc35977e7c09cfaaa72af4d1..6d521d524b1e256f3c1905a08793546dfb230da9 100644
+index b98ae2e7dea76df000f3071a27841042e40028fb..e9b34d1e1111a784e6aabd42e3724718a17d804b 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
 +++ b/src/main/java/gg/pufferfish/pufferfish/compat/ServerConfigurations.java
-@@ -25,7 +25,8 @@ public class ServerConfigurations {
+@@ -27,7 +27,8 @@ public class ServerConfigurations {
          "spigot.yml",
          "config/paper-global.yml",
          "config/paper-world-defaults.yml",
@@ -58,10 +58,10 @@ index 5ad53edffc891bf1fc35977e7c09cfaaa72af4d1..6d521d524b1e256f3c1905a08793546d
  
      private static final String[] hiddenConfigEntries = new String[]{
 diff --git a/src/main/java/gg/pufferfish/pufferfish/flare/PluginLookup.java b/src/main/java/gg/pufferfish/pufferfish/flare/PluginLookup.java
-index 3acffffcb5c63ca0a63691c52808369e85494eed..522550f1de17d47924aa5ada71bc169186f51156 100644
+index 5f4122fe66e6841c0dbca2e52b6e7ccda2317b43..c7dd02ece710b92d326ab703bfda267e2644b978 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/flare/PluginLookup.java
 +++ b/src/main/java/gg/pufferfish/pufferfish/flare/PluginLookup.java
-@@ -33,6 +33,7 @@ public class PluginLookup {
+@@ -34,6 +34,7 @@ public class PluginLookup {
              || name.startsWith("ca.spottedleaf.") || name.startsWith("com.sun.") || name.startsWith("org.jline.") || name.startsWith("org.bukkit.")
              || name.startsWith("org.spigotmc.") || name.startsWith("com.destroystokyo.paper") || name.startsWith("co.aikar.")
              || name.startsWith("io.netty.") || name.startsWith("com.velocitypowered.")

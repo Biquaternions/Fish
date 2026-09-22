@@ -1,4 +1,4 @@
-name: Build 26.2
+name: Build 26.3
 on:
   workflow_dispatch:
   push:
@@ -51,14 +51,14 @@ jobs:
       - name: Upload Fish
         uses: actions/upload-artifact@main
         with:
-          name: Fish 26.2
+          name: Fish 26.3
           path: ./fish-server/build/libs/fish-paperclip-*.jar
 
       - name: Release Fish
         uses: softprops/action-gh-release@master
         with:
-          name: "🐟 Fish 26.2 (Build ${{ env.BUILD_NUMBER }})"
-          tag_name: "ver-26.2"
+          name: "🐟 Fish 26.3 (Build ${{ env.BUILD_NUMBER }})"
+          tag_name: "ver-26.3"
           files: |
             ./fish-server/build/libs/fish-paperclip-*.jar
             ./fish-api/build/libs/fish-api-*.jar
@@ -74,4 +74,4 @@ jobs:
           url: https://version.serlith.net/api/v1/project/submit
           method: 'POST'
           customHeaders: '{"Content-Type": "application/json", "X-API-Token": "${{ secrets.VERSION_TOKEN }}"}'
-          data: '{ "software": "fish", "version": "26.2", "build": ${{ env.BUILD_NUMBER }} }'
+          data: '{ "software": "fish", "version": "26.3", "build": ${{ env.BUILD_NUMBER }} }'

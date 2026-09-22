@@ -5,10 +5,10 @@ Subject: [PATCH] Fish Parallel World Ticking
 
 
 diff --git a/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java b/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java
-index da6af03d0dbfcd2c8820d5fc798f6f344307b674..35a7250f5e3ef9c41d2d004d661375d23f6c5755 100644
+index 5b907462f8998fbdefe27d7270eb5cdde548f3d2..d1c724d0c324d166871b0c2abdad9dfcd34fe918 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java
 +++ b/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java
-@@ -101,6 +101,12 @@ public class ProfilingManager {
+@@ -104,6 +104,12 @@ public class ProfilingManager {
              GlobalMemory memory = hardware.getMemory();
              VirtualMemory virtualMemory = memory.getVirtualMemory();
  
@@ -21,7 +21,7 @@ index da6af03d0dbfcd2c8820d5fc798f6f344307b674..35a7250f5e3ef9c41d2d004d661375d2
              FlareBuilder builder = new FlareBuilder()
                  .withProfileType(profileType)
                  .withMemoryProfiling(true)
-@@ -112,7 +118,7 @@ public class ProfilingManager {
+@@ -115,7 +121,7 @@ public class ProfilingManager {
                  .withVersion("Minecraft Version", Bukkit.getMinecraftVersion())
  
                  .withGraphCategories(CustomCategories.ENTITIES_AND_CHUNKS, CustomCategories.MC_PERF)
