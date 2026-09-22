@@ -10,14 +10,14 @@ Fish is a [Paper](https://github.com/PaperMC/Paper)/[Pufferfish](https://github.
 
 > [!WARNING]
 > This project started as a joke. \
-> Please don't use, I won't provide support.
-
-> [!WARNING]
-> This project has been turned into a playground for Parallel World Ticking. \
+> It is a playground to experiment with Parallel World Ticking without other major feature patches interfering. \
 > This means I can push experimental (but non-breaking) changes at any time into the main branch. \
-> This also means, patches are separated into multiple single fixes over the original patch,
-> this was done for clarity reasons, as to explain what does what to people experimenting with this patch. \
-> If you're implementing PWT yourself, you don't need to do this, you can merge all into a single patch.
+> This also means, while this entire project could (and should) be a single feature patch, it is kept as multiple patches
+> to clearly demonstrate what changes have been made over the original SparklyPaper's PWT patch. \
+> If you're implementing PWT yourself, you don't need to do this, you can merge all into a single patch. \
+> Please don't use this project directly, I won't provide support. \
+> You may join my discord to discuss the implementation or get help debugging your plugins **designed for PWT**
+> but you won't get support as an end user, only as a developer: https://discord.biquaternions.me
 
 > [!CAUTION]
 > This is your final warning, this project being a playground means I can push

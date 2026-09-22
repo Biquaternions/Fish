@@ -2,7 +2,7 @@ package me.biquaternions.fish.threadedregions;
 
 import io.papermc.paper.redstone.RedstoneWireTurbo;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.RedstoneWireBlock;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -16,7 +16,7 @@ public abstract class AbstractWorldData {
     public boolean skipPushModeEventFire;
 
     public AbstractWorldData() {
-        this.turbo = new RedstoneWireTurbo((RedStoneWireBlock) Blocks.REDSTONE_WIRE);
+        this.turbo = new RedstoneWireTurbo((RedstoneWireBlock) Blocks.REDSTONE_WIRE);
     }
 
 }
