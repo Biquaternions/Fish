@@ -5,7 +5,7 @@ Subject: [PATCH] Fish Added Config And Command
 
 
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index 49f9e3aa446372389442eee835a9c829b23101b8..699c6db7ce21f301dd1eecb44be2a382a18257c2 100644
+index 2566e01a1fe9eb298a3b1652d93b84b118d498bb..a0536182d43d74c9225a737a49bd78eea238ee8e 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
 @@ -110,6 +110,7 @@ public class Main {
@@ -17,14 +17,14 @@ index 49f9e3aa446372389442eee835a9c829b23101b8..699c6db7ce21f301dd1eecb44be2a382
              Bootstrap.bootStrap();
              Bootstrap.validate();
 diff --git a/net/minecraft/server/ReloadableServerResources.java b/net/minecraft/server/ReloadableServerResources.java
-index 6db3af5861a25cff70fc940d1cd467ea81d4c29f..6d8a08ac361a7caa118a9ff4e6e3085adebda9ec 100644
+index 350ce5c17891198933e5c5dbcf4fa43abe8b3dc4..c070bcc808e99419c5da4f38288ce37d5edbae4c 100644
 --- a/net/minecraft/server/ReloadableServerResources.java
 +++ b/net/minecraft/server/ReloadableServerResources.java
-@@ -49,6 +49,7 @@ public class ReloadableServerResources {
+@@ -47,6 +47,7 @@ public class ReloadableServerResources {
          io.papermc.paper.command.PaperCommands.registerCommands(); // Paper
          gg.pufferfish.pufferfish.PufferfishCommand.init(); // Pufferfish - Config and command
          gg.pufferfish.pufferfish.flare.FlareCommand.init(); // Pufferfish - Config and command
 +        me.biquaternions.fish.FishCommand.init(); // Fish - Config and command
-         this.advancements = new ServerAdvancementManager(loadingContext);
+         this.advancements = new ServerAdvancementManager(loadingContext.lookupWithUpdatedTags());
          this.functionLibrary = new ServerFunctionLibrary(functionCompilationPermissions, this.commands.getDispatcher());
      }
