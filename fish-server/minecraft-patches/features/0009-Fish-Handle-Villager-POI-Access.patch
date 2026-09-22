@@ -44,10 +44,10 @@ index ba61762e09ace201173999b3984046f930ccfe57..8b09d8c32faa5bd1e5a31a8ae79cd27b
          });
          body.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
 diff --git a/net/minecraft/world/entity/npc/villager/Villager.java b/net/minecraft/world/entity/npc/villager/Villager.java
-index fba5351d93f25dde4ac514fbd5565d4801d32f02..9ebd90cce91a94534bbfa3a12ea5c76948a09ab5 100644
+index 39c5fa37d2fcc07d823bcc57bc46ffbfb66d6265..5db872814816eb3c38a7b48a3d4d33b359e6124d 100644
 --- a/net/minecraft/world/entity/npc/villager/Villager.java
 +++ b/net/minecraft/world/entity/npc/villager/Villager.java
-@@ -675,6 +675,18 @@ public class Villager extends AbstractVillager implements VillagerDataHolder, Re
+@@ -658,6 +658,18 @@ public class Villager extends AbstractVillager implements VillagerDataHolder, Re
              this.brain.getMemory(memoryType).ifPresent(memory -> {
                  ServerLevel poiLevel = server.getLevel(memory.dimension());
                  if (poiLevel != null) {
@@ -66,7 +66,7 @@ index fba5351d93f25dde4ac514fbd5565d4801d32f02..9ebd90cce91a94534bbfa3a12ea5c769
                      PoiManager poiManager = poiLevel.getPoiManager();
                      Optional<Holder<PoiType>> type = poiManager.getType(memory.pos());
                      BiPredicate<Villager, Holder<PoiType>> poiTypePredicate = POI_MEMORIES.get(memoryType);
-@@ -682,6 +694,7 @@ public class Villager extends AbstractVillager implements VillagerDataHolder, Re
+@@ -665,6 +677,7 @@ public class Villager extends AbstractVillager implements VillagerDataHolder, Re
                          poiManager.release(memory.pos());
                          poiLevel.debugSynchronizers().updatePoi(memory.pos());
                      }
