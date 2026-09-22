@@ -44,10 +44,10 @@ index 144c18c08bf8f03d907b97f968aa171a9fbf997f..ac531086508f38d6af31670968d6ae71
      }
  
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index ae49363368d1d6d22611d7a075a54d8b238219c7..68c6a91b08b5c593eb0a822157bbb909288504bb 100644
+index b6920b31a39ecd3f51e046ff807f46e1f329142b..a186148dc817038788f79e4a74b18238692cd23b 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -336,6 +336,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -331,6 +331,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      private final Set<String> pluginsBlockingSleep = new java.util.HashSet<>(); // Paper - API to allow/disallow tick sleeping
      public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
      public gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
@@ -55,7 +55,7 @@ index ae49363368d1d6d22611d7a075a54d8b238219c7..68c6a91b08b5c593eb0a822157bbb909
      // Paper start - improve tick loop
      public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
      public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
-@@ -1770,6 +1771,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1752,6 +1753,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.server.getScheduler().mainThreadHeartbeat(); // CraftBukkit
          // Paper start - optimise Folia entity scheduler
          ((io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler)org.bukkit.Bukkit.getGlobalRegionScheduler()).tick();
@@ -63,7 +63,7 @@ index ae49363368d1d6d22611d7a075a54d8b238219c7..68c6a91b08b5c593eb0a822157bbb909
          for (io.papermc.paper.threadedregions.EntityScheduler scheduler : this.entitySchedulerTickList.getAllSchedulers()) {
              if (scheduler.isRetired()) {
                  continue;
-@@ -1777,6 +1779,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1759,6 +1761,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
              scheduler.executeTick();
          }
@@ -72,10 +72,10 @@ index ae49363368d1d6d22611d7a075a54d8b238219c7..68c6a91b08b5c593eb0a822157bbb909
          // Paper end - Folia scheduler API
          io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.ADVENTURE_CLICK_MANAGER.handleQueue(this.tickCount); // Paper
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 05d9b505245729c2939bbe4832e891434c62dc23..c90cc7a9c82a715a83700ca7f733bff64335277f 100644
+index ee4c5b760b9a945c2c94a2411abead6e5fdc45bc..729569f750e942c790ed0946c517c454eafeacae 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -238,6 +238,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -240,6 +240,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
      private static final org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry();
      public final org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer persistentDataContainer = new org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer(DATA_TYPE_REGISTRY);
      private final alternate.current.wire.WireHandler wireHandler = new alternate.current.wire.WireHandler(this); // Paper - optimize redstone (Alternate Current)
@@ -85,10 +85,10 @@ index 05d9b505245729c2939bbe4832e891434c62dc23..c90cc7a9c82a715a83700ca7f733bff6
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 7f7e179ab67cc1f7439e963b6c06a2328a0acb85..db3be0c67ab88ebdcec51ff4b92a75bc9d2d1d68 100644
+index 1b3de52ec9c3e1d2fb07491261e03c1df8ab593e..023cded309b88af5e981eb9f01a0fdb938012a24 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -5243,6 +5243,10 @@ public abstract class Entity
+@@ -5389,6 +5389,10 @@ public abstract class Entity
      // Paper end - Folia schedulers
      // Paper start - optimise Folia entity scheduler
      public final void registerScheduler() {

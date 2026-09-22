@@ -10,10 +10,10 @@ However, their approach has some limitations when triggering events, and require
   have a main thread, so we just schedule the task at the end of the main tick.
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index db3be0c67ab88ebdcec51ff4b92a75bc9d2d1d68..5c3c009d97fe7d1cb046c370960eb2a48fbca18b 100644
+index 023cded309b88af5e981eb9f01a0fdb938012a24..e6fefaa5ca2bbdc2725a9f1d792da5399f1ff5dc 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -871,7 +871,6 @@ public abstract class Entity
+@@ -891,7 +891,6 @@ public abstract class Entity
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
@@ -21,7 +21,7 @@ index db3be0c67ab88ebdcec51ff4b92a75bc9d2d1d68..5c3c009d97fe7d1cb046c370960eb2a4
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
-@@ -3589,6 +3588,37 @@ public abstract class Entity
+@@ -3679,6 +3678,37 @@ public abstract class Entity
                      ProfilerFiller profiler = Profiler.get();
                      profiler.push("portal");
                      this.setPortalCooldown();
@@ -58,7 +58,7 @@ index db3be0c67ab88ebdcec51ff4b92a75bc9d2d1d68..5c3c009d97fe7d1cb046c370960eb2a4
 +                    // Fish end - Handle Entity Portal Teleport
                      TeleportTransition teleportTransition = this.portalProcess.getPortalDestination(level, this);
                      if (teleportTransition != null) {
-                         ServerLevel newLevel = teleportTransition.newLevel();
+                         this.teleportToPortalDestination(level, teleportTransition);
 diff --git a/net/minecraft/world/entity/PortalProcessor.java b/net/minecraft/world/entity/PortalProcessor.java
 index 7ec15f3d3a770e1e9e2fbac29dd38e947bb07091..9a179599fc3f25881ba0d2edf29a5d84ce8cf1ac 100644
 --- a/net/minecraft/world/entity/PortalProcessor.java
