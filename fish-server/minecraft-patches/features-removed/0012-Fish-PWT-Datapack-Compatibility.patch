@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Biquaternions <biquaternions@serlith.net>
+Date: Tue, 22 Sep 2026 11:17:09 -0500
+Subject: [PATCH] Fish PWT Datapack Compatibility
+
+This patch can help datapacks run in Parallel World Ticking servers.
+When adding a method in AsyncWorldTicking to iterate over all worlds and run fish$tickScheduledEvents
+  at the end of the tick, most datapacks should, in theory, work again across worlds.
+This is a proof of concept, it is untested and will never be merged into the main project, as I
+  don't know the full impact of running datapack functions at the end of the tick, nor do I care.
+Datapacks hit performance, which is the opposite of what PWT attempts to achieve, therefore I don't
+  particularly care if they work or not in PWT.
+
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index 6120a2a6c32e7dd49be269f6a283959d44ad20ad..1b7cc85de84e61c05c5ae4a44ed6ca74d38730d2 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -969,10 +969,16 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+             long time = this.levelData.getGameTime() + 1L;
+             this.serverLevelData.setGameTime(time);
+             Profiler.get().push("scheduledFunctions");
++            if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // Fish - PWT datapacks
+             this.scheduledEvents.tick(this.server, time); // Paper - per-level scheduledEvents
+             Profiler.get().pop();
+         }
+     }
++    // Fish start - PWT datapacks
++    public void fish$tickScheduledEvents() {
++        this.scheduledEvents.tick(this.server, this.levelData.getGameTime());
++    }
++    // Fish end - PWT datapacks
+ 
+     public void tickCustomSpawners(final boolean spawnEnemies) {
+         for (CustomSpawner spawner : this.customSpawners) {
