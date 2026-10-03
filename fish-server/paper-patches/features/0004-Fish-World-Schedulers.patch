@@ -24,10 +24,10 @@ This patch implements region schedulers for each world and a compatibility layer
   than plugins trying to perform read/writes.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index e0d85e54d5b88a51ea0265ae2e1f1a2ef3fbe9eb..1fb67aa39a1406aa6df02013c8b9ef1c1c537200 100644
+index 478f4461ab3fb21b288aa2f6079860f23832e622..98d33da27643f0e95ca95256031cf94f66863945 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -308,7 +308,7 @@ public final class CraftServer implements Server {
+@@ -309,7 +309,7 @@ public final class CraftServer implements Server {
      private final ServerConfiguration serverConfig = new PaperServerConfiguration();
  
      // Paper start - Folia region threading API
@@ -37,7 +37,7 @@ index e0d85e54d5b88a51ea0265ae2e1f1a2ef3fbe9eb..1fb67aa39a1406aa6df02013c8b9ef1c
      private final io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler globalRegionScheduler = new io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler();
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 4928e555f3980146e9feea20958fd6a96fa13caa..74356d29017b8bc811452e34042da7653b351e6f 100644
+index c25179e701739e3f4a0306e9d5cd044b4ca47b71..b7b1fc3b1609266b479d892fdd51bf47dad0d568 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -479,7 +479,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
@@ -98,7 +98,7 @@ index 4928e555f3980146e9feea20958fd6a96fa13caa..74356d29017b8bc811452e34042da765
          if (this.world.hasChunkAt(pos)) {
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
-@@ -1868,7 +1880,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1863,7 +1875,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void sendGameEvent(Entity sourceEntity, org.bukkit.GameEvent gameEvent, Vector position) {

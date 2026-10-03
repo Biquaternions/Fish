@@ -8,10 +8,10 @@ protected net.minecraft.server.waypoints.ServerWaypointManager createConnection(
 protected net.minecraft.server.waypoints.ServerWaypointManager updateConnection(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/waypoints/WaypointTransmitter;Lnet/minecraft/world/waypoints/WaypointTransmitter$Connection;)V
 
 diff --git a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
-index e418820359c430b91bb91eb65d137b9cdbe2db4b..c1031bc693fb58f58893d9e41e480225e0aef800 100644
+index eb7c5ba7168ba4903e93938dd8671227194bec99..0023adfccef13bce06c64407f2c30da74d74d049 100644
 --- a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
 +++ b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
-@@ -1129,7 +1129,7 @@ public final class ChunkHolderManager {
+@@ -1153,7 +1153,7 @@ public final class ChunkHolderManager {
          if (changedFullStatus.isEmpty()) {
              return;
          }
@@ -20,7 +20,7 @@ index e418820359c430b91bb91eb65d137b9cdbe2db4b..c1031bc693fb58f58893d9e41e480225
              // These will be handled on the next ServerChunkCache$MainThreadExecutor#pollTask, as it runs the distance manager update
              // which will invoke processTicketUpdates
              this.offThreadPendingFullLoadUpdate.addAll(changedFullStatus);
-@@ -1150,7 +1150,7 @@ public final class ChunkHolderManager {
+@@ -1175,7 +1175,7 @@ public final class ChunkHolderManager {
  
      // note: never call while inside the chunk system, this will absolutely break everything
      public void processUnloads() {
@@ -29,7 +29,7 @@ index e418820359c430b91bb91eb65d137b9cdbe2db4b..c1031bc693fb58f58893d9e41e480225
  
          if (BLOCK_TICKET_UPDATES.get() == Boolean.TRUE) {
              throw new IllegalStateException("Cannot unload chunks recursively");
-@@ -1419,7 +1419,7 @@ public final class ChunkHolderManager {
+@@ -1444,7 +1444,7 @@ public final class ChunkHolderManager {
          if (BLOCK_TICKET_UPDATES.get() == Boolean.TRUE) {
              throw new IllegalStateException("Cannot update ticket level while unloading chunks or updating entity manager");
          }
@@ -84,10 +84,10 @@ index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..b6920b31a39ecd3f51e046ff807f46e1
      }
      // CraftBukkit end
 diff --git a/net/minecraft/server/level/ServerChunkCache.java b/net/minecraft/server/level/ServerChunkCache.java
-index 0c8f0ed4749b1422b22793c375818e4e930f0bc3..c7e96f30b0ec7be389c064cb3b0041a8958e0b97 100644
+index 36cad318ac0724420a75268741ae5aaa8ff49f9b..3019b16b00bee292322f0a83f3d7715eea25bbfe 100644
 --- a/net/minecraft/server/level/ServerChunkCache.java
 +++ b/net/minecraft/server/level/ServerChunkCache.java
-@@ -174,6 +174,7 @@ public class ServerChunkCache extends ChunkSource implements ca.spottedleaf.moon
+@@ -179,6 +179,7 @@ public class ServerChunkCache extends ChunkSource implements ca.spottedleaf.moon
  
              // call mid-tick tasks for chunk system
              if ((i & 7) == 0) {
@@ -185,7 +185,7 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..ee4c5b760b9a945c2c94a2411abead6e
          entity.generation = false; // Paper - Don't fire sync event during generation; Reset flag if it was added during a ServerLevel generation process
          // Paper start - extra debug info
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index 4227d7b652b989bb86bff6960545c323dc535e46..7dcc9c2960ffcdf29f2f769ed00731a731b16fea 100644
+index 23b3a82ab3e1c6abc85000d9285470cb12300a6b..17f5fe3d9d604b9994e05edaa40ecb40e2e55480 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
 @@ -722,8 +722,10 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
@@ -199,7 +199,7 @@ index 4227d7b652b989bb86bff6960545c323dc535e46..7dcc9c2960ffcdf29f2f769ed00731a7
          // CraftBukkit start
          if (this.joining) {
              this.joining = false;
-@@ -1567,6 +1569,7 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+@@ -1580,6 +1582,7 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
              return this;
          }
  
@@ -207,7 +207,7 @@ index 4227d7b652b989bb86bff6960545c323dc535e46..7dcc9c2960ffcdf29f2f769ed00731a7
          this.isChangingDimension = true;
          LevelData levelData = newLevel.getLevelData();
          this.connection.send(new ClientboundRespawnPacket(this.createCommonSpawnInfo(newLevel), ClientboundRespawnPacket.KEEP_ALL_DATA));
-@@ -1897,6 +1900,12 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+@@ -1910,6 +1913,12 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
  
              return OptionalInt.empty();
          } else {
@@ -221,7 +221,7 @@ index 4227d7b652b989bb86bff6960545c323dc535e46..7dcc9c2960ffcdf29f2f769ed00731a7
              this.containerMenu = menu; // Moved up
              if (!this.isImmobile()) {
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index 42fd84f078eb3268d820de8f211e78023eab85f9..e1078985b59fc5fa6e71d12ce5e855dc62a2b9bf 100644
+index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..91a12d2b8192dca2cd48c9c46d3b37a709a45719 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
 @@ -158,6 +158,7 @@ public abstract class PlayerList {

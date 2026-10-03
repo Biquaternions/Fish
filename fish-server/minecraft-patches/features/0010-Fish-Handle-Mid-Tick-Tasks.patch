@@ -25,10 +25,10 @@ index a186148dc817038788f79e4a74b18238692cd23b..40ef01f261cc61f1d9f458a7fa3e367e
          if ((startTime - this.lastMidTickExecute) <= CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME || (startTime - this.lastMidTickExecuteFailure) <= TASK_EXECUTION_FAILURE_BACKOFF) {
              // it's shown to be bad to constantly hit the queue (chunk loads slow to a crawl), even if no tasks are executed.
 diff --git a/net/minecraft/server/level/ServerChunkCache.java b/net/minecraft/server/level/ServerChunkCache.java
-index c7e96f30b0ec7be389c064cb3b0041a8958e0b97..0c8f0ed4749b1422b22793c375818e4e930f0bc3 100644
+index 3019b16b00bee292322f0a83f3d7715eea25bbfe..36cad318ac0724420a75268741ae5aaa8ff49f9b 100644
 --- a/net/minecraft/server/level/ServerChunkCache.java
 +++ b/net/minecraft/server/level/ServerChunkCache.java
-@@ -174,7 +174,6 @@ public class ServerChunkCache extends ChunkSource implements ca.spottedleaf.moon
+@@ -179,7 +179,6 @@ public class ServerChunkCache extends ChunkSource implements ca.spottedleaf.moon
  
              // call mid-tick tasks for chunk system
              if ((i & 7) == 0) {
