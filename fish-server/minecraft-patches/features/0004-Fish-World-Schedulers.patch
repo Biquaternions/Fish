@@ -37,18 +37,18 @@ index 144c18c08bf8f03d907b97f968aa171a9fbf997f..52095b642943ec241595600e4fef3df9
  
      public static <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final PacketProcessor packetProcessor) throws RunningOnDifferentThreadException {
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index a290152fa60c22c9413cb6c6d34dd958497ce360..1dc084c454766a31d48d6ae74d5785c0a1e29eb1 100644
+index 49310b06908f782b1baecb598c900bbaca2de69b..fb36bd10cde7b8fce256c8ebf1bab3fbe5c85ea2 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -332,6 +332,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
      public gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
-     public final me.biquaternions.fish.threadedregions.TickWorldExecutor fish$worldExecutor = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.threadedregions.executor.ParallelTickWorldExecutor(this, me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.threads) : new me.biquaternions.fish.threadedregions.executor.SynchronousTickWorldExecutor(this); // Fish
+     public final me.biquaternions.fish.threadedregions.TickWorldExecutor fish$worldExecutor; // Fish
 +    public final me.biquaternions.fish.threadedregions.FallbackWorldData fish$globalData = new me.biquaternions.fish.threadedregions.FallbackWorldData(); // Fish - Global Region
      // Paper start - improve tick loop
      public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
      public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
-@@ -1758,6 +1759,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1759,6 +1760,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.server.getScheduler().mainThreadHeartbeat(); // CraftBukkit
          // Paper start - optimise Folia entity scheduler
          ((io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler)org.bukkit.Bukkit.getGlobalRegionScheduler()).tick();
@@ -56,7 +56,7 @@ index a290152fa60c22c9413cb6c6d34dd958497ce360..1dc084c454766a31d48d6ae74d5785c0
          for (io.papermc.paper.threadedregions.EntityScheduler scheduler : this.entitySchedulerTickList.getAllSchedulers()) {
              if (scheduler.isRetired()) {
                  continue;
-@@ -1765,6 +1767,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1766,6 +1768,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
              scheduler.executeTick();
          }
@@ -65,7 +65,7 @@ index a290152fa60c22c9413cb6c6d34dd958497ce360..1dc084c454766a31d48d6ae74d5785c0
          // Paper end - Folia scheduler API
          io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.ADVENTURE_CLICK_MANAGER.handleQueue(this.tickCount); // Paper
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 9a760f0cc40aab156470025817b136a77b4bc126..516913d379ee10b31f04764485ac20cac19a7a15 100644
+index 504ab34f549f0fa6037223d628855124592255b0..26c06bb73dc19d70ee15cfdfc01c10f64ddd81f9 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -240,6 +240,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -78,7 +78,7 @@ index 9a760f0cc40aab156470025817b136a77b4bc126..516913d379ee10b31f04764485ac20ca
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 4aae1dd8ddb19608ef9361165abcdf2ec0f5ccc5..39350942ed6fca18b5f019b078531d302e9f36e9 100644
+index 25bcc8d8e80410db8e78a65f654218829e559bd0..d264c2ba4c177bb057450143a3adeb8b5e9396c8 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -5389,6 +5389,10 @@ public abstract class Entity

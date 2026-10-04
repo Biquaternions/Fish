@@ -53,14 +53,14 @@ index c650f26d3ecdeb94a4d0f40637c07c59a6cbdfa6..64db7297b801fcfc5bc490d1851aa71f
                  }
                  // Paper end
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..a290152fa60c22c9413cb6c6d34dd958497ce360 100644
+index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..49310b06908f782b1baecb598c900bbaca2de69b 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -331,6 +331,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      private final Set<String> pluginsBlockingSleep = new java.util.HashSet<>(); // Paper - API to allow/disallow tick sleeping
      public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
      public gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
-+    public final me.biquaternions.fish.threadedregions.TickWorldExecutor fish$worldExecutor = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.threadedregions.executor.ParallelTickWorldExecutor(this, me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.threads) : new me.biquaternions.fish.threadedregions.executor.SynchronousTickWorldExecutor(this); // Fish
++    public final me.biquaternions.fish.threadedregions.TickWorldExecutor fish$worldExecutor; // Fish
      // Paper start - improve tick loop
      public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
      public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
@@ -76,7 +76,15 @@ index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..a290152fa60c22c9413cb6c6d34dd958
          final long startTime = System.nanoTime();
          if ((startTime - this.lastMidTickExecute) <= CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME || (startTime - this.lastMidTickExecuteFailure) <= TASK_EXECUTION_FAILURE_BACKOFF) {
              // it's shown to be bad to constantly hit the queue (chunk loads slow to a crawl), even if no tasks are executed.
-@@ -1796,6 +1802,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -570,6 +576,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         Runtime.getRuntime().addShutdownHook(new org.bukkit.craftbukkit.util.ServerShutdownThread(this));
+         // CraftBukkit end
+         this.paperConfigurations = services.paper().configurations(); // Paper - add paper configuration files
++        this.fish$worldExecutor = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.threadedregions.executor.ParallelTickWorldExecutor(this, me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.threads) : new me.biquaternions.fish.threadedregions.executor.SynchronousTickWorldExecutor(this); // Fish
+     }
+ 
+     protected abstract boolean initServer() throws IOException;
+@@ -1796,6 +1803,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.updateEffectiveRespawnData();
  
          this.isIteratingOverLevels = true; // Paper - Throw exception on world create while being ticked
@@ -87,7 +95,7 @@ index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..a290152fa60c22c9413cb6c6d34dd958
          for (ServerLevel level : this.getAllLevels()) {
              level.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
              level.hasEntityMoveEvent = io.papermc.paper.event.entity.EntityMoveEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - Add EntityMoveEvent
-@@ -1816,6 +1826,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1816,6 +1827,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              profiler.pop();
              level.explosionDensityCache.clear(); // Paper - Optimize explosions
          }
@@ -95,7 +103,7 @@ index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..a290152fa60c22c9413cb6c6d34dd958
          this.isIteratingOverLevels = false; // Paper - Throw exception on world create while being ticked
  
          profiler.popPush("connection");
-@@ -1906,6 +1917,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1906,6 +1918,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          Map<ResourceKey<Level>, ServerLevel> oldLevels = this.levels;
          Map<ResourceKey<Level>, ServerLevel> newLevels = Maps.newLinkedHashMap(oldLevels);
          newLevels.remove(level.dimension());

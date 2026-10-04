@@ -7,10 +7,10 @@ Without this, all worlds will get the movement event disabled if the last world 
 It can even happen while ticking hoppers, as worlds are ticking in parallel now.
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 1dc084c454766a31d48d6ae74d5785c0a1e29eb1..38e8c9a964524eee479c44d8d0535e9cfb880b87 100644
+index fb36bd10cde7b8fce256c8ebf1bab3fbe5c85ea2..42377427abfd1f9bb72bed95d7aacda9a02b823d 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -1813,7 +1813,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1814,7 +1814,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              level.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
              level.hasEntityMoveEvent = io.papermc.paper.event.entity.EntityMoveEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - Add EntityMoveEvent
              level.updateLagCompensationTick(); // Paper - lag compensation
