@@ -104,7 +104,7 @@ index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..a290152fa60c22c9413cb6c6d34dd958
      }
      // CraftBukkit end
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..0488536e26f72fe4fb931035a6f173befc505e3a 100644
+index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..a4f02f0d88b7ead0b42185ab42ca84145cfd42e1 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -197,7 +197,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -112,7 +112,7 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..0488536e26f72fe4fb931035a6f173be
      private final MinecraftServer server;
      public final io.papermc.paper.world.saveddata.PaperLevelOverrides serverLevelData; // Paper - type
 -    public final EntityTickList entityTickList = new EntityTickList();
-+    public final EntityTickList entityTickList = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.async.world.WorldEntityTickList(this) : new EntityTickList(); // SparklyPaper - parallel world ticking
++    public final EntityTickList entityTickList = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.threadedregions.world.WorldEntityTickList(this) : new EntityTickList(); // SparklyPaper - parallel world ticking
      private final ServerWaypointManager waypointManager;
      private EnvironmentAttributeSystem environmentAttributes;
      // Paper - rewrite chunk system
@@ -148,7 +148,7 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..0488536e26f72fe4fb931035a6f173be
          this.sleepStatus = new SleepStatus();
          this.gameEventDispatcher = new GameEventDispatcher(this);
 -        this.waypointManager = new ServerWaypointManager(this); // Paper - optimize ServerWaypointManager with locator bar disabled
-+        this.waypointManager =  me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.async.world.WorldWaypointManager(this) : new ServerWaypointManager(this); // SparklyPaper - parallel world ticking
++        this.waypointManager =  me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.threadedregions.world.WorldWaypointManager(this) : new ServerWaypointManager(this); // SparklyPaper - parallel world ticking
          this.environmentAttributes = EnvironmentAttributeSystem.builder().addDefaultLayers(this).build();
          this.uncachedBiomeResolver = this.getChunkSource().getGenerator().getBiomeSource().createUncachedResolver(this.getChunkSource().randomState());
          this.updateSkyBrightness();

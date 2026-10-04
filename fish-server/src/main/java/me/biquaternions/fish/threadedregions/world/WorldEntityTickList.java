@@ -1,11 +1,12 @@
-package me.biquaternions.fish.async.world;
+package me.biquaternions.fish.threadedregions.world;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.entity.EntityTickList;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import java.util.function.Consumer;
 
+@NullMarked
 public class WorldEntityTickList extends EntityTickList {
 
     private final ServerLevel level;
@@ -15,19 +16,19 @@ public class WorldEntityTickList extends EntityTickList {
     }
 
     @Override
-    public void add(@NonNull Entity entity) {
+    public void add(Entity entity) {
         ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(entity, "Asynchronous entity ticklist addition"); // Paper // SparklyPaper - parallel world ticking (additional concurrency issues logs)
         super.add(entity);
     }
 
     @Override
-    public void remove(@NonNull Entity entity) {
+    public void remove(Entity entity) {
         ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(entity, "Asynchronous entity ticklist addition"); // Paper // SparklyPaper - parallel world ticking (additional concurrency issues logs)
         super.remove(entity);
     }
 
     @Override
-    public void forEach(@NonNull Consumer<Entity> entity) {
+    public void forEach(Consumer<Entity> entity) {
         ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.level, "Asynchronous entity ticklist iteration"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
         super.forEach(entity);
     }

@@ -1,12 +1,12 @@
-package me.biquaternions.fish.async.world;
+package me.biquaternions.fish.threadedregions.world;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.waypoints.ServerWaypointManager;
 import net.minecraft.world.waypoints.WaypointTransmitter;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
 
-@ParametersAreNonnullByDefault
+@NullMarked
 public class WorldWaypointManager extends ServerWaypointManager {
 
     private final ServerLevel level;
