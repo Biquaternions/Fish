@@ -37,14 +37,14 @@ index 478f4461ab3fb21b288aa2f6079860f23832e622..98d33da27643f0e95ca95256031cf94f
      private final io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler globalRegionScheduler = new io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler();
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index c25179e701739e3f4a0306e9d5cd044b4ca47b71..4b932c87250a6e495d75e6169099f40c2fadfdd2 100644
+index 63bbccf3f6bf188a25c22819067b9a68676abdfd..89890e0dc3cb40b10726bda07fb6c114c0111f7d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -479,7 +479,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean refreshChunk(int x, int z) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, x, z, "May not sync load chunks asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
+-        this.world.getServer().fish$worldExecutor.preferTickThread(this.world, x, z, "May not sync load chunks asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
 +        if (this.world.getServer().fish$worldExecutor.shouldScheduleExecution(this.world)) return this.world.getServer().fish$worldExecutor.submitTryAcquireLock(this.world, () -> this.fish$refreshChunk(x, z));
 +        else return this.fish$refreshChunk(x, z);
 +    }
@@ -56,7 +56,7 @@ index c25179e701739e3f4a0306e9d5cd044b4ca47b71..4b932c87250a6e495d75e6169099f40c
  
      @Override
      public boolean generateTree(Location loc, TreeType type, BlockChangeDelegate delegate) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, loc.getX(), loc.getZ(), "Cannot generate tree asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
+-        this.world.getServer().fish$worldExecutor.preferTickThread(this.world, loc.getX(), loc.getZ(), "Cannot generate tree asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
 +        if (this.world.getServer().fish$worldExecutor.shouldScheduleExecution(this.world)) return this.world.getServer().fish$worldExecutor.submitTryAcquireLock(this.world, () -> this.fish$generateTree(loc, type, delegate));
 +        else return this.fish$generateTree(loc, type, delegate);
 +    }
@@ -68,7 +68,7 @@ index c25179e701739e3f4a0306e9d5cd044b4ca47b71..4b932c87250a6e495d75e6169099f40c
  
      private boolean createExplosion(double x, double y, double z, float power, boolean setFire, boolean breakBlocks, Entity source, Consumer<net.minecraft.world.level.ServerExplosion> configurator) {
          // Paper end - expand explosion API
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, x, z, "Cannot create explosion asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
+-        this.world.getServer().fish$worldExecutor.preferTickThread(this.world, x, z, "Cannot create explosion asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
 +        if (this.world.getServer().fish$worldExecutor.shouldScheduleExecution(this.world)) return this.world.getServer().fish$worldExecutor.submitTryAcquireLock(this.world, () -> this.fish$createExplosion(x, y, z, power, setFire, breakBlocks, source, configurator));
 +        else return this.fish$createExplosion(x, y, z, power, setFire, breakBlocks, source, configurator);
 +    }
@@ -80,8 +80,8 @@ index c25179e701739e3f4a0306e9d5cd044b4ca47b71..4b932c87250a6e495d75e6169099f40c
  
      @Override
      public int getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, x >> 4, z >> 4, "Cannot retrieve chunk asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
-+        // if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, x >> 4, z >> 4, "Cannot retrieve chunk asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs) // Fish - Has the same consequences as calling async without PWT
+-        this.world.getServer().fish$worldExecutor.preferTickThread(this.world, x >> 4, z >> 4, "Cannot retrieve chunk asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        // this.world.getServer().fish$worldExecutor.preferTickThread(this.world, x >> 4, z >> 4, "Cannot retrieve chunk asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs) // Fish - Has the same consequences as calling async without PWT
          warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
          // Transient load for this tick
          return this.world.getChunk(x >> 4, z >> 4).getHeight(CraftHeightMap.toNMS(heightMap), x, z);
@@ -94,7 +94,7 @@ index c25179e701739e3f4a0306e9d5cd044b4ca47b71..4b932c87250a6e495d75e6169099f40c
 +    }
 +    private void fish$setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> biome) {
          BlockPos pos = new BlockPos(x, 0, z);
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, pos, "Cannot retrieve chunk asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
+-        this.world.getServer().fish$worldExecutor.preferTickThread(this.world, pos, "Cannot retrieve chunk asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          if (this.world.hasChunkAt(pos)) {
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
@@ -102,7 +102,7 @@ index c25179e701739e3f4a0306e9d5cd044b4ca47b71..4b932c87250a6e495d75e6169099f40c
  
      @Override
      public void sendGameEvent(Entity sourceEntity, org.bukkit.GameEvent gameEvent, Vector position) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world, position.getX(), position.getZ(), "Cannot send game event asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
+-        this.world.getServer().fish$worldExecutor.preferTickThread(this.world, position.getX(), position.getZ(), "Cannot send game event asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
 +        if (this.world.getServer().fish$worldExecutor.shouldScheduleExecution(this.world)) this.world.getServer().fish$worldExecutor.executeTryAcquireLock(this.world, () -> this.fish$sendGameEvent(sourceEntity, gameEvent, position));
 +        else this.fish$sendGameEvent(sourceEntity, gameEvent, position);
 +    }
@@ -111,15 +111,15 @@ index c25179e701739e3f4a0306e9d5cd044b4ca47b71..4b932c87250a6e495d75e6169099f40c
      }
      // Paper end
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
-index 666869207d59e691c82303d3661dad93e67d5211..44d5a34a97eceb13da80ec13a1b22df93b48a2e0 100644
+index 3650ec47f02687d294d3fcdb9b1b62ab27aea63b..929b54ad5739e92b07c0d824df5e7c9791840109 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 @@ -152,7 +152,10 @@ public class CraftBlock implements Block {
      }
  
      private void setData(final byte data, @net.minecraft.world.level.block.Block.UpdateFlags int flags) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot modify world asynchronously");
-+        if (this.level instanceof ServerLevel serverLevel && serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(serverLevel)) serverLevel.getServer().fish$worldExecutor.executeNonAcquireLock(serverLevel, () -> this.fish$setData(data, flags));
+-        if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot modify world asynchronously");
++        if (this.level instanceof ServerLevel fish$serverLevel && fish$serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(fish$serverLevel)) fish$serverLevel.getServer().fish$worldExecutor.executeNonAcquireLock(fish$serverLevel, () -> this.fish$setData(data, flags));
 +        else this.fish$setData(data, flags);
 +    }
 +    private void fish$setData(final byte data, @net.minecraft.world.level.block.Block.UpdateFlags int flags) {
@@ -130,8 +130,8 @@ index 666869207d59e691c82303d3661dad93e67d5211..44d5a34a97eceb13da80ec13a1b22df9
      }
  
      public static boolean setBlockState(LevelAccessor level, BlockPos pos, net.minecraft.world.level.block.state.BlockState newState, boolean applyPhysics) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, pos, "Cannot modify world asynchronously");
-+        if (level instanceof ServerLevel serverLevel && serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(serverLevel)) return serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(serverLevel, () -> fish$setBlockState(level, pos, newState, applyPhysics));
+-        if (level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, pos, "Cannot modify world asynchronously");
++        if (level instanceof ServerLevel fish$serverLevel && fish$serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(fish$serverLevel)) return fish$serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(fish$serverLevel, () -> fish$setBlockState(level, pos, newState, applyPhysics));
 +        else return fish$setBlockState(level, pos, newState, applyPhysics);
 +    }
 +    private static boolean fish$setBlockState(LevelAccessor level, BlockPos pos, net.minecraft.world.level.block.state.BlockState newState, boolean applyPhysics) {
@@ -142,22 +142,22 @@ index 666869207d59e691c82303d3661dad93e67d5211..44d5a34a97eceb13da80ec13a1b22df9
  
      @Override
      public Biome getBiome() {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
-+        // if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
+-        if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot read world asynchronously");
++        // if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot read world asynchronously");
          return this.getWorld().getBiome(this.getX(), this.getY(), this.getZ());
      }
  
      @Override
      public Biome getComputedBiome() {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
-+        // if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
+-        if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot read world asynchronously");
++        // if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot read world asynchronously");
          return this.getWorld().getComputedBiome(this.getX(), this.getY(), this.getZ());
      }
  
      @Override
      public void setBiome(Biome bio) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot modify world asynchronously");
-+        if (this.level instanceof ServerLevel serverLevel && serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(serverLevel)) serverLevel.getServer().fish$worldExecutor.executeNonAcquireLock(serverLevel, () -> this.fish$setBiome(bio));
+-        if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot modify world asynchronously");
++        if (this.level instanceof ServerLevel fish$serverLevel && fish$serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(fish$serverLevel)) fish$serverLevel.getServer().fish$worldExecutor.executeNonAcquireLock(fish$serverLevel, () -> this.fish$setBiome(bio));
 +        else this.fish$setBiome(bio);
 +    }
 +    private void fish$setBiome(Biome bio) {
@@ -168,8 +168,8 @@ index 666869207d59e691c82303d3661dad93e67d5211..44d5a34a97eceb13da80ec13a1b22df9
  
      @Override
      public boolean isBlockIndirectlyPowered() {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
-+        // if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
+-        if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot read world asynchronously");
++        // if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot read world asynchronously");
          return this.level.getMinecraftWorld().hasNeighborSignal(this.position);
      }
  
@@ -177,8 +177,8 @@ index 666869207d59e691c82303d3661dad93e67d5211..44d5a34a97eceb13da80ec13a1b22df9
  
      @Override
      public int getBlockPower(BlockFace face) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
-+        // if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
+-        if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot read world asynchronously");
++        // if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot read world asynchronously");
          Preconditions.checkArgument(face != null, "face cannot be null");
  
          net.minecraft.world.level.Level level = this.level.getMinecraftWorld();
@@ -186,8 +186,8 @@ index 666869207d59e691c82303d3661dad93e67d5211..44d5a34a97eceb13da80ec13a1b22df9
  
      @Override
      public boolean breakNaturally(ItemStack item, boolean triggerEffect, boolean dropExperience, boolean forceEffect) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot modify world asynchronously");
-+        if (this.level instanceof ServerLevel serverLevel && serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(serverLevel)) return serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(serverLevel, () -> this.fish$breakNaturally(item, triggerEffect, dropExperience, forceEffect));
+-        if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot modify world asynchronously");
++        if (this.level instanceof ServerLevel fish$serverLevel && fish$serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(fish$serverLevel)) return fish$serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(fish$serverLevel, () -> this.fish$breakNaturally(item, triggerEffect, dropExperience, forceEffect));
 +        else return this.fish$breakNaturally(item, triggerEffect, dropExperience, forceEffect);
 +    }
 +    private boolean fish$breakNaturally(ItemStack item, boolean triggerEffect, boolean dropExperience, boolean forceEffect) {
@@ -198,8 +198,8 @@ index 666869207d59e691c82303d3661dad93e67d5211..44d5a34a97eceb13da80ec13a1b22df9
  
      @Override
      public boolean applyBoneMeal(BlockFace face) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot modify world asynchronously");
-+        if (this.level instanceof ServerLevel serverLevel && serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(serverLevel)) return serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(serverLevel, () -> this.fish$applyBoneMeal(face));
+-        if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot modify world asynchronously");
++        if (this.level instanceof ServerLevel fish$serverLevel && fish$serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(fish$serverLevel)) return fish$serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(fish$serverLevel, () -> this.fish$applyBoneMeal(face));
 +        else return this.fish$applyBoneMeal(face);
 +    }
 +    private boolean fish$applyBoneMeal(BlockFace face) {
@@ -210,8 +210,8 @@ index 666869207d59e691c82303d3661dad93e67d5211..44d5a34a97eceb13da80ec13a1b22df9
  
      @Override
      public Collection<ItemStack> getDrops(ItemStack item, Entity entity) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot modify world asynchronously");
-+        if (this.level instanceof ServerLevel serverLevel && serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(serverLevel)) return serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(serverLevel, () -> this.fish$getDrops(item, entity));
+-        if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot modify world asynchronously");
++        if (this.level instanceof ServerLevel fish$serverLevel && fish$serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(fish$serverLevel)) return fish$serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(fish$serverLevel, () -> this.fish$getDrops(item, entity));
 +        else return this.fish$getDrops(item, entity);
 +    }
 +    private Collection<ItemStack> fish$getDrops(ItemStack item, Entity entity) {
@@ -222,8 +222,8 @@ index 666869207d59e691c82303d3661dad93e67d5211..44d5a34a97eceb13da80ec13a1b22df9
  
      @Override
      public RayTraceResult rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
-+        if (this.level instanceof ServerLevel serverLevel && serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(serverLevel)) return serverLevel.getServer().fish$worldExecutor.submitTryAcquireLock(serverLevel, () -> this.fish$rayTrace(start, direction, maxDistance, fluidCollisionMode));
+-        if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot read world asynchronously");
++        if (this.level instanceof ServerLevel fish$serverLevel && fish$serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(fish$serverLevel)) return fish$serverLevel.getServer().fish$worldExecutor.submitTryAcquireLock(fish$serverLevel, () -> this.fish$rayTrace(start, direction, maxDistance, fluidCollisionMode));
 +        else return this.fish$rayTrace(start, direction, maxDistance, fluidCollisionMode);
 +    }
 +    private RayTraceResult fish$rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode) {
@@ -234,8 +234,8 @@ index 666869207d59e691c82303d3661dad93e67d5211..44d5a34a97eceb13da80ec13a1b22df9
  
      @Override
      public boolean canPlace(BlockData data) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(serverLevel, this.position, "Cannot read world asynchronously");
-+        if (this.level instanceof ServerLevel serverLevel && serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(serverLevel)) return serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(serverLevel, () -> this.fish$canPlace(data));
+-        if (this.level instanceof ServerLevel fish$serverLevel) fish$serverLevel.getServer().fish$worldExecutor.preferTickThread(fish$serverLevel, this.position, "Cannot read world asynchronously");
++        if (this.level instanceof ServerLevel fish$serverLevel && fish$serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(fish$serverLevel)) return fish$serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(fish$serverLevel, () -> this.fish$canPlace(data));
 +        else return this.fish$canPlace(data);
 +    }
 +    private boolean fish$canPlace(BlockData data) {
@@ -243,15 +243,15 @@ index 666869207d59e691c82303d3661dad93e67d5211..44d5a34a97eceb13da80ec13a1b22df9
  
          BlockState state = ((CraftBlockData) data).getState();
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
-index 6199494e1f2a0584354e61a76c98a10d479271e2..4359e44b577f4a969d0dd7c48b77e38d59faee9a 100644
+index 6a38d25183fc137d11f4cc31c4237c2ed4b92db3..c2a049a76125b053e4cdd95533977568ee79e594 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
 @@ -347,7 +347,10 @@ public class CraftBlockState implements BlockState {
  
      @Override
      public java.util.Collection<org.bukkit.inventory.ItemStack> getDrops(org.bukkit.inventory.ItemStack tool, org.bukkit.entity.Entity entity) {
--        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.world.getHandle(), this.position, "Cannot modify world asynchronously"); // SparklyPaper - parallel world ticking
-+        if (this.getWorldHandle() instanceof net.minecraft.server.level.ServerLevel serverLevel && serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(serverLevel)) return serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(serverLevel, () -> this.fish$getDrops(tool, entity));
+-        this.world.getHandle().getServer().fish$worldExecutor.preferTickThread(this.world.getHandle(), this.position, "Cannot modify world asynchronously"); // SparklyPaper - parallel world ticking
++        if (this.world.getHandle() instanceof net.minecraft.server.level.ServerLevel fish$serverLevel && fish$serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(fish$serverLevel)) return fish$serverLevel.getServer().fish$worldExecutor.submitNonAcquireLock(fish$serverLevel, () -> this.fish$getDrops(tool, entity));
 +        else return this.fish$getDrops(tool, entity);
 +    }
 +    private java.util.Collection<org.bukkit.inventory.ItemStack> fish$getDrops(org.bukkit.inventory.ItemStack tool, org.bukkit.entity.Entity entity) {

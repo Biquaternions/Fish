@@ -24,7 +24,9 @@ public interface TickWorldExecutor {
     void preferTickThread(final Level level, final String reason);
     void preferTickThread(final Level world, final BlockPos pos, final String reason);
     void preferTickThread(final Level world, final AABB aabb, final String reason);
+    void preferTickThread(final Level world, final int x, final int z, final String reason);
     void ensureTickThread(final Level level, final String reason);
+    void ensureTickThread(final Level level, final int x, final int z, final String reason);
     <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final ServerLevel level) throws RunningOnDifferentThreadException;
     TickData.@Nullable MSPTData getMSPTData5s(final ServerLevel level);
     <T> T submitTryAcquireLock(final ServerLevel level, final Callable<T> callable);

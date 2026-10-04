@@ -116,12 +116,12 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
 
     @Override
     public void preferOnlyTickThread(final String reason) {
-        TickThread.ensureTickThread(reason);
+        TickThread.ensureOnlyTickThread(reason);
     }
 
     @Override
     public void preferTickThreadOrAsyncThread(final Level level, final String reason) {
-        TickThread.ensureTickThread(level, reason);
+        TickThread.ensureTickThreadOrAsyncThread(level, reason);
     }
 
     @Override
@@ -140,8 +140,18 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     }
 
     @Override
+    public void preferTickThread(final Level world, final int x, final int z, final String reason) {
+        TickThread.ensureTickThread(world, x, z, reason);
+    }
+
+    @Override
     public void ensureTickThread(final Level level, final String reason) {
         TickThread.ensureTickThread(level, reason);
+    }
+
+    @Override
+    public void ensureTickThread(final Level level, final int x, final int z, final String reason) {
+        TickThread.ensureTickThread(level, x, z, reason);
     }
 
     @SuppressWarnings("resource")

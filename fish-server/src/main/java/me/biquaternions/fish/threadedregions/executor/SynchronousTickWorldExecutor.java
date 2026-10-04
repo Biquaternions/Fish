@@ -99,8 +99,17 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     }
 
     @Override
+    public void preferTickThread(final Level world, final int x, final int z, final String reason) {
+    }
+
+    @Override
     public void ensureTickThread(final Level level, final String reason) {
         TickThread.ensureTickThread(level, reason);
+    }
+
+    @Override
+    public void ensureTickThread(final Level level, final int x, final int z, final String reason) {
+        TickThread.ensureTickThread(level, x, z, reason);
     }
 
     @Override
