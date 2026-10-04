@@ -54,13 +54,13 @@ index c650f26d3ecdeb94a4d0f40637c07c59a6cbdfa6..e9c6ee75734c5fc76b0cd7fef715c355
                  // Paper end
                  // CraftBukkit start
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..49310b06908f782b1baecb598c900bbaca2de69b 100644
+index 4e62e16a76cc8b5f096f7533a372b68daa3cf898..0e00f741361d65e99182382d97214fabacea723f 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -331,6 +331,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      private final Set<String> pluginsBlockingSleep = new java.util.HashSet<>(); // Paper - API to allow/disallow tick sleeping
      public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
-     public gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
+     public final gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
 +    public final me.biquaternions.fish.threadedregions.TickWorldExecutor fish$worldExecutor; // Fish
      // Paper start - improve tick loop
      public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
@@ -188,7 +188,7 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..fa1b41dc8f4795f13c1495ca7f03e7a4
          // Paper start - extra debug info
          if (entity.valid) {
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index 23b3a82ab3e1c6abc85000d9285470cb12300a6b..657bedfa113255a5ccf5819b9663eba41dda8b3b 100644
+index 119236a8b3ad2d6d81a816d6abdc2b809a753eff..e7fafe76c22f6fef524e6a5ca1bedd00b4b887a9 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
 @@ -722,8 +722,10 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc

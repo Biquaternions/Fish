@@ -37,12 +37,12 @@ index 144c18c08bf8f03d907b97f968aa171a9fbf997f..52095b642943ec241595600e4fef3df9
  
      public static <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final PacketProcessor packetProcessor) throws RunningOnDifferentThreadException {
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 49310b06908f782b1baecb598c900bbaca2de69b..fb36bd10cde7b8fce256c8ebf1bab3fbe5c85ea2 100644
+index 0e00f741361d65e99182382d97214fabacea723f..ee110477053cd60bb51dfcc37df3a8d055f80d4e 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -332,6 +332,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
-     public gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
+     public final gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
      public final me.biquaternions.fish.threadedregions.TickWorldExecutor fish$worldExecutor; // Fish
 +    public final me.biquaternions.fish.threadedregions.FallbackWorldData fish$globalData = new me.biquaternions.fish.threadedregions.FallbackWorldData(); // Fish - Global Region
      // Paper start - improve tick loop
@@ -65,7 +65,7 @@ index 49310b06908f782b1baecb598c900bbaca2de69b..fb36bd10cde7b8fce256c8ebf1bab3fb
          // Paper end - Folia scheduler API
          io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.ADVENTURE_CLICK_MANAGER.handleQueue(this.tickCount); // Paper
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 504ab34f549f0fa6037223d628855124592255b0..26c06bb73dc19d70ee15cfdfc01c10f64ddd81f9 100644
+index fa1b41dc8f4795f13c1495ca7f03e7a4c9ca7bab..bab0259124f4586032077e3e67d92d3b5efc0f7d 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -240,6 +240,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet

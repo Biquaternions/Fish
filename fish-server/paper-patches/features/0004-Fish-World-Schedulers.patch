@@ -37,7 +37,7 @@ index 478f4461ab3fb21b288aa2f6079860f23832e622..98d33da27643f0e95ca95256031cf94f
      private final io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler globalRegionScheduler = new io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler();
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 63bbccf3f6bf188a25c22819067b9a68676abdfd..89890e0dc3cb40b10726bda07fb6c114c0111f7d 100644
+index 3628b0af5d02236f0a876e8c704ba5d9e633e92c..5da6dfa5b50ae15288bbda66d85994779e98174e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 @@ -479,7 +479,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
@@ -98,7 +98,7 @@ index 63bbccf3f6bf188a25c22819067b9a68676abdfd..89890e0dc3cb40b10726bda07fb6c114
          if (this.world.hasChunkAt(pos)) {
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
-@@ -1863,7 +1875,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1867,7 +1879,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void sendGameEvent(Entity sourceEntity, org.bukkit.GameEvent gameEvent, Vector position) {
