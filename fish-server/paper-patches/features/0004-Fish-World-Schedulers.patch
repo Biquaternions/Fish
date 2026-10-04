@@ -111,7 +111,7 @@ index 63bbccf3f6bf188a25c22819067b9a68676abdfd..89890e0dc3cb40b10726bda07fb6c114
      }
      // Paper end
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
-index 3650ec47f02687d294d3fcdb9b1b62ab27aea63b..929b54ad5739e92b07c0d824df5e7c9791840109 100644
+index 83bac215f46b2a2929b225fee841271864d783f8..99cf7522cbbfc9c86305c9460737ffe89194d4a5 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 +++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlock.java
 @@ -152,7 +152,10 @@ public class CraftBlock implements Block {
@@ -206,7 +206,7 @@ index 3650ec47f02687d294d3fcdb9b1b62ab27aea63b..929b54ad5739e92b07c0d824df5e7c97
          Direction direction = blockFaceToNotch(face);
          Preconditions.checkArgument(direction != null, face + " is not a valid cartesian face");
  
-@@ -581,7 +596,10 @@ public class CraftBlock implements Block {
+@@ -580,7 +595,10 @@ public class CraftBlock implements Block {
  
      @Override
      public Collection<ItemStack> getDrops(ItemStack item, Entity entity) {
@@ -218,7 +218,7 @@ index 3650ec47f02687d294d3fcdb9b1b62ab27aea63b..929b54ad5739e92b07c0d824df5e7c97
          BlockState state = this.getBlockState();
          net.minecraft.world.item.ItemStack nms = CraftItemStack.asNMSCopy(item);
  
-@@ -632,7 +650,10 @@ public class CraftBlock implements Block {
+@@ -631,7 +649,10 @@ public class CraftBlock implements Block {
  
      @Override
      public RayTraceResult rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode) {
@@ -230,7 +230,7 @@ index 3650ec47f02687d294d3fcdb9b1b62ab27aea63b..929b54ad5739e92b07c0d824df5e7c97
          Preconditions.checkArgument(start != null, "Location start cannot be null");
          Preconditions.checkArgument(this.getWorld().equals(start.getWorld()), "Location start cannot be a different world");
          start.checkFinite();
-@@ -674,7 +695,10 @@ public class CraftBlock implements Block {
+@@ -673,7 +694,10 @@ public class CraftBlock implements Block {
  
      @Override
      public boolean canPlace(BlockData data) {

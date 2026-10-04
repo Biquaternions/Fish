@@ -25,6 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.phys.AABB;
 import org.bukkit.Bukkit;
+import org.bukkit.TreeType;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -51,6 +52,9 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     private final Queue<Runnable> endOfTickTasks = new ConcurrentLinkedQueue<>();
     private final Semaphore semaphore;
     private final ServerTickRateManager tickRateManager;
+    private final ThreadLocal<@Nullable TreeType> treeType = new ThreadLocal<>();
+    private final ThreadLocal<Boolean> ignoreBlockEntityUpdates = ThreadLocal.withInitial(() -> Boolean.FALSE);
+    private final ThreadLocal<Boolean> disableBlockEntitySnapshots = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     public ParallelTickWorldExecutor(final MinecraftServer server, final int tickets) {
         this.semaphore = new Semaphore(tickets);
@@ -270,6 +274,41 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     @Override
     public ServerWaypointManager generateWaypointManager(final ServerLevel level) {
         return new WorldWaypointManager(level);
+    }
+
+    @Override
+    public void setIgnoreBlockEntityUpdates(final boolean ignore) {
+        this.ignoreBlockEntityUpdates.set(ignore);
+    }
+
+    @Override
+    public boolean getIgnoreBlockEntityUpdates() {
+        return this.ignoreBlockEntityUpdates.get();
+    }
+
+    @Override
+    public void setDisableBlockEntitySnapshots(final boolean disable) {
+        this.disableBlockEntitySnapshots.set(disable);
+    }
+
+    @Override
+    public boolean getDisableBlockEntitySnapshots() {
+        return this.disableBlockEntitySnapshots.get();
+    }
+
+    @Override
+    public void setTreeType(final TreeType type) {
+        this.treeType.set(type);
+    }
+
+    @Override
+    public @Nullable TreeType getTreeType() {
+        return this.treeType.get();
+    }
+
+    @Override
+    public void removeTreeType() {
+        this.treeType.remove();
     }
 
     @Override

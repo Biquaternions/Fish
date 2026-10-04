@@ -39,19 +39,20 @@ index eb7c5ba7168ba4903e93938dd8671227194bec99..0023adfccef13bce06c64407f2c30da7
          if (!PlatformHooks.get().allowAsyncTicketUpdates() && isTickThread) {
              TickThread.ensureTickThread("Cannot asynchronously process ticket updates");
 diff --git a/net/minecraft/core/dispenser/DispenseItemBehavior.java b/net/minecraft/core/dispenser/DispenseItemBehavior.java
-index c650f26d3ecdeb94a4d0f40637c07c59a6cbdfa6..64db7297b801fcfc5bc490d1851aa71f33e6436c 100644
+index c650f26d3ecdeb94a4d0f40637c07c59a6cbdfa6..e9c6ee75734c5fc76b0cd7fef715c3556eb3350f 100644
 --- a/net/minecraft/core/dispenser/DispenseItemBehavior.java
 +++ b/net/minecraft/core/dispenser/DispenseItemBehavior.java
-@@ -308,7 +308,8 @@ public interface DispenseItemBehavior {
+@@ -308,8 +308,8 @@ public interface DispenseItemBehavior {
                      capturedBlockStates = new java.util.ArrayList<>(level.capturedBlockStates.values());
                      level.capturedBlockStates.clear();
  
 -                    treeType = net.minecraft.world.level.block.SaplingBlock.treeType;
-+                    treeType = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.get() : net.minecraft.world.level.block.SaplingBlock.treeType; // SparklyPaper - parallel world ticking
-+                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.remove(); else // SparklyPaper - parallel world ticking
-                     net.minecraft.world.level.block.SaplingBlock.treeType = null;
+-                    net.minecraft.world.level.block.SaplingBlock.treeType = null;
++                    treeType = net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getTreeType(); // SparklyPaper - parallel world ticking
++                    net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.removeTreeType(); // SparklyPaper - parallel world ticking
                  }
                  // Paper end
+                 // CraftBukkit start
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
 index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..49310b06908f782b1baecb598c900bbaca2de69b 100644
 --- a/net/minecraft/server/MinecraftServer.java
@@ -271,19 +272,20 @@ index 49e1b17d3971b92c9e920cfa5b066f9da55aea00..25bcc8d8e80410db8e78a65f65421882
          List<Entity> newPassengers = new ArrayList<>(oldPassengers.size());
          this.ejectPassengers();
 diff --git a/net/minecraft/world/item/ItemStack.java b/net/minecraft/world/item/ItemStack.java
-index 00861318771cd184c9f75a9a036deee9ec2ba310..ddb3f99b5a4aa566c340ee13c06b264b16a09828 100644
+index 00861318771cd184c9f75a9a036deee9ec2ba310..29e61b4d9846891008e3e2620d823f7b56f8bce8 100644
 --- a/net/minecraft/world/item/ItemStack.java
 +++ b/net/minecraft/world/item/ItemStack.java
-@@ -404,7 +404,8 @@ public final class ItemStack implements DataComponentHolder, ItemInstance {
+@@ -404,8 +404,8 @@ public final class ItemStack implements DataComponentHolder, ItemInstance {
                  capturedBlockEntities = new java.util.ArrayList<>(level.capturedBlockEntities.values());
                  level.capturedBlockEntities.clear();
  
 -                treeType = net.minecraft.world.level.block.SaplingBlock.treeType;
-+                treeType = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.get() : net.minecraft.world.level.block.SaplingBlock.treeType; // SparklyPaper - parallel world ticking
-+                if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.remove(); else // SparklyPaper - parallel world ticking
-                 net.minecraft.world.level.block.SaplingBlock.treeType = null;
+-                net.minecraft.world.level.block.SaplingBlock.treeType = null;
++                treeType = net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getTreeType(); // SparklyPaper - parallel world ticking
++                net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.removeTreeType(); // SparklyPaper - parallel world ticking
              }
  
+             DataComponentPatch newPatch = this.components.asPatch();
 diff --git a/net/minecraft/world/level/Level.java b/net/minecraft/world/level/Level.java
 index 21878bd770f6c0bc10dd0a67be5bd94d7e16f741..9e50b0d8f47c9f889b2a80fed01bc5ad8e268bb3 100644
 --- a/net/minecraft/world/level/Level.java
@@ -330,54 +332,49 @@ index 21878bd770f6c0bc10dd0a67be5bd94d7e16f741..9e50b0d8f47c9f889b2a80fed01bc5ad
          int val = this.randValue >> 2;
          return new BlockPos(xo + (val & 15), yo + (val >> 16 & yMask), zo + (val >> 8 & 15));
 diff --git a/net/minecraft/world/level/block/MushroomBlock.java b/net/minecraft/world/level/block/MushroomBlock.java
-index c0779cb3c237e4399a53a7e6fc95bb2d88483bca..42e2c45b1a75b5f47ee858a8a1a686243c8a7a8a 100644
+index c0779cb3c237e4399a53a7e6fc95bb2d88483bca..1d289baf62148165cbd49cebce81aafcc58c1381 100644
 --- a/net/minecraft/world/level/block/MushroomBlock.java
 +++ b/net/minecraft/world/level/block/MushroomBlock.java
-@@ -83,6 +83,7 @@ public class MushroomBlock extends VegetationBlock implements BonemealableBlock
+@@ -83,7 +83,7 @@ public class MushroomBlock extends VegetationBlock implements BonemealableBlock
          }
  
          level.removeBlock(pos, false);
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) SaplingBlock.fish$treeTypeTL.set((this == Blocks.BROWN_MUSHROOM) ? org.bukkit.TreeType.BROWN_MUSHROOM : org.bukkit.TreeType.RED_MUSHROOM); else // SparklyPaper - parallel world ticking
-         SaplingBlock.treeType = (this == Blocks.BROWN_MUSHROOM) ? org.bukkit.TreeType.BROWN_MUSHROOM : org.bukkit.TreeType.RED_MUSHROOM; // CraftBukkit
+-        SaplingBlock.treeType = (this == Blocks.BROWN_MUSHROOM) ? org.bukkit.TreeType.BROWN_MUSHROOM : org.bukkit.TreeType.RED_MUSHROOM; // CraftBukkit
++        level.getServer().fish$worldExecutor.setTreeType((this == Blocks.BROWN_MUSHROOM) ? org.bukkit.TreeType.BROWN_MUSHROOM : org.bukkit.TreeType.RED_MUSHROOM); // CraftBukkit // SparklyPaper - parallel world ticking
          if (feature.get().value().place(level, level.getChunkSource().getGenerator(), random, pos)) {
              return true;
+         }
 diff --git a/net/minecraft/world/level/block/NetherFungusBlock.java b/net/minecraft/world/level/block/NetherFungusBlock.java
-index fefb4e7a3bf922be16cf7fb6b70c0689867dd963..661bb920d1551623d5e38f9459d76b4847ce1545 100644
+index fefb4e7a3bf922be16cf7fb6b70c0689867dd963..d4f2c961766f7f449d11db122853b7d910a56681 100644
 --- a/net/minecraft/world/level/block/NetherFungusBlock.java
 +++ b/net/minecraft/world/level/block/NetherFungusBlock.java
-@@ -64,8 +64,10 @@ public class NetherFungusBlock extends VegetationBlock implements BonemealableBl
+@@ -64,9 +64,9 @@ public class NetherFungusBlock extends VegetationBlock implements BonemealableBl
              // CraftBukkit start
              .map((value) -> {
                  if (this == Blocks.WARPED_FUNGUS) {
-+                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) SaplingBlock.fish$treeTypeTL.set(org.bukkit.TreeType.WARPED_FUNGUS); else // SparklyPaper - parallel world ticking
-                     SaplingBlock.treeType = org.bukkit.TreeType.WARPED_FUNGUS;
+-                    SaplingBlock.treeType = org.bukkit.TreeType.WARPED_FUNGUS;
++                    level.getServer().fish$worldExecutor.setTreeType(org.bukkit.TreeType.WARPED_FUNGUS); // SparklyPaper - parallel world ticking
                  } else if (this == Blocks.CRIMSON_FUNGUS) {
-+                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) SaplingBlock.fish$treeTypeTL.set(org.bukkit.TreeType.CRIMSON_FUNGUS); else // SparklyPaper - parallel world ticking
-                     SaplingBlock.treeType = org.bukkit.TreeType.CRIMSON_FUNGUS;
+-                    SaplingBlock.treeType = org.bukkit.TreeType.CRIMSON_FUNGUS;
++                    level.getServer().fish$worldExecutor.setTreeType(org.bukkit.TreeType.CRIMSON_FUNGUS); // SparklyPaper - parallel world ticking
                  }
                  return value;
+             })
 diff --git a/net/minecraft/world/level/block/SaplingBlock.java b/net/minecraft/world/level/block/SaplingBlock.java
-index 5564a54f23aab158b9506325953ec70cab55c961..2947aa7395cc7911b8a12b37be3ec78071bb1a86 100644
+index 5564a54f23aab158b9506325953ec70cab55c961..fd498e51eb59cf356a2262c972d54d52d46ef2e6 100644
 --- a/net/minecraft/world/level/block/SaplingBlock.java
 +++ b/net/minecraft/world/level/block/SaplingBlock.java
-@@ -22,6 +22,7 @@ public class SaplingBlock extends VegetationBlock implements BonemealableBlock {
-     private static final VoxelShape SHAPE = Block.column(12.0, 0.0, 12.0);
-     protected final TreeGrower treeGrower;
-     public static org.bukkit.@org.jspecify.annotations.Nullable TreeType treeType; // CraftBukkit
-+    public static final ThreadLocal<org.bukkit.@org.jspecify.annotations.Nullable TreeType> fish$treeTypeTL = new ThreadLocal<>(); // SparklyPaper - parallel world ticking
- 
-     protected SaplingBlock(final TreeGrower treeGrower, final BlockBehaviour.Properties properties) {
-         super(properties);
-@@ -60,7 +61,8 @@ public class SaplingBlock extends VegetationBlock implements BonemealableBlock {
+@@ -60,8 +60,8 @@ public class SaplingBlock extends VegetationBlock implements BonemealableBlock {
                      capturedBlockStates = new java.util.ArrayList<>(level.capturedBlockStates.values());
                      level.capturedBlockStates.clear();
  
 -                    treeType = SaplingBlock.treeType;
-+                    treeType = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? SaplingBlock.fish$treeTypeTL.get() : SaplingBlock.treeType; // SparklyPaper - parallel world ticking
-+                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) SaplingBlock.fish$treeTypeTL.remove(); else // SparklyPaper - parallel world ticking
-                     SaplingBlock.treeType = null;
+-                    SaplingBlock.treeType = null;
++                    treeType = level.getServer().fish$worldExecutor.getTreeType(); // SparklyPaper - parallel world ticking
++                    level.getServer().fish$worldExecutor.removeTreeType(); // SparklyPaper - parallel world ticking
                  }
                  if (!capturedBlockStates.isEmpty()) {
+                     org.bukkit.Location location = org.bukkit.craftbukkit.util.CraftLocation.toBukkit(pos, level);
 diff --git a/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java b/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
 index c2f8479eef826efca3ed2993973b2cfc2c51ed00..eae30d59cf3b1460e1116f7c11aa3eb13199b1c3 100644
 --- a/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
@@ -411,10 +408,10 @@ index a1b0168077b83575f16dd377da2e1ba520d3bd19..2e392ebdc7b92d0d5cec6cc3ce97f41d
      }
  
 diff --git a/net/minecraft/world/level/block/grower/TreeGrower.java b/net/minecraft/world/level/block/grower/TreeGrower.java
-index 95ac67eeee1c5c12fd709fe44288d6de9a28b3a1..33a15ea74d33bd879ba5bea333a738a962578b2a 100644
+index 95ac67eeee1c5c12fd709fe44288d6de9a28b3a1..bba74035fe0c13a568efcb76c58c1e2e4136144a 100644
 --- a/net/minecraft/world/level/block/grower/TreeGrower.java
 +++ b/net/minecraft/world/level/block/grower/TreeGrower.java
-@@ -234,57 +234,60 @@ public final class TreeGrower {
+@@ -234,57 +234,59 @@ public final class TreeGrower {
  
      // CraftBukkit start
      private void setTreeType(Holder<Feature> feature) {
@@ -494,8 +491,7 @@ index 95ac67eeee1c5c12fd709fe44288d6de9a28b3a1..33a15ea74d33bd879ba5bea333a738a9
          }  else {
              throw new IllegalArgumentException("Unknown tree generator " + feature);
          }
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) net.minecraft.world.level.block.SaplingBlock.fish$treeTypeTL.set(treeType); // SparklyPaper - parallel world ticking
-+        else net.minecraft.world.level.block.SaplingBlock.treeType = treeType; // SparklyPaper - parallel world ticking
++        net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setTreeType(treeType); // SparklyPaper - parallel world ticking
      }
      // CraftBukkit end
  }

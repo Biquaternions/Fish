@@ -19,6 +19,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.phys.AABB;
+import org.bukkit.TreeType;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import java.util.Queue;
@@ -32,6 +33,9 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     private final MinecraftServer server;
 
     private final Queue<Runnable> endOfTickTasks = new ConcurrentLinkedQueue<>();
+    private @Nullable TreeType treeType = null;
+    private boolean ignoreBlockEntityUpdates = false;
+    private boolean disableBlockEntitySnapshots = false;
 
     public SynchronousTickWorldExecutor(final MinecraftServer server) {
         this.server = server;
@@ -132,6 +136,41 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     @Override
     public ServerWaypointManager generateWaypointManager(final ServerLevel level) {
         return new ServerWaypointManager(level);
+    }
+
+    @Override
+    public void setIgnoreBlockEntityUpdates(final boolean ignore) {
+        this.ignoreBlockEntityUpdates = ignore;
+    }
+
+    @Override
+    public boolean getIgnoreBlockEntityUpdates() {
+        return this.ignoreBlockEntityUpdates;
+    }
+
+    @Override
+    public void setDisableBlockEntitySnapshots(final boolean disable) {
+        this.disableBlockEntitySnapshots = disable;
+    }
+
+    @Override
+    public boolean getDisableBlockEntitySnapshots() {
+        return this.disableBlockEntitySnapshots;
+    }
+
+    @Override
+    public void setTreeType(final TreeType type) {
+        this.treeType = type;
+    }
+
+    @Override
+    public @Nullable TreeType getTreeType() {
+        return this.treeType;
+    }
+
+    @Override
+    public void removeTreeType() {
+        this.treeType = null;
     }
 
     @Override

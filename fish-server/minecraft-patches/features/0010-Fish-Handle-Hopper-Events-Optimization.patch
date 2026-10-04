@@ -20,27 +20,20 @@ index fb36bd10cde7b8fce256c8ebf1bab3fbe5c85ea2..42377427abfd1f9bb72bed95d7aacda9
              profiler.push("tick");
  
 diff --git a/net/minecraft/world/level/block/entity/BlockEntity.java b/net/minecraft/world/level/block/entity/BlockEntity.java
-index ddda24a55201de2136fc6dd2cb863d609925d0ca..35e078c9cb59b0313ec9fbeebf989509679eecd6 100644
+index ddda24a55201de2136fc6dd2cb863d609925d0ca..3c6395f1d3780c2f41b6fcf2fab56998e306e3f2 100644
 --- a/net/minecraft/world/level/block/entity/BlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BlockEntity.java
-@@ -40,6 +40,7 @@ import org.slf4j.Logger;
- 
- public abstract class BlockEntity implements DebugValueSource, TypedInstance<BlockEntityType<?>> {
-     static boolean ignoreBlockEntityUpdates; // Paper - Perf: Optimize Hoppers
-+    static final ThreadLocal<Boolean> FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL = ThreadLocal.withInitial(() -> Boolean.FALSE);
-     // CraftBukkit start - data containers
-     private static final org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry();
-     public final org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer persistentDataContainer;
-@@ -210,6 +211,7 @@ public abstract class BlockEntity implements DebugValueSource, TypedInstance<Blo
+@@ -210,7 +210,7 @@ public abstract class BlockEntity implements DebugValueSource, TypedInstance<Blo
  
      public void setChanged() {
          if (this.level != null) {
-+            if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) { if (FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.get()) return; } else
-             if (ignoreBlockEntityUpdates) return; // Paper - Perf: Optimize Hoppers
+-            if (ignoreBlockEntityUpdates) return; // Paper - Perf: Optimize Hoppers
++            if (net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getIgnoreBlockEntityUpdates()) return; // Paper - Perf: Optimize Hoppers // Fish
              setChanged(this.level, this.worldPosition, this.blockState);
          }
+     }
 diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..2f7931f83b9c03679e4f24b8f4517ea6d1a686af 100644
+index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..9f9bcc15c75b76c922325b71a57ac45178b257cb 100644
 --- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -223,7 +223,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
@@ -72,18 +65,19 @@ index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..2f7931f83b9c03679e4f24b8f4517ea6
              movedItem = callPullMoveEvent(hopper, container, movedItem);
              if (movedItem == null) { // cancelled
                  origItemStack.setCount(originalItemCount);
-@@ -293,8 +295,10 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -293,9 +295,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
                  origItemStack.setCount(originalItemCount - movedItemCount + remainingItemCount);
              }
  
-+            if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(true); else
-             ignoreBlockEntityUpdates = true;
+-            ignoreBlockEntityUpdates = true;
++            net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setIgnoreBlockEntityUpdates(true); // Fish
              container.setItem(i, origItemStack);
-+            if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(false); else
-             ignoreBlockEntityUpdates = false;
+-            ignoreBlockEntityUpdates = false;
++            net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setIgnoreBlockEntityUpdates(false); // Fish
              container.setChanged();
              return true;
-@@ -325,7 +329,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         }
+@@ -325,7 +327,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
          );
          final boolean result = event.callEvent();
          if (!event.calledGetItem && !event.calledSetItem) {
@@ -93,7 +87,7 @@ index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..2f7931f83b9c03679e4f24b8f4517ea6
          }
          if (!result) {
              applyCooldown(hopper);
-@@ -348,7 +353,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -348,7 +351,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
          final io.papermc.paper.event.inventory.PaperInventoryMoveItemEvent event = new io.papermc.paper.event.inventory.PaperInventoryMoveItemEvent(sourceInventory, org.bukkit.craftbukkit.inventory.CraftItemStack.asBukkitMirror(itemstack), destination, false);
          final boolean result = event.callEvent();
          if (!event.calledGetItem && !event.calledSetItem) {
@@ -103,7 +97,7 @@ index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..2f7931f83b9c03679e4f24b8f4517ea6
          }
          if (!result) {
              applyCooldown(hopper);
-@@ -485,8 +491,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -485,8 +489,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
          BlockState blockState = level.getBlockState(blockPos);
          Container container = getSourceContainer(level, hopper, blockPos, blockState);
          if (container != null) {
@@ -114,14 +108,15 @@ index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..2f7931f83b9c03679e4f24b8f4517ea6
  
              for (int slot : getSlots(container, direction)) {
                  if (tryTakeInItemFromSlot(hopper, container, slot, direction, level)) { // Spigot
-@@ -590,8 +597,10 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -590,9 +595,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
                      itemStack = itemStack.split(container.getMaxStackSize());
                  }
                  // Spigot end
-+                if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(true); else
-                 ignoreBlockEntityUpdates = true; // Paper - Perf: Optimize Hoppers
+-                ignoreBlockEntityUpdates = true; // Paper - Perf: Optimize Hoppers
++                net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setIgnoreBlockEntityUpdates(true); // Paper - Perf: Optimize Hoppers // Fish
                  container.setItem(slot, itemStack);
-+                if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) FISH$IGNORE_BLOCK_ENTITY_UPDATES_TL.set(false); else
-                 ignoreBlockEntityUpdates = false; // Paper - Perf: Optimize Hoppers
+-                ignoreBlockEntityUpdates = false; // Paper - Perf: Optimize Hoppers
++                net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setIgnoreBlockEntityUpdates(false); // Paper - Perf: Optimize Hoppers // Fish
                  itemStack = leftover; // Paper - Make hoppers respect inventory max stack size
                  success = true;
+             } else if (canMergeItems(current, itemStack)) {
