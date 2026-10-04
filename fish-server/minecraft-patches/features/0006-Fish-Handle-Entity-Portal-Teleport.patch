@@ -10,7 +10,7 @@ However, their approach has some limitations when triggering events, and require
   have a main thread, so we just schedule the task at the end of the main tick.
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 023cded309b88af5e981eb9f01a0fdb938012a24..e6fefaa5ca2bbdc2725a9f1d792da5399f1ff5dc 100644
+index 39350942ed6fca18b5f019b078531d302e9f36e9..797c943c119a23eb932e82de25ca32cfea045a1d 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -891,7 +891,6 @@ public abstract class Entity
@@ -31,7 +31,7 @@ index 023cded309b88af5e981eb9f01a0fdb938012a24..e6fefaa5ca2bbdc2725a9f1d792da539
 +                        // We can't use a 1:1 of Folia's strategy as worlds don't tick independently
 +                        // We can take advantage of the main thread, and schedule this to the end of the tick
 +                        // The vanilla end gateway doesn't really need this, but not being a final class, plugins can do whatever via NMS
-+                        me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> {
++                        this.level().getServer().fish$worldExecutor.executeNonAcquireLock(() -> {
 +                            final PortalProcessor processor = this.portalProcess;
 +                            if (processor == null) {
 +                                return;

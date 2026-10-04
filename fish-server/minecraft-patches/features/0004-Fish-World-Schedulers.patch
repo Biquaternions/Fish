@@ -24,38 +24,31 @@ Additionally, PacketUtil requires validating against the current ticking thread 
   an inventory while another is currently opened in a scheduled task.
 
 diff --git a/net/minecraft/network/protocol/PacketUtils.java b/net/minecraft/network/protocol/PacketUtils.java
-index 144c18c08bf8f03d907b97f968aa171a9fbf997f..ac531086508f38d6af31670968d6ae710a2aea1c 100644
+index 144c18c08bf8f03d907b97f968aa171a9fbf997f..1b41a775f32bafd10f545f89022db66fdbf7bc41 100644
 --- a/net/minecraft/network/protocol/PacketUtils.java
 +++ b/net/minecraft/network/protocol/PacketUtils.java
-@@ -15,6 +15,15 @@ public class PacketUtils {
+@@ -15,7 +15,7 @@ public class PacketUtils {
      private static final Logger LOGGER = LogUtils.getLogger();
  
      public static <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final ServerLevel level) throws RunningOnDifferentThreadException {
-+        // Fish start - Location scheduler handling
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
-+            if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(level)) {
-+                level.getServer().packetProcessor().scheduleIfPossible(listener, packet);
-+                throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
-+            }
-+            return;
-+        }
-+        // Fish start - Location scheduler handling
-         ensureRunningOnSameThread(packet, listener, level.getServer().packetProcessor());
+-        ensureRunningOnSameThread(packet, listener, level.getServer().packetProcessor());
++        level.getServer().fish$worldExecutor.ensureRunningOnSameThread(packet, listener, level.getServer().packetProcessor()); // Fish - Location scheduler handling
      }
  
+     public static <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final PacketProcessor packetProcessor) throws RunningOnDifferentThreadException {
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index b6920b31a39ecd3f51e046ff807f46e1f329142b..a186148dc817038788f79e4a74b18238692cd23b 100644
+index a290152fa60c22c9413cb6c6d34dd958497ce360..1dc084c454766a31d48d6ae74d5785c0a1e29eb1 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -331,6 +331,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
-     private final Set<String> pluginsBlockingSleep = new java.util.HashSet<>(); // Paper - API to allow/disallow tick sleeping
+@@ -332,6 +332,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
      public gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
+     public final me.biquaternions.fish.threadedregions.TickWorldExecutor fish$worldExecutor = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.threadedregions.executor.ParallelTickWorldExecutor(this, me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.threads) : new me.biquaternions.fish.threadedregions.executor.SynchronousTickWorldExecutor(this); // Fish
 +    public final me.biquaternions.fish.threadedregions.FallbackWorldData fish$globalData = new me.biquaternions.fish.threadedregions.FallbackWorldData(); // Fish - Global Region
      // Paper start - improve tick loop
      public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
      public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
-@@ -1752,6 +1753,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1758,6 +1759,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.server.getScheduler().mainThreadHeartbeat(); // CraftBukkit
          // Paper start - optimise Folia entity scheduler
          ((io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler)org.bukkit.Bukkit.getGlobalRegionScheduler()).tick();
@@ -63,7 +56,7 @@ index b6920b31a39ecd3f51e046ff807f46e1f329142b..a186148dc817038788f79e4a74b18238
          for (io.papermc.paper.threadedregions.EntityScheduler scheduler : this.entitySchedulerTickList.getAllSchedulers()) {
              if (scheduler.isRetired()) {
                  continue;
-@@ -1759,6 +1761,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1765,6 +1767,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
              scheduler.executeTick();
          }
@@ -72,7 +65,7 @@ index b6920b31a39ecd3f51e046ff807f46e1f329142b..a186148dc817038788f79e4a74b18238
          // Paper end - Folia scheduler API
          io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.ADVENTURE_CLICK_MANAGER.handleQueue(this.tickCount); // Paper
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index ee4c5b760b9a945c2c94a2411abead6e5fdc45bc..729569f750e942c790ed0946c517c454eafeacae 100644
+index 0488536e26f72fe4fb931035a6f173befc505e3a..38a212bc5c4d0541464f7639be0e9698249625fa 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -240,6 +240,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -85,7 +78,7 @@ index ee4c5b760b9a945c2c94a2411abead6e5fdc45bc..729569f750e942c790ed0946c517c454
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 1b3de52ec9c3e1d2fb07491261e03c1df8ab593e..023cded309b88af5e981eb9f01a0fdb938012a24 100644
+index 4aae1dd8ddb19608ef9361165abcdf2ec0f5ccc5..39350942ed6fca18b5f019b078531d302e9f36e9 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -5389,6 +5389,10 @@ public abstract class Entity

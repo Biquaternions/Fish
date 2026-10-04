@@ -5,7 +5,7 @@ Subject: [PATCH] SparklyPaper Parallel World Ticking
 
 
 diff --git a/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java b/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
-index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..248a2ec3824112a897c41323c74bc6a33a84164f 100644
+index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..c71f46aa41a219dcd275dc2e477c67a6ff6d1a98 100644
 --- a/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
 +++ b/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
 @@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
@@ -105,7 +105,7 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..248a2ec3824112a897c41323c74bc6a3
 +    // SparklyPaper start - parallel world ticking
 +    // This is an additional method to check if the tick thread is bound to a specific world because, by default, Paper's isTickThread methods do not provide this information
 +    // Because we only tick worlds in parallel (instead of regions), we can use this for our checks
-+    public static void ensureTickThread(final net.minecraft.server.level.ServerLevel world, final String reason) {
++    public static void ensureTickThread(final net.minecraft.world.level.Level world, final String reason) {
 +        if (!TickThread.isTickThreadFor(world)) {
 +            LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread check: " + reason + " @ world " + world.getWorld().getName() + " - " + TickThread.getTickThreadInformation(world.getServer()), new Throwable()); // SparklyPaper - parallel world ticking
 +            if (FISH$HARD_THROW) throw new IllegalStateException(reason);
@@ -123,7 +123,7 @@ index 69cdd304d255d52c9b7dc9b6a33ffdb630b79abe..248a2ec3824112a897c41323c74bc6a3
 +    }
 +
 +    // This is an additional method to check if the tick thread is bound to a specific world or if it is an async thread.
-+    public static void ensureTickThreadOrAsyncThread(final net.minecraft.server.level.ServerLevel world, final String reason) {
++    public static void ensureTickThreadOrAsyncThread(final net.minecraft.world.level.Level world, final String reason) {
 +        boolean isValidTickThread = TickThread.isTickThreadFor(world);
 +        boolean isAsyncThread = !TickThread.isTickThread();
 +        boolean isValid = isAsyncThread || isValidTickThread;

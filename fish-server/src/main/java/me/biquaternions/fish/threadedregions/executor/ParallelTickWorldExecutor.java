@@ -1,17 +1,23 @@
-package me.biquaternions.fish.async;
+package me.biquaternions.fish.threadedregions.executor;
 
 import ca.spottedleaf.common.time.TickData;
 import ca.spottedleaf.common.time.TickTime;
+import ca.spottedleaf.moonrise.common.util.TickThread;
+import me.biquaternions.fish.async.thread.WorldTickThread;
 import me.biquaternions.fish.threadedregions.RegionizedWorldData;
-import net.minecraft.CrashReport;
-import net.minecraft.ReportedException;
-import net.minecraft.util.Util;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerTickRateManager;
-import net.minecraft.server.level.ServerLevel;
-import me.biquaternions.fish.FishConfig;
+import me.biquaternions.fish.threadedregions.TickWorldExecutor;
 import me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler;
 import me.biquaternions.fish.util.CallableWrapper;
+import net.minecraft.CrashReport;
+import net.minecraft.ReportedException;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.RunningOnDifferentThreadException;
+import net.minecraft.server.ServerTickRateManager;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Util;
+import net.minecraft.world.level.Level;
 import org.bukkit.Bukkit;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -27,21 +33,27 @@ import java.util.concurrent.Semaphore;
 import java.util.function.BooleanSupplier;
 
 @NullMarked
-public class AsyncWorldTicking {
+public class ParallelTickWorldExecutor implements TickWorldExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("Fish World Ticking");
-    private static final Semaphore SEMAPHORE = new Semaphore(FishConfig.getInstance().async.worldTicking.threads);
     private static final CompletableFuture<?>[] EMPTY_ARRAY = new CompletableFuture[0];
-    private static final Queue<Runnable> END_OF_TICK_TASKS = new ConcurrentLinkedQueue<>();
-    private static final ServerTickRateManager TICK_RATE_MANAGER = MinecraftServer.getServer().tickRateManager();
 
     private static final long CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME = 25L * 1000L; // 25us
     private static final long MAX_CHUNK_EXEC_TIME = 1000L; // 1us
     private static final long TASK_EXECUTION_FAILURE_BACKOFF = 5L * 1000L; // 5us
 
-    public static void tickWorlds(Iterable<ServerLevel> worlds, BooleanSupplier hasTimeLeft) {
+    private final Queue<Runnable> endOfTickTasks = new ConcurrentLinkedQueue<>();
+    private final Semaphore semaphore;
+    private final ServerTickRateManager tickRateManager;
 
-        long tickInterval = TICK_RATE_MANAGER.isSprinting() ? 0 : TICK_RATE_MANAGER.nanosecondsPerTick();
+    public ParallelTickWorldExecutor(final MinecraftServer server, final int tickets) {
+        this.semaphore = new Semaphore(tickets);
+        this.tickRateManager = server.tickRateManager();
+    }
+
+    @Override
+    public void tickWorlds(final Iterable<ServerLevel> worlds, final BooleanSupplier hasTimeLeft) {
+        final long tickInterval = this.tickRateManager.isSprinting() ? 0 : this.tickRateManager.nanosecondsPerTick();
         final Queue<CompletableFuture<Void>> tasks = new ArrayDeque<>();
         try {
             for (ServerLevel serverLevel : worlds) {
@@ -50,7 +62,7 @@ public class AsyncWorldTicking {
                 serverLevel.updateLagCompensationTick(); // Paper - lag compensation
                 serverLevel.fish$worldData.skipHopperEvents = serverLevel.paperConfig().hopper.disableMoveEvent || org.bukkit.event.inventory.InventoryMoveItemEvent.getHandlerList().getRegisteredListeners().length == 0; // Paper - Perf: Optimize Hoppers
 
-                SEMAPHORE.acquire();
+                this.semaphore.acquire();
                 tasks.offer(CompletableFuture.runAsync(() -> {
                     serverLevel.fish$lock.writeLock().lock();
                     try {
@@ -69,29 +81,62 @@ public class AsyncWorldTicking {
                         serverLevel.tick(hasTimeLeft);
                         serverLevel.explosionDensityCache.clear(); // Paper - Optimize explosions
                         ((WorldRegionScheduler) Bukkit.getRegionScheduler()).tickWorld(serverLevel);
-                        AsyncWorldTicking.recordEndOfTick(serverLevel);
+                        this.recordEndOfTick(serverLevel);
 
                     } catch (Throwable var7) {
-                        CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world [" + serverLevel.dimension().identifier() + "]");
+                        final CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world [" + serverLevel.dimension().identifier() + "]");
                         serverLevel.fillReportDetails(crashReport);
                         throw new ReportedException(crashReport);
                     } finally {
                         serverLevel.fish$lock.writeLock().unlock();
-                        SEMAPHORE.release();
+                        this.semaphore.release();
                     }
                 }, Objects.requireNonNull(serverLevel.fish$tickExecutor)));
             }
             CompletableFuture.allOf(tasks.toArray(EMPTY_ARRAY)).join();
-            AsyncWorldTicking.processScheduledTasks();
+            this.handleScheduledTasks();
 
         } catch (InterruptedException exception) {
-            CrashReport crashReport = CrashReport.forThrowable(exception, "Interrupted world ticking");
+            final CrashReport crashReport = CrashReport.forThrowable(exception, "Interrupted world ticking");
             throw new ReportedException(crashReport);
         }
-
     }
 
-    private static void recordEndOfTick(final ServerLevel level) {
+    @Override
+    public boolean shouldScheduleExecution() {
+        return !TickThread.isTickThread();
+    }
+
+    @Override
+    public boolean shouldScheduleExecution(final Level level) {
+        return !TickThread.isTickThreadFor(level);
+    }
+
+    @Override
+    public void ensureOnlyTickThread(final String reason) {
+        TickThread.ensureOnlyTickThread(reason);
+    }
+
+    @Override
+    public void ensureTickThreadOrAsyncThread(final Level level, final String reason) {
+        TickThread.ensureTickThreadOrAsyncThread(level, reason);
+    }
+
+    @Override
+    public void ensureTickThread(final Level level, final String reason) {
+        TickThread.ensureTickThread(level, reason);
+    }
+
+    @SuppressWarnings("resource")
+    @Override
+    public <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final ServerLevel level) throws RunningOnDifferentThreadException {
+        if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(level)) {
+            level.getServer().packetProcessor().scheduleIfPossible(listener, packet);
+            throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
+        }
+    }
+
+    private void recordEndOfTick(final ServerLevel level) {
         final long prevStart = level.fish$lastTickStart;
         final long currStart = level.fish$currentTickStart;
         level.fish$lastTickStart = level.fish$currentTickStart;
@@ -112,41 +157,85 @@ public class AsyncWorldTicking {
         );
 
         level.fish$taskExecutionTime = 0L;
-        AsyncWorldTicking.addTickTime(level, time);
+        this.addTickTime(level, time);
     }
 
-    private static void addTickTime(final ServerLevel level, final TickTime time) {
+    private void addTickTime(final ServerLevel level, final TickTime time) {
         synchronized (level.fish$statsLock) {
             level.fish$tickTimes5s.addDataFrom(time);
             level.fish$tickTimes10s.addDataFrom(time);
             level.fish$tickTimes15s.addDataFrom(time);
             level.fish$tickTimes60s.addDataFrom(time);
-            AsyncWorldTicking.clearTickTimeStatistics(level);
+            this.clearTickTimeStatistics(level);
         }
     }
 
-    private static void clearTickTimeStatistics(final ServerLevel level) {
+    private void clearTickTimeStatistics(final ServerLevel level) {
         level.fish$msptData5s = null;
     }
 
-    public static TickData.@Nullable MSPTData getMSPTData5s(final ServerLevel level) {
+    private void handleScheduledTasks() {
+        Runnable task;
+        while ((task = this.endOfTickTasks.poll()) != null) {
+            task.run();
+        }
+    }
+
+    /**
+     * Prints a stacktrace of the asynchronous access, but does not prevent it
+     * <br>
+     * The idea of this function is to help server designing by minimizing the number of async accesses if those cannot be avoided.
+     * Once the server is done and ready for production, this can be safely disabled.
+     * The server owner should be aware of the consequences of the async accesses left on the server.
+     * <br>
+     * A typical scenario where an async access cannot be avoided is on Random Teleport plugins, unless you're developing your own.
+     *
+     */
+    private void logAsyncAccess() {
+        final Thread thread = Thread.currentThread();
+        LOGGER.warn("A plugin accessed world/block data asynchronously from thread \"{}\".", thread.getName());
+        for (StackTraceElement stackTraceElement : thread.getStackTrace()) {
+            LOGGER.warn("\tat {}", stackTraceElement);
+        }
+    }
+
+    /**
+     * Ticks mid-tick tasks for a single world.
+     * See {@link MinecraftServer#moonrise$executeMidTickTasks()}
+     *
+     * @param world World to tick mid-tick tasks
+     * @return If a task was executed
+     */
+    private boolean tickMidTickTasks(final ServerLevel world) {
+        boolean executed = false;
+        long currTime = System.nanoTime();
+        if (currTime - world.moonrise$getLastMidTickFailure() <= TASK_EXECUTION_FAILURE_BACKOFF) {
+            return false;
+        }
+        if (!world.getChunkSource().pollTask()) {
+            // we need to back off if this fails
+            world.moonrise$setLastMidTickFailure(currTime);
+        } else {
+            executed = true;
+        }
+        return executed;
+    }
+
+    @Override
+    public TickData.@Nullable MSPTData getMSPTData5s(final ServerLevel level) {
         synchronized (level.fish$statsLock) {
             if (level.fish$msptData5s == null) {
-                level.fish$msptData5s = level.fish$tickTimes5s.getMSPTData(null, TICK_RATE_MANAGER.nanosecondsPerTick());
+                level.fish$msptData5s = level.fish$tickTimes5s.getMSPTData(null, this.tickRateManager.nanosecondsPerTick());
             }
             return level.fish$msptData5s;
         }
     }
 
-    private static void processScheduledTasks() {
-        Runnable task;
-        while ((task = END_OF_TICK_TASKS.poll()) != null) {
-            task.run();
+    @Override
+    public <T> T submitTryAcquireLock(final ServerLevel level, final Callable<T> callable) {
+        if (MinecraftServer.getServer().isDebugging()) {
+            this.logAsyncAccess();
         }
-    }
-
-    public static <T> T scheduleForEndOfWorldTick(ServerLevel level, Callable<T> callable) {
-        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
         if (level.fish$lock.readLock().tryLock()) {
             try {
                 return callable.call();
@@ -156,14 +245,17 @@ public class AsyncWorldTicking {
                 level.fish$lock.readLock().unlock();
             }
         } else {
-            CallableWrapper<T> task = new CallableWrapper<>(callable);
+            final CallableWrapper<T> task = new CallableWrapper<>(callable);
             level.fish$worldData.worldScheduler.schedule(task);
             return task.get();
         }
     }
 
-    public static void scheduleVoidForEndOfWorldTick(ServerLevel level, Runnable runnable) {
-        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
+    @Override
+    public void executeTryAcquireLock(final ServerLevel level, final Runnable runnable) {
+        if (MinecraftServer.getServer().isDebugging()) {
+            this.logAsyncAccess();
+        }
         if (level.fish$lock.readLock().tryLock()) {
             try {
                 runnable.run();
@@ -182,10 +274,13 @@ public class AsyncWorldTicking {
      * Useful if an async task involves multiple worlds.
      * Possible use for teams plugins.
      */
-    public static <T> T scheduleForEndOfTick(Callable<T> callable) {
-        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
-        CallableWrapper<T> task = new CallableWrapper<>(callable);
-        END_OF_TICK_TASKS.offer(task);
+    @Override
+    public <T> T submitNonAcquireLock(final Callable<T> callable) {
+        if (MinecraftServer.getServer().isDebugging()) {
+            this.logAsyncAccess();
+        }
+        final CallableWrapper<T> task = new CallableWrapper<>(callable);
+        this.endOfTickTasks.offer(task);
         return task.get();
     }
 
@@ -194,9 +289,12 @@ public class AsyncWorldTicking {
      * Useful if an async task involves multiple worlds.
      * Possible use for async respawn in practice plugins (those calls shouldn't be async imo, but IDK).
      */
-    public static void scheduleVoidForEndOfTick(Runnable runnable) {
-        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
-        END_OF_TICK_TASKS.offer(runnable);
+    @Override
+    public void executeNonAcquireLock(final Runnable runnable) {
+        if (MinecraftServer.getServer().isDebugging()) {
+            this.logAsyncAccess();
+        }
+        this.endOfTickTasks.offer(runnable);
     }
 
     /*
@@ -214,9 +312,12 @@ public class AsyncWorldTicking {
      *        variables on which PWT depends. This one could be directly blocked instead of enqueued.
      *
      */
-    public static <T> T scheduleForEndOfWorldTickDirect(ServerLevel level, Callable<T> callable) {
-        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
-        CallableWrapper<T> task = new CallableWrapper<>(callable);
+    @Override
+    public <T> T submitNonAcquireLock(final ServerLevel level, final Callable<T> callable) {
+        if (MinecraftServer.getServer().isDebugging()) {
+            this.logAsyncAccess();
+        }
+        final CallableWrapper<T> task = new CallableWrapper<>(callable);
         level.fish$worldData.worldScheduler.schedule(task);
         return task.get();
     }
@@ -230,49 +331,12 @@ public class AsyncWorldTicking {
      *   1. CraftBlock#setData <- Internally calls Level#setBlock.
      *
      */
-    public static void scheduleVoidForEndOfWorldTickDirect(ServerLevel level, Runnable runnable) {
-        if (MinecraftServer.getServer().isDebugging()) AsyncWorldTicking.logAsyncAccess();
+    @Override
+    public void executeNonAcquireLock(final ServerLevel level, final Runnable runnable) {
+        if (MinecraftServer.getServer().isDebugging()) {
+            this.logAsyncAccess();
+        }
         level.fish$worldData.worldScheduler.schedule(runnable);
-    }
-
-    /**
-     * Prints a stacktrace of the asynchronous access, but does not prevent it
-     * <br>
-     * The idea of this function is to help server designing by minimizing the number of async accesses if those cannot be avoided.
-     * Once the server is done and ready for production, this can be safely disabled.
-     * The server owner should be aware of the consequences of the async accesses left on the server.
-     * <br>
-     * A typical scenario where an async access cannot be avoided is on Random Teleport plugins, unless you're developing your own.
-     *
-     */
-    private static void logAsyncAccess() {
-        Thread thread = Thread.currentThread();
-        LOGGER.warn("A plugin accessed world/block data asynchronously from thread \"{}\".", thread.getName());
-        for (StackTraceElement stackTraceElement : thread.getStackTrace()) {
-            LOGGER.warn("\tat {}", stackTraceElement);
-        }
-    }
-
-    /**
-     * Ticks mid-tick tasks for a single world.
-     * See {@link MinecraftServer#moonrise$executeMidTickTasks()}
-     *
-     * @param world World to tick mid-tick tasks
-     * @return If a task was executed
-     */
-    private static boolean tickMidTickTasks(final ServerLevel world) {
-        boolean executed = false;
-        long currTime = System.nanoTime();
-        if (currTime - world.moonrise$getLastMidTickFailure() <= TASK_EXECUTION_FAILURE_BACKOFF) {
-            return false;
-        }
-        if (!world.getChunkSource().pollTask()) {
-            // we need to back off if this fails
-            world.moonrise$setLastMidTickFailure(currTime);
-        } else {
-            executed = true;
-        }
-        return executed;
     }
 
     /**
@@ -285,8 +349,8 @@ public class AsyncWorldTicking {
      *
      * @param world World to tick mid-tick tasks
      */
-    public static void executeMidTickTasks(final ServerLevel world) {
-        RegionizedWorldData worldData = world.fish$worldData;
+    private void executeMidTickTasks(final ServerLevel world) {
+        final RegionizedWorldData worldData = world.fish$worldData;
         final long startTime = System.nanoTime();
         if ((startTime - worldData.lastMidTickExecute) <= CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME || (startTime - worldData.lastMidTickExecuteFailure) <= TASK_EXECUTION_FAILURE_BACKOFF) {
             // it's shown to be bad to constantly hit the queue (chunk loads slow to a crawl), even if no tasks are executed.
@@ -295,7 +359,7 @@ public class AsyncWorldTicking {
         }
 
         for (;;) {
-            final boolean moreTasks = AsyncWorldTicking.tickMidTickTasks(world);
+            final boolean moreTasks = this.tickMidTickTasks(world);
             final long currTime = System.nanoTime();
             final long diff = currTime - startTime;
 
@@ -317,6 +381,13 @@ public class AsyncWorldTicking {
                 worldData.lastMidTickExecute = currTime + extraSleep;
                 return;
             }
+        }
+    }
+
+    @Override
+    public void executeMidTickTasks() {
+        if (Thread.currentThread() instanceof WorldTickThread worldThread) {
+            this.executeMidTickTasks(worldThread.getTickingWorld());
         }
     }
 

@@ -7,7 +7,7 @@ Without this, all worlds will get the movement event disabled if the last world 
 It can even happen while ticking hoppers, as worlds are ticking in parallel now.
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 40ef01f261cc61f1d9f458a7fa3e367e0ba17c47..9bd89806bdc93e19a90db23d812b949ac3c317bf 100644
+index 1dc084c454766a31d48d6ae74d5785c0a1e29eb1..38e8c9a964524eee479c44d8d0535e9cfb880b87 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -1813,7 +1813,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa

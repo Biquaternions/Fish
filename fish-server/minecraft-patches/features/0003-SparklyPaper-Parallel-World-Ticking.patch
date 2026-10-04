@@ -53,21 +53,41 @@ index c650f26d3ecdeb94a4d0f40637c07c59a6cbdfa6..64db7297b801fcfc5bc490d1851aa71f
                  }
                  // Paper end
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..b6920b31a39ecd3f51e046ff807f46e1f329142b 100644
+index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..a290152fa60c22c9413cb6c6d34dd958497ce360 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -1796,6 +1796,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -331,6 +331,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     private final Set<String> pluginsBlockingSleep = new java.util.HashSet<>(); // Paper - API to allow/disallow tick sleeping
+     public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
+     public gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
++    public final me.biquaternions.fish.threadedregions.TickWorldExecutor fish$worldExecutor = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.threadedregions.executor.ParallelTickWorldExecutor(this, me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.threads) : new me.biquaternions.fish.threadedregions.executor.SynchronousTickWorldExecutor(this); // Fish
+     // Paper start - improve tick loop
+     public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
+     public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
+@@ -458,6 +459,11 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+     @Override
+     public final void moonrise$executeMidTickTasks() {
++        // Fish start - Mid-tick tasks
++        this.fish$worldExecutor.executeMidTickTasks();
++    }
++    public final void fish$executeMidTickTasks() {
++        // Fish end - Mid-tick tasks
+         final long startTime = System.nanoTime();
+         if ((startTime - this.lastMidTickExecute) <= CHUNK_TASK_QUEUE_BACKOFF_MIN_TIME || (startTime - this.lastMidTickExecuteFailure) <= TASK_EXECUTION_FAILURE_BACKOFF) {
+             // it's shown to be bad to constantly hit the queue (chunk loads slow to a crawl), even if no tasks are executed.
+@@ -1796,6 +1802,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.updateEffectiveRespawnData();
  
          this.isIteratingOverLevels = true; // Paper - Throw exception on world create while being ticked
 +        // SparklyPaper start - parallel world ticking
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
-+            me.biquaternions.fish.async.AsyncWorldTicking.tickWorlds(this.getAllLevels(), haveTime);
-+        } else {  // SparklyPaper end - parallel world ticking
++        this.fish$worldExecutor.tickWorlds(this.getAllLevels(), haveTime);
++        if (false) {
++        // SparklyPaper end - parallel world ticking
          for (ServerLevel level : this.getAllLevels()) {
              level.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
              level.hasEntityMoveEvent = io.papermc.paper.event.entity.EntityMoveEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - Add EntityMoveEvent
-@@ -1816,6 +1820,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1816,6 +1826,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              profiler.pop();
              level.explosionDensityCache.clear(); // Paper - Optimize explosions
          }
@@ -75,7 +95,7 @@ index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..b6920b31a39ecd3f51e046ff807f46e1
          this.isIteratingOverLevels = false; // Paper - Throw exception on world create while being ticked
  
          profiler.popPush("connection");
-@@ -1906,6 +1911,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1906,6 +1917,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          Map<ResourceKey<Level>, ServerLevel> oldLevels = this.levels;
          Map<ResourceKey<Level>, ServerLevel> newLevels = Maps.newLinkedHashMap(oldLevels);
          newLevels.remove(level.dimension());
@@ -83,20 +103,8 @@ index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..b6920b31a39ecd3f51e046ff807f46e1
          this.levels = Collections.unmodifiableMap(newLevels);
      }
      // CraftBukkit end
-diff --git a/net/minecraft/server/level/ServerChunkCache.java b/net/minecraft/server/level/ServerChunkCache.java
-index 36cad318ac0724420a75268741ae5aaa8ff49f9b..3019b16b00bee292322f0a83f3d7715eea25bbfe 100644
---- a/net/minecraft/server/level/ServerChunkCache.java
-+++ b/net/minecraft/server/level/ServerChunkCache.java
-@@ -179,6 +179,7 @@ public class ServerChunkCache extends ChunkSource implements ca.spottedleaf.moon
- 
-             // call mid-tick tasks for chunk system
-             if ((i & 7) == 0) {
-+                if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking (only run mid-tick at the end of each tick / fixes concurrency bugs related to executeMidTickTasks)
-                 ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.level.getServer()).moonrise$executeMidTickTasks();
-                 continue;
-             }
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..ee4c5b760b9a945c2c94a2411abead6e5fdc45bc 100644
+index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..0488536e26f72fe4fb931035a6f173befc505e3a 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -197,7 +197,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -152,35 +160,19 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..ee4c5b760b9a945c2c94a2411abead6e
      }
  
      // Paper start
-@@ -1364,6 +1378,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
-         }
-         // Paper start - rewrite chunk system
-         if ((++this.tickedBlocksOrFluids & 7L) != 0L) {
-+            if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
-             ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.server).moonrise$executeMidTickTasks();
-         }
-         // Paper end - rewrite chunk system
-@@ -1377,6 +1392,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
-         }
-         // Paper start - rewrite chunk system
-         if ((++this.tickedBlocksOrFluids & 7L) != 0L) {
-+            if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
-             ((ca.spottedleaf.moonrise.patches.chunk_system.server.ChunkSystemMinecraftServer)this.server).moonrise$executeMidTickTasks();
-         }
-         // Paper end - rewrite chunk system
-@@ -1624,6 +1640,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -1624,6 +1638,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
      }
  
      private void addPlayer(final ServerPlayer player) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot add player off-main"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        this.getServer().fish$worldExecutor.ensureTickThread(this, "Cannot add player off-main"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          Entity existing = this.getEntity(player.getUUID());
          if (existing != null) {
              LOGGER.warn("Force-added player with duplicate UUID {}", player.getUUID());
-@@ -1636,6 +1653,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -1636,6 +1651,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
  
      // CraftBukkit start
      private boolean addEntity(final Entity entity, final org.bukkit.event.entity.CreatureSpawnEvent.@Nullable SpawnReason spawnReason) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, "Cannot add entity off-main"); else // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        this.getServer().fish$worldExecutor.ensureTickThread(this, "Cannot add entity off-main"); else // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          org.spigotmc.AsyncCatcher.catchOp("entity add"); // Spigot
          entity.generation = false; // Paper - Don't fire sync event during generation; Reset flag if it was added during a ServerLevel generation process
          // Paper start - extra debug info
@@ -221,14 +213,14 @@ index 23b3a82ab3e1c6abc85000d9285470cb12300a6b..17f5fe3d9d604b9994e05edaa40ecb40
              this.containerMenu = menu; // Moved up
              if (!this.isImmobile()) {
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..91a12d2b8192dca2cd48c9c46d3b37a709a45719 100644
+index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..8aabeb3523cd4787dc365445274698e4aad880b3 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
 @@ -158,6 +158,7 @@ public abstract class PlayerList {
      abstract public void loadAndSaveFiles(); // Paper - fix converting txt to json file; moved from DedicatedPlayerList constructor
  
      public void placeNewPlayer(final Connection connection, final ServerPlayer player, final CommonListenerCookie cookie) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureOnlyTickThread("Cannot place new player off-main"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        this.getServer().fish$worldExecutor.ensureOnlyTickThread("Cannot place new player off-main"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          player.isRealPlayer = true; // Paper
          player.loginTime = System.currentTimeMillis(); // Paper - Replace OfflinePlayer#getLastPlayed
          NameAndId gameProfile = player.nameAndId();
@@ -236,7 +228,7 @@ index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..91a12d2b8192dca2cd48c9c46d3b37a7
  
      // Paper start - respawn event
      public ServerPlayer respawn(final ServerPlayer serverPlayer, final boolean keepAllPlayerData, final Entity.RemovalReason removalReason, final org.bukkit.event.player.PlayerRespawnEvent.RespawnReason respawnReason) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureOnlyTickThread("Cannot respawn player off-main, respawning in world " + serverPlayer.level().getWorld().getName()); // SparklyPaper start - Parallel world ticking
++        this.getServer().fish$worldExecutor.ensureOnlyTickThread("Cannot respawn player off-main, respawning in world " + serverPlayer.level().getWorld().getName()); // SparklyPaper start - Parallel world ticking
          ServerPlayer.RespawnResult result = serverPlayer.findRespawnPositionAndUseSpawnBlock0(!keepAllPlayerData, TeleportTransition.DO_NOTHING, respawnReason);
          if (result == null) { // disconnected player during the respawn event
              return serverPlayer;
@@ -249,7 +241,7 @@ index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..91a12d2b8192dca2cd48c9c46d3b37a7
          player.restoreFrom(serverPlayer, keepAllPlayerData);
          player.setId(serverPlayer.getId());
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 49e1b17d3971b92c9e920cfa5b066f9da55aea00..1b3de52ec9c3e1d2fb07491261e03c1df8ab593e 100644
+index 49e1b17d3971b92c9e920cfa5b066f9da55aea00..4aae1dd8ddb19608ef9361165abcdf2ec0f5ccc5 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -891,6 +891,7 @@ public abstract class Entity
@@ -264,7 +256,7 @@ index 49e1b17d3971b92c9e920cfa5b066f9da55aea00..1b3de52ec9c3e1d2fb07491261e03c1d
      }
  
      private @Nullable Entity teleportCrossDimension(final ServerLevel oldLevel, final ServerLevel newLevel, final TeleportTransition transition) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(oldLevel, "Cannot teleport entity to another world off-main, from world " + oldLevel.getWorld().getName() + " to world " + newLevel.getWorld().getName()); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        oldLevel.getServer().fish$worldExecutor.ensureTickThread(oldLevel, "Cannot teleport entity to another world off-main, from world " + oldLevel.getWorld().getName() + " to world " + newLevel.getWorld().getName()); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          List<Entity> oldPassengers = this.getPassengers();
          List<Entity> newPassengers = new ArrayList<>(oldPassengers.size());
          this.ejectPassengers();
@@ -283,58 +275,42 @@ index 00861318771cd184c9f75a9a036deee9ec2ba310..ddb3f99b5a4aa566c340ee13c06b264b
              }
  
 diff --git a/net/minecraft/world/level/Level.java b/net/minecraft/world/level/Level.java
-index 21878bd770f6c0bc10dd0a67be5bd94d7e16f741..b9eae69c4c177e12838ab879a17f51fb7c7a1a6c 100644
+index 21878bd770f6c0bc10dd0a67be5bd94d7e16f741..7389a70c66478a0631a0766737bef01cc0f18619 100644
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
 @@ -1047,6 +1047,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
  
      @Override
      public boolean setBlock(final BlockPos pos, final BlockState blockState, final @Block.UpdateFlags int updateFlags, final int updateLimit) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this, pos, "Updating block asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        this.getServer().fish$worldExecutor.ensureTickThread(this, pos, "Updating block asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          // CraftBukkit start - tree generation
          if (this.captureTreeGeneration) {
              // Paper start - Protect Bedrock and End Portal/Frames from being destroyed
-@@ -1508,6 +1509,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
-                 ticker.tick();
-                 // Paper start - rewrite chunk system
-                 if ((++tickedEntities & 7) == 0) {
-+                    if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
-                     ((ca.spottedleaf.moonrise.patches.chunk_system.level.ChunkSystemLevel)(Level)(Object)this).moonrise$midTickTasks();
-                 }
-                 // Paper end - rewrite chunk system
-@@ -1529,6 +1531,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
-             entity.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DISCARD);
-             // Paper end - Prevent block entity and entity crashes
-         }
-+        if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking
-         this.moonrise$midTickTasks(); // Paper - rewrite chunk system
-     }
- 
-@@ -1680,6 +1683,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -1680,6 +1681,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
  
      @Override
      public @Nullable BlockEntity getBlockEntity(final BlockPos pos) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThreadOrAsyncThread((ServerLevel) this, "Cannot read world asynchronously"); // SparklyPaper - parallel world ticking
++        this.getServer().fish$worldExecutor.ensureTickThreadOrAsyncThread((ServerLevel) this, "Cannot read world asynchronously"); // SparklyPaper - parallel world ticking
          // Paper start - Perf: Optimize capturedTileEntities lookup
          net.minecraft.world.level.block.entity.BlockEntity blockEntity;
          if (!this.capturedBlockEntities.isEmpty() && (blockEntity = this.capturedBlockEntities.get(pos)) != null) {
-@@ -1696,6 +1700,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -1696,6 +1698,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
      }
  
      public void setBlockEntity(final BlockEntity blockEntity) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread((ServerLevel) this, "Cannot modify world asynchronously"); // SparklyPaper - parallel world ticking
++        this.getServer().fish$worldExecutor.ensureTickThread(this, "Cannot modify world asynchronously"); // SparklyPaper - parallel world ticking
          BlockPos pos = blockEntity.getBlockPos();
          if (this.isInValidBounds(pos)) {
              // CraftBukkit start
-@@ -1768,6 +1773,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -1768,6 +1771,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
  
      @Override
      public List<Entity> getEntities(final @Nullable Entity except, final AABB bb, final Predicate<? super Entity> selector) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread((ServerLevel)this, bb, "Cannot getEntities asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        this.getServer().fish$worldExecutor.ensureTickThread(this, bb, "Cannot getEntities asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          Profiler.get().incrementCounter("getEntities");
          // Paper start - rewrite chunk system
          final List<Entity> ret = new java.util.ArrayList<>();
-@@ -2125,7 +2131,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -2125,7 +2129,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
  
      public abstract RecipeAccess recipeAccess();
  
@@ -514,14 +490,14 @@ index 95ac67eeee1c5c12fd709fe44288d6de9a28b3a1..33a15ea74d33bd879ba5bea333a738a9
      // CraftBukkit end
  }
 diff --git a/net/minecraft/world/level/chunk/LevelChunk.java b/net/minecraft/world/level/chunk/LevelChunk.java
-index dfcc97bdea1393b964d4d7f5211d8f25455bd392..bcb7623e7f4f6706dcaee1676a74d693f49e8bfa 100644
+index dfcc97bdea1393b964d4d7f5211d8f25455bd392..bbc1e7cd20bdaaf04f5497c243f764fba4653bfc 100644
 --- a/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/net/minecraft/world/level/chunk/LevelChunk.java
 @@ -377,6 +377,7 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
  
      @Override
      public @Nullable BlockState setBlockState(final BlockPos pos, final BlockState state, final @Block.UpdateFlags int flags) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread(this.level, pos, "Updating block asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        this.level.getServer().fish$worldExecutor.ensureTickThread(this.level, pos, "Updating block asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          int y = pos.getY();
          LevelChunkSection section = this.getSection(this.getSectionIndex(y));
          boolean wasEmpty = section.hasOnlyAir();
