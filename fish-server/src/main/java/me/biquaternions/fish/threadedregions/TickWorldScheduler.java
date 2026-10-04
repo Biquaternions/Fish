@@ -1,6 +1,6 @@
 package me.biquaternions.fish.threadedregions;
 
-import me.biquaternions.fish.async.thread.WorldTickThread;
+import me.biquaternions.fish.concurrent.thread.WorldTickThread;
 import net.minecraft.server.MinecraftServer;
 import org.jspecify.annotations.NullMarked;
 

@@ -3,7 +3,7 @@ package me.biquaternions.fish.threadedregions.executor;
 import ca.spottedleaf.common.time.TickData;
 import ca.spottedleaf.common.time.TickTime;
 import ca.spottedleaf.moonrise.common.util.TickThread;
-import me.biquaternions.fish.async.thread.WorldTickThread;
+import me.biquaternions.fish.concurrent.thread.WorldTickThread;
 import me.biquaternions.fish.threadedregions.RegionizedWorldData;
 import me.biquaternions.fish.threadedregions.TickWorldExecutor;
 import me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler;
