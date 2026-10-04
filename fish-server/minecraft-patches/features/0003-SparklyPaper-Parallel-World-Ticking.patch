@@ -275,14 +275,14 @@ index 00861318771cd184c9f75a9a036deee9ec2ba310..ddb3f99b5a4aa566c340ee13c06b264b
              }
  
 diff --git a/net/minecraft/world/level/Level.java b/net/minecraft/world/level/Level.java
-index 21878bd770f6c0bc10dd0a67be5bd94d7e16f741..7389a70c66478a0631a0766737bef01cc0f18619 100644
+index 21878bd770f6c0bc10dd0a67be5bd94d7e16f741..b6daade9af1e88a0aed6f493829391fea9b98b8b 100644
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
 @@ -1047,6 +1047,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
  
      @Override
      public boolean setBlock(final BlockPos pos, final BlockState blockState, final @Block.UpdateFlags int updateFlags, final int updateLimit) {
-+        this.getServer().fish$worldExecutor.ensureTickThread(this, pos, "Updating block asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        MinecraftServer.getServer().fish$worldExecutor.ensureTickThread(this, pos, "Updating block asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          // CraftBukkit start - tree generation
          if (this.captureTreeGeneration) {
              // Paper start - Protect Bedrock and End Portal/Frames from being destroyed
@@ -290,7 +290,7 @@ index 21878bd770f6c0bc10dd0a67be5bd94d7e16f741..7389a70c66478a0631a0766737bef01c
  
      @Override
      public @Nullable BlockEntity getBlockEntity(final BlockPos pos) {
-+        this.getServer().fish$worldExecutor.ensureTickThreadOrAsyncThread((ServerLevel) this, "Cannot read world asynchronously"); // SparklyPaper - parallel world ticking
++        MinecraftServer.getServer().fish$worldExecutor.ensureTickThreadOrAsyncThread((ServerLevel) this, "Cannot read world asynchronously"); // SparklyPaper - parallel world ticking
          // Paper start - Perf: Optimize capturedTileEntities lookup
          net.minecraft.world.level.block.entity.BlockEntity blockEntity;
          if (!this.capturedBlockEntities.isEmpty() && (blockEntity = this.capturedBlockEntities.get(pos)) != null) {
@@ -298,7 +298,7 @@ index 21878bd770f6c0bc10dd0a67be5bd94d7e16f741..7389a70c66478a0631a0766737bef01c
      }
  
      public void setBlockEntity(final BlockEntity blockEntity) {
-+        this.getServer().fish$worldExecutor.ensureTickThread(this, "Cannot modify world asynchronously"); // SparklyPaper - parallel world ticking
++        MinecraftServer.getServer().fish$worldExecutor.ensureTickThread(this, "Cannot modify world asynchronously"); // SparklyPaper - parallel world ticking
          BlockPos pos = blockEntity.getBlockPos();
          if (this.isInValidBounds(pos)) {
              // CraftBukkit start
@@ -306,7 +306,7 @@ index 21878bd770f6c0bc10dd0a67be5bd94d7e16f741..7389a70c66478a0631a0766737bef01c
  
      @Override
      public List<Entity> getEntities(final @Nullable Entity except, final AABB bb, final Predicate<? super Entity> selector) {
-+        this.getServer().fish$worldExecutor.ensureTickThread(this, bb, "Cannot getEntities asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
++        MinecraftServer.getServer().fish$worldExecutor.ensureTickThread(this, bb, "Cannot getEntities asynchronously"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
          Profiler.get().incrementCounter("getEntities");
          // Paper start - rewrite chunk system
          final List<Entity> ret = new java.util.ArrayList<>();

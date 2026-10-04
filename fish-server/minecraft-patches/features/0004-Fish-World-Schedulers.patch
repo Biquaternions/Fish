@@ -24,7 +24,7 @@ Additionally, PacketUtil requires validating against the current ticking thread 
   an inventory while another is currently opened in a scheduled task.
 
 diff --git a/net/minecraft/network/protocol/PacketUtils.java b/net/minecraft/network/protocol/PacketUtils.java
-index 144c18c08bf8f03d907b97f968aa171a9fbf997f..1b41a775f32bafd10f545f89022db66fdbf7bc41 100644
+index 144c18c08bf8f03d907b97f968aa171a9fbf997f..52095b642943ec241595600e4fef3df9125a69e8 100644
 --- a/net/minecraft/network/protocol/PacketUtils.java
 +++ b/net/minecraft/network/protocol/PacketUtils.java
 @@ -15,7 +15,7 @@ public class PacketUtils {
@@ -32,7 +32,7 @@ index 144c18c08bf8f03d907b97f968aa171a9fbf997f..1b41a775f32bafd10f545f89022db66f
  
      public static <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final ServerLevel level) throws RunningOnDifferentThreadException {
 -        ensureRunningOnSameThread(packet, listener, level.getServer().packetProcessor());
-+        level.getServer().fish$worldExecutor.ensureRunningOnSameThread(packet, listener, level.getServer().packetProcessor()); // Fish - Location scheduler handling
++        level.getServer().fish$worldExecutor.ensureRunningOnSameThread(packet, listener, level); // Fish - Location scheduler handling
      }
  
      public static <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final PacketProcessor packetProcessor) throws RunningOnDifferentThreadException {
@@ -65,7 +65,7 @@ index a290152fa60c22c9413cb6c6d34dd958497ce360..1dc084c454766a31d48d6ae74d5785c0
          // Paper end - Folia scheduler API
          io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.ADVENTURE_CLICK_MANAGER.handleQueue(this.tickCount); // Paper
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 0488536e26f72fe4fb931035a6f173befc505e3a..38a212bc5c4d0541464f7639be0e9698249625fa 100644
+index 9a760f0cc40aab156470025817b136a77b4bc126..516913d379ee10b31f04764485ac20cac19a7a15 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -240,6 +240,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet

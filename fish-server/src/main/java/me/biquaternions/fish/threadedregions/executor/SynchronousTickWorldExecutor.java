@@ -5,6 +5,7 @@ import me.biquaternions.fish.threadedregions.TickWorldExecutor;
 import me.biquaternions.fish.util.CallableWrapper;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
@@ -14,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import java.util.Queue;
@@ -85,6 +87,14 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
 
     @Override
     public void ensureTickThread(final Level level, final String reason) {
+    }
+
+    @Override
+    public void ensureTickThread(final Level world, final BlockPos pos, final String reason) {
+    }
+
+    @Override
+    public void ensureTickThread(final Level world, final AABB aabb, final String reason) {
     }
 
     @Override

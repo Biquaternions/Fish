@@ -10,6 +10,7 @@ import me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler;
 import me.biquaternions.fish.util.CallableWrapper;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.MinecraftServer;
@@ -18,6 +19,7 @@ import net.minecraft.server.ServerTickRateManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Util;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import org.bukkit.Bukkit;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -125,6 +127,16 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     @Override
     public void ensureTickThread(final Level level, final String reason) {
         TickThread.ensureTickThread(level, reason);
+    }
+
+    @Override
+    public void ensureTickThread(final Level world, final BlockPos pos, final String reason) {
+        TickThread.ensureTickThread(world, pos, reason);
+    }
+
+    @Override
+    public void ensureTickThread(final Level world, final AABB aabb, final String reason) {
+        TickThread.ensureTickThread(world, aabb, reason);
     }
 
     @SuppressWarnings("resource")
