@@ -115,28 +115,33 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     }
 
     @Override
-    public void ensureOnlyTickThread(final String reason) {
-        TickThread.ensureOnlyTickThread(reason);
+    public void worldboundEnsureOnlyTickThread(final String reason) {
+        TickThread.ensureTickThread(reason);
     }
 
     @Override
-    public void ensureTickThreadOrAsyncThread(final Level level, final String reason) {
-        TickThread.ensureTickThreadOrAsyncThread(level, reason);
+    public void worldboundEnsureTickThreadOrAsyncThread(final Level level, final String reason) {
+        TickThread.ensureTickThread(level, reason);
+    }
+
+    @Override
+    public void worldboundEnsureTickThread(final Level level, final String reason) {
+        TickThread.ensureTickThread(level, reason);
+    }
+
+    @Override
+    public void worldboundEnsureTickThread(final Level world, final BlockPos pos, final String reason) {
+        TickThread.ensureTickThread(world, pos, reason);
+    }
+
+    @Override
+    public void worldboundEnsureTickThread(final Level world, final AABB aabb, final String reason) {
+        TickThread.ensureTickThread(world, aabb, reason);
     }
 
     @Override
     public void ensureTickThread(final Level level, final String reason) {
         TickThread.ensureTickThread(level, reason);
-    }
-
-    @Override
-    public void ensureTickThread(final Level world, final BlockPos pos, final String reason) {
-        TickThread.ensureTickThread(world, pos, reason);
-    }
-
-    @Override
-    public void ensureTickThread(final Level world, final AABB aabb, final String reason) {
-        TickThread.ensureTickThread(world, aabb, reason);
     }
 
     @SuppressWarnings("resource")

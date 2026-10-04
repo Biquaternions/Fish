@@ -1,6 +1,7 @@
 package me.biquaternions.fish.threadedregions.executor;
 
 import ca.spottedleaf.common.time.TickData;
+import ca.spottedleaf.moonrise.common.util.TickThread;
 import me.biquaternions.fish.threadedregions.TickWorldExecutor;
 import me.biquaternions.fish.util.CallableWrapper;
 import net.minecraft.CrashReport;
@@ -78,23 +79,28 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     }
 
     @Override
-    public void ensureOnlyTickThread(final String reason) {
+    public void worldboundEnsureOnlyTickThread(final String reason) {
     }
 
     @Override
-    public void ensureTickThreadOrAsyncThread(final Level level, final String reason) {
+    public void worldboundEnsureTickThreadOrAsyncThread(final Level level, final String reason) {
+    }
+
+    @Override
+    public void worldboundEnsureTickThread(final Level level, final String reason) {
+    }
+
+    @Override
+    public void worldboundEnsureTickThread(final Level world, final BlockPos pos, final String reason) {
+    }
+
+    @Override
+    public void worldboundEnsureTickThread(final Level world, final AABB aabb, final String reason) {
     }
 
     @Override
     public void ensureTickThread(final Level level, final String reason) {
-    }
-
-    @Override
-    public void ensureTickThread(final Level world, final BlockPos pos, final String reason) {
-    }
-
-    @Override
-    public void ensureTickThread(final Level world, final AABB aabb, final String reason) {
+        TickThread.ensureTickThread(level, reason);
     }
 
     @Override
