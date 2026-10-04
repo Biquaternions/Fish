@@ -7,6 +7,8 @@ import me.biquaternions.fish.concurrent.thread.WorldTickThread;
 import me.biquaternions.fish.threadedregions.RegionizedWorldData;
 import me.biquaternions.fish.threadedregions.TickWorldExecutor;
 import me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler;
+import me.biquaternions.fish.threadedregions.world.WorldEntityTickList;
+import me.biquaternions.fish.threadedregions.world.WorldWaypointManager;
 import me.biquaternions.fish.util.CallableWrapper;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -17,8 +19,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.RunningOnDifferentThreadException;
 import net.minecraft.server.ServerTickRateManager;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.waypoints.ServerWaypointManager;
 import net.minecraft.util.Util;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.phys.AABB;
 import org.bukkit.Bukkit;
 import org.jspecify.annotations.NullMarked;
@@ -256,6 +260,16 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
             }
             return level.fish$msptData5s;
         }
+    }
+
+    @Override
+    public EntityTickList generateEntityTickList(final ServerLevel level) {
+        return new WorldEntityTickList(level);
+    }
+
+    @Override
+    public ServerWaypointManager generateWaypointManager(final ServerLevel level) {
+        return new WorldWaypointManager(level);
     }
 
     @Override

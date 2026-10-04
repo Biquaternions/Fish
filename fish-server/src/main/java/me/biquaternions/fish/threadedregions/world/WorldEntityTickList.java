@@ -18,19 +18,19 @@ public class WorldEntityTickList extends EntityTickList {
 
     @Override
     public void add(Entity entity) {
-        TickThread.ensureTickThread(entity, "Asynchronous entity ticklist addition"); // Paper // SparklyPaper - parallel world ticking (additional concurrency issues logs)
+        TickThread.ensureTickThread(entity, "Asynchronous entity ticklist addition");
         super.add(entity);
     }
 
     @Override
     public void remove(Entity entity) {
-        TickThread.ensureTickThread(entity, "Asynchronous entity ticklist addition"); // Paper // SparklyPaper - parallel world ticking (additional concurrency issues logs)
+        TickThread.ensureTickThread(entity, "Asynchronous entity ticklist addition");
         super.remove(entity);
     }
 
     @Override
     public void forEach(Consumer<Entity> entity) {
-        TickThread.ensureTickThread(this.level, "Asynchronous entity ticklist iteration"); // SparklyPaper - parallel world ticking (additional concurrency issues logs)
+        TickThread.ensureTickThread(this.level, "Asynchronous entity ticklist iteration");
         super.forEach(entity);
     }
 

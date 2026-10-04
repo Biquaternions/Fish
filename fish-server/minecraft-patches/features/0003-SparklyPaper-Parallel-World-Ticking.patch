@@ -112,7 +112,7 @@ index 32e6edbaf5ed459c9d6fb6ceda1fc2423e0b145d..49310b06908f782b1baecb598c900bba
      }
      // CraftBukkit end
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..504ab34f549f0fa6037223d628855124592255b0 100644
+index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..fa1b41dc8f4795f13c1495ca7f03e7a4c9ca7bab 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -197,7 +197,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -120,7 +120,7 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..504ab34f549f0fa6037223d628855124
      private final MinecraftServer server;
      public final io.papermc.paper.world.saveddata.PaperLevelOverrides serverLevelData; // Paper - type
 -    public final EntityTickList entityTickList = new EntityTickList();
-+    public final EntityTickList entityTickList = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.threadedregions.world.WorldEntityTickList(this) : new EntityTickList(); // SparklyPaper - parallel world ticking
++    public final EntityTickList entityTickList; // SparklyPaper - parallel world ticking
      private final ServerWaypointManager waypointManager;
      private EnvironmentAttributeSystem environmentAttributes;
      // Paper - rewrite chunk system
@@ -151,16 +151,17 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..504ab34f549f0fa6037223d628855124
      public ServerLevel(
          final MinecraftServer server,
          final Executor executor,
-@@ -725,7 +738,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -725,7 +738,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
  
          this.sleepStatus = new SleepStatus();
          this.gameEventDispatcher = new GameEventDispatcher(this);
 -        this.waypointManager = new ServerWaypointManager(this); // Paper - optimize ServerWaypointManager with locator bar disabled
-+        this.waypointManager =  me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.threadedregions.world.WorldWaypointManager(this) : new ServerWaypointManager(this); // SparklyPaper - parallel world ticking
++        this.waypointManager =  server.fish$worldExecutor.generateWaypointManager(this); // SparklyPaper - parallel world ticking
++        this.entityTickList =  server.fish$worldExecutor.generateEntityTickList(this); // SparklyPaper - parallel world ticking
          this.environmentAttributes = EnvironmentAttributeSystem.builder().addDefaultLayers(this).build();
          this.uncachedBiomeResolver = this.getChunkSource().getGenerator().getBiomeSource().createUncachedResolver(this.getChunkSource().randomState());
          this.updateSkyBrightness();
-@@ -744,6 +757,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -744,6 +758,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
          this.chunkDataController = new ca.spottedleaf.moonrise.patches.chunk_system.io.datacontroller.ChunkDataController((ServerLevel)(Object)this, this.chunkTaskScheduler);
          // Paper end - rewrite chunk system
          this.getCraftServer().addWorld(this.getWorld()); // CraftBukkit
@@ -168,7 +169,7 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..504ab34f549f0fa6037223d628855124
      }
  
      // Paper start
-@@ -1624,6 +1638,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -1624,6 +1639,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
      }
  
      private void addPlayer(final ServerPlayer player) {
@@ -176,7 +177,7 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..504ab34f549f0fa6037223d628855124
          Entity existing = this.getEntity(player.getUUID());
          if (existing != null) {
              LOGGER.warn("Force-added player with duplicate UUID {}", player.getUUID());
-@@ -1636,7 +1651,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
+@@ -1636,7 +1652,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
  
      // CraftBukkit start
      private boolean addEntity(final Entity entity, final org.bukkit.event.entity.CreatureSpawnEvent.@Nullable SpawnReason spawnReason) {

@@ -13,9 +13,11 @@ import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.RunningOnDifferentThreadException;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.waypoints.ServerWaypointManager;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -120,6 +122,16 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     @Override
     public TickData.@Nullable MSPTData getMSPTData5s(final ServerLevel level) {
         return this.server.getMSPTData5s();
+    }
+
+    @Override
+    public EntityTickList generateEntityTickList(final ServerLevel level) {
+        return new EntityTickList();
+    }
+
+    @Override
+    public ServerWaypointManager generateWaypointManager(final ServerLevel level) {
+        return new ServerWaypointManager(level);
     }
 
     @Override
