@@ -115,27 +115,27 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     }
 
     @Override
-    public void worldboundEnsureOnlyTickThread(final String reason) {
+    public void preferOnlyTickThread(final String reason) {
         TickThread.ensureTickThread(reason);
     }
 
     @Override
-    public void worldboundEnsureTickThreadOrAsyncThread(final Level level, final String reason) {
+    public void preferTickThreadOrAsyncThread(final Level level, final String reason) {
         TickThread.ensureTickThread(level, reason);
     }
 
     @Override
-    public void worldboundEnsureTickThread(final Level level, final String reason) {
+    public void preferTickThread(final Level level, final String reason) {
         TickThread.ensureTickThread(level, reason);
     }
 
     @Override
-    public void worldboundEnsureTickThread(final Level world, final BlockPos pos, final String reason) {
+    public void preferTickThread(final Level world, final BlockPos pos, final String reason) {
         TickThread.ensureTickThread(world, pos, reason);
     }
 
     @Override
-    public void worldboundEnsureTickThread(final Level world, final AABB aabb, final String reason) {
+    public void preferTickThread(final Level world, final AABB aabb, final String reason) {
         TickThread.ensureTickThread(world, aabb, reason);
     }
 

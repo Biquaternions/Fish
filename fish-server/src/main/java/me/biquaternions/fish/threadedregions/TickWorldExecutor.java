@@ -19,11 +19,11 @@ public interface TickWorldExecutor {
     void tickWorlds(final Iterable<ServerLevel> worlds, final BooleanSupplier hasTimeLeft);
     boolean shouldScheduleExecution();
     boolean shouldScheduleExecution(final Level level);
-    void worldboundEnsureOnlyTickThread(final String reason);
-    void worldboundEnsureTickThreadOrAsyncThread(final Level level, final String reason);
-    void worldboundEnsureTickThread(final Level level, final String reason);
-    void worldboundEnsureTickThread(final Level world, final BlockPos pos, final String reason);
-    void worldboundEnsureTickThread(final Level world, final AABB aabb, final String reason);
+    void preferOnlyTickThread(final String reason);
+    void preferTickThreadOrAsyncThread(final Level level, final String reason);
+    void preferTickThread(final Level level, final String reason);
+    void preferTickThread(final Level world, final BlockPos pos, final String reason);
+    void preferTickThread(final Level world, final AABB aabb, final String reason);
     void ensureTickThread(final Level level, final String reason);
     <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final ServerLevel level) throws RunningOnDifferentThreadException;
     TickData.@Nullable MSPTData getMSPTData5s(final ServerLevel level);
