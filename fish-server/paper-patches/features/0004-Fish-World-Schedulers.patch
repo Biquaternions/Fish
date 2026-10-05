@@ -24,7 +24,7 @@ This patch implements region schedulers for each world and a compatibility layer
   than plugins trying to perform read/writes.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 478f4461ab3fb21b288aa2f6079860f23832e622..98d33da27643f0e95ca95256031cf94f66863945 100644
+index 478f4461ab3fb21b288aa2f6079860f23832e622..2f872e900fec9cccd91d356ee6ede6ce4ffae146 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -309,7 +309,7 @@ public final class CraftServer implements Server {
@@ -32,7 +32,7 @@ index 478f4461ab3fb21b288aa2f6079860f23832e622..98d33da27643f0e95ca95256031cf94f
  
      // Paper start - Folia region threading API
 -    private final io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler regionizedScheduler = new io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler();
-+    private final io.papermc.paper.threadedregions.scheduler.RegionScheduler regionizedScheduler = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler() : new io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler();
++    private final io.papermc.paper.threadedregions.scheduler.RegionScheduler regionizedScheduler = MinecraftServer.getServer().fish$worldExecutor.generateRegionScheduler();
      private final io.papermc.paper.threadedregions.scheduler.FoliaAsyncScheduler asyncScheduler = new io.papermc.paper.threadedregions.scheduler.FoliaAsyncScheduler();
      private final io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler globalRegionScheduler = new io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler();
  
