@@ -442,23 +442,15 @@ index ec3343ecbe68b1c2a33f85edb3b527363affa9ba..6a38d25183fc137d11f4cc31c4237c2e
          net.minecraft.world.item.ItemStack item = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(tool);
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
-index 52b11c40b1f89bdc6f79ac81f968af45492ad56b..3e99b5231e2c5d399c3735241aa3f1e9ad7de454 100644
+index 52b11c40b1f89bdc6f79ac81f968af45492ad56b..02bd313fc491ed5db9f854b383b1fe7730b0fe61 100644
 --- a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
 +++ b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
-@@ -935,6 +935,7 @@ public class CraftEventFactory {
-     }
- 
-     public static BlockPos sourceBlockOverride = null; // SPIGOT-7068: Add source block override, not the most elegant way but better than passing down a BlockPos up to five methods deep.
-+    public static ThreadLocal<BlockPos> fish$sourceBlockOverrideTL = new ThreadLocal<>(); // SparklyPaper - parallel world ticking
- 
-     public static boolean handleBlockSpreadEvent(LevelAccessor level, BlockPos source, BlockPos target, net.minecraft.world.level.block.state.BlockState state, @net.minecraft.world.level.block.Block.UpdateFlags int flags) {
-         return handleBlockSpreadEvent(level, source, target, state, flags, false);
-@@ -950,7 +951,7 @@ public class CraftEventFactory {
+@@ -950,7 +950,7 @@ public class CraftEventFactory {
          CraftBlockState snapshot = CraftBlockStates.getBlockState(level, target);
          snapshot.setBlock(state);
  
 -        BlockSpreadEvent event = new BlockSpreadEvent(snapshot.getBlock(), CraftBlock.at(level, sourceBlockOverride != null ? sourceBlockOverride : source), snapshot);
-+        BlockSpreadEvent event = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new BlockSpreadEvent(snapshot.getBlock(), CraftBlock.at(level, CraftEventFactory.fish$sourceBlockOverrideTL.get() != null ? CraftEventFactory.fish$sourceBlockOverrideTL.get() : source), snapshot) : new BlockSpreadEvent(snapshot.getBlock(), CraftBlock.at(level, CraftEventFactory.sourceBlockOverride != null ? CraftEventFactory.sourceBlockOverride : source), snapshot);
++        BlockSpreadEvent event = new BlockSpreadEvent(snapshot.getBlock(), CraftBlock.at(level, net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getSculkSourceBlockOverride() != null ? net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getSculkSourceBlockOverride() : source), snapshot);
          if (event.callEvent()) {
              boolean result = snapshot.place(flags);
              return !checkSetResult || result;

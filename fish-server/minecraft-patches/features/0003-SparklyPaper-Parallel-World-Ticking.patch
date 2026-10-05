@@ -188,7 +188,7 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..fa1b41dc8f4795f13c1495ca7f03e7a4
          // Paper start - extra debug info
          if (entity.valid) {
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index 119236a8b3ad2d6d81a816d6abdc2b809a753eff..e7fafe76c22f6fef524e6a5ca1bedd00b4b887a9 100644
+index 56ee7ed4bdedbc5f7d12b9ccd547ff3984158b1d..c1c1f3010f44942bb04acc8858bd18d7c9ae0109 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
 @@ -722,8 +722,10 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
@@ -252,7 +252,7 @@ index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..22fcd7848d80f3a4fc9455fd0793875e
          player.restoreFrom(serverPlayer, keepAllPlayerData);
          player.setId(serverPlayer.getId());
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 49e1b17d3971b92c9e920cfa5b066f9da55aea00..25bcc8d8e80410db8e78a65f654218829e559bd0 100644
+index 27d11ac41a842309cd421e2955ba490672359873..23010928683aa180f78f3f70667cba3c48ec021d 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -891,6 +891,7 @@ public abstract class Entity
@@ -393,20 +393,21 @@ index c2f8479eef826efca3ed2993973b2cfc2c51ed00..eae30d59cf3b1460e1116f7c11aa3eb1
      }
  
 diff --git a/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java b/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
-index a1b0168077b83575f16dd377da2e1ba520d3bd19..2e392ebdc7b92d0d5cec6cc3ce97f41df3da827e 100644
+index a1b0168077b83575f16dd377da2e1ba520d3bd19..5983f67edb0e457857f7c77e39231459653a5c7f 100644
 --- a/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/SculkCatalystBlockEntity.java
-@@ -43,8 +43,10 @@ public class SculkCatalystBlockEntity extends BlockEntity implements GameEventLi
+@@ -43,9 +43,9 @@ public class SculkCatalystBlockEntity extends BlockEntity implements GameEventLi
      // Paper end - Fix NPE in SculkBloomEvent world access
  
      public static void serverTick(final Level level, final BlockPos pos, final BlockState state, final SculkCatalystBlockEntity entity) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) org.bukkit.craftbukkit.event.CraftEventFactory.fish$sourceBlockOverrideTL.set(pos); else // SparklyPaper - parallel world ticking
-         org.bukkit.craftbukkit.event.CraftEventFactory.sourceBlockOverride = pos; // CraftBukkit - SPIGOT-7068: Add source block override, not the most elegant way but better than passing down a BlockPos up to five methods deep.
+-        org.bukkit.craftbukkit.event.CraftEventFactory.sourceBlockOverride = pos; // CraftBukkit - SPIGOT-7068: Add source block override, not the most elegant way but better than passing down a BlockPos up to five methods deep.
++        net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setSculkSourceBlockOverride(pos);
          entity.catalystListener.getSculkSpreader().updateCursors(level, pos, level.getRandom(), true);
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) org.bukkit.craftbukkit.event.CraftEventFactory.fish$sourceBlockOverrideTL.remove(); else // SparklyPaper - parallel world ticking
-         org.bukkit.craftbukkit.event.CraftEventFactory.sourceBlockOverride = null; // CraftBukkit
+-        org.bukkit.craftbukkit.event.CraftEventFactory.sourceBlockOverride = null; // CraftBukkit
++        net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.removeSculkSourceBlockOverride();
      }
  
+     @Override
 diff --git a/net/minecraft/world/level/block/grower/TreeGrower.java b/net/minecraft/world/level/block/grower/TreeGrower.java
 index 95ac67eeee1c5c12fd709fe44288d6de9a28b3a1..bba74035fe0c13a568efcb76c58c1e2e4136144a 100644
 --- a/net/minecraft/world/level/block/grower/TreeGrower.java
