@@ -421,21 +421,6 @@ index 0ab39922e53ebeb044958f99b7f0f06391d78d31..83bac215f46b2a2929b225fee8412718
          this.level.getFluidState(this.position).tick(this.level.getMinecraftWorld(), this.position, this.getBlockState());
      }
  
-diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java
-index 1ef1943c9934400e40c3c060299c98659709a5cc..6e707ff735db1d5232f8185123baa3efd3d18ef0 100644
---- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java
-+++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockEntityState.java
-@@ -42,8 +42,8 @@ public abstract class CraftBlockEntityState<T extends BlockEntity> extends Craft
- 
-         try { // Paper - Show blockstate location if we failed to read it
-         // Paper start
--        this.snapshotDisabled = DISABLE_SNAPSHOT;
--        if (DISABLE_SNAPSHOT) {
-+        this.snapshotDisabled = net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getDisableBlockEntitySnapshots(); // SparklyPaper - parallel world ticking
-+        if (this.snapshotDisabled) { // SparklyPaper - parallel world ticking
-             this.snapshot = this.blockEntity;
-         } else {
-             this.snapshot = this.createSnapshot(blockEntity);
 diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
 index ec3343ecbe68b1c2a33f85edb3b527363affa9ba..6a38d25183fc137d11f4cc31c4237c2ed4b92db3 100644
 --- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockState.java
@@ -455,28 +440,6 @@ index ec3343ecbe68b1c2a33f85edb3b527363affa9ba..6a38d25183fc137d11f4cc31c4237c2e
 +        this.world.getHandle().getServer().fish$worldExecutor.preferTickThread(this.world.getHandle(), this.position, "Cannot modify world asynchronously"); // SparklyPaper - parallel world ticking
          this.requirePlaced();
          net.minecraft.world.item.ItemStack item = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(tool);
- 
-diff --git a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockStates.java b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockStates.java
-index 063a4ad33d1c12ec2cc1dff5239a7bf58b92fabb..7bc6a2e1aa55b27cd69d93bfa465095dc83d8ad4 100644
---- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockStates.java
-+++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockStates.java
-@@ -198,14 +198,14 @@ public final class CraftBlockStates {
-         BlockPos pos = craftBlock.getPosition();
-         net.minecraft.world.level.block.state.BlockState state = craftBlock.getBlockState();
-         BlockEntity blockEntity = craftBlock.getLevel().getBlockEntity(pos);
--        boolean prev = CraftBlockEntityState.DISABLE_SNAPSHOT;
--        CraftBlockEntityState.DISABLE_SNAPSHOT = !useSnapshot;
-+        boolean prev = net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getDisableBlockEntitySnapshots(); // SparklyPaper - parallel world ticking
-+        net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setDisableBlockEntitySnapshots(!useSnapshot); // SparklyPaper - parallel world ticking
-         try {
-             CraftBlockState blockState = CraftBlockStates.getBlockState(world, pos, state, blockEntity);
-             blockState.setWorldHandle(craftBlock.getLevel()); // Inject the block's level accessor
-             return blockState;
-         } finally {
--            CraftBlockEntityState.DISABLE_SNAPSHOT = prev;
-+            net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setDisableBlockEntitySnapshots(prev); else // SparklyPaper - parallel world ticking
-         }
-     }
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
 index 52b11c40b1f89bdc6f79ac81f968af45492ad56b..3e99b5231e2c5d399c3735241aa3f1e9ad7de454 100644
