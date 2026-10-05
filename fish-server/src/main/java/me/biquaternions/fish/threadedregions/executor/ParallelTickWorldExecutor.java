@@ -3,6 +3,7 @@ package me.biquaternions.fish.threadedregions.executor;
 import ca.spottedleaf.common.time.TickData;
 import ca.spottedleaf.common.time.TickTime;
 import ca.spottedleaf.moonrise.common.util.TickThread;
+import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import me.biquaternions.fish.concurrent.thread.WorldTickThread;
 import me.biquaternions.fish.threadedregions.RegionizedWorldData;
 import me.biquaternions.fish.threadedregions.TickWorldExecutor;
@@ -53,8 +54,8 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     private final Semaphore semaphore;
     private final ServerTickRateManager tickRateManager;
     private final ThreadLocal<@Nullable TreeType> treeType = new ThreadLocal<>();
+    private final ThreadLocal<@Nullable BlockPos> sculkSourceBlockOverride = new ThreadLocal<>();
     private final ThreadLocal<Boolean> ignoreBlockEntityUpdates = ThreadLocal.withInitial(() -> Boolean.FALSE);
-    private final ThreadLocal<Boolean> disableBlockEntitySnapshots = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     public ParallelTickWorldExecutor(final MinecraftServer server, final int tickets) {
         this.semaphore = new Semaphore(tickets);
@@ -277,6 +278,11 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     }
 
     @Override
+    public RegionScheduler generateRegionScheduler() {
+        return new WorldRegionScheduler();
+    }
+
+    @Override
     public void setIgnoreBlockEntityUpdates(final boolean ignore) {
         this.ignoreBlockEntityUpdates.set(ignore);
     }
@@ -284,16 +290,6 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     @Override
     public boolean getIgnoreBlockEntityUpdates() {
         return this.ignoreBlockEntityUpdates.get();
-    }
-
-    @Override
-    public void setDisableBlockEntitySnapshots(final boolean disable) {
-        this.disableBlockEntitySnapshots.set(disable);
-    }
-
-    @Override
-    public boolean getDisableBlockEntitySnapshots() {
-        return this.disableBlockEntitySnapshots.get();
     }
 
     @Override
@@ -309,6 +305,21 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     @Override
     public void removeTreeType() {
         this.treeType.remove();
+    }
+
+    @Override
+    public void setSculkSourceBlockOverride(final BlockPos pos) {
+        this.sculkSourceBlockOverride.set(pos);
+    }
+
+    @Override
+    public @Nullable BlockPos getSculkSourceBlockOverride() {
+        return this.sculkSourceBlockOverride.get();
+    }
+
+    @Override
+    public void removeSculkSourceBlockOverride() {
+        this.sculkSourceBlockOverride.remove();
     }
 
     @Override

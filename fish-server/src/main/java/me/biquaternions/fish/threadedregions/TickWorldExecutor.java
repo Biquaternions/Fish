@@ -1,6 +1,7 @@
 package me.biquaternions.fish.threadedregions;
 
 import ca.spottedleaf.common.time.TickData;
+import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
@@ -152,6 +153,13 @@ public interface TickWorldExecutor {
     ServerWaypointManager generateWaypointManager(final ServerLevel world);
 
     /**
+     * Generates a new region scheduler
+     *
+     * @return region scheduler
+     */
+    RegionScheduler generateRegionScheduler();
+
+    /**
      * Sets ignore block entity updates flag.
      *
      * @param ignore should ignore
@@ -164,20 +172,6 @@ public interface TickWorldExecutor {
      * @return should ignore
      */
     boolean getIgnoreBlockEntityUpdates();
-
-    /**
-     * Sets disable block entity snapshots flag.
-     *
-     * @param disable should disable
-     */
-    void setDisableBlockEntitySnapshots(final boolean disable);
-
-    /**
-     * Gets disable block entity snapshots flag.
-     *
-     * @return should disable
-     */
-    boolean getDisableBlockEntitySnapshots();
 
     /**
      * Sets tree type.
@@ -197,6 +191,25 @@ public interface TickWorldExecutor {
      * Remove tree type.
      */
     void removeTreeType();
+
+    /**
+     * Sets sculk source block override.
+     *
+     * @param pos source block
+     */
+    void setSculkSourceBlockOverride(final BlockPos pos);
+
+    /**
+     * Gets sculk source block override.
+     *
+     * @return source block
+     */
+    @Nullable BlockPos getSculkSourceBlockOverride();
+
+    /**
+     * Remove sculk source block override.
+     */
+    void removeSculkSourceBlockOverride();
 
     /**
      * Schedules a returning operation.

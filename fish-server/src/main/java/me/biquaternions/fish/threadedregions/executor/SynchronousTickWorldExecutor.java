@@ -2,6 +2,8 @@ package me.biquaternions.fish.threadedregions.executor;
 
 import ca.spottedleaf.common.time.TickData;
 import ca.spottedleaf.moonrise.common.util.TickThread;
+import io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler;
+import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import me.biquaternions.fish.threadedregions.TickWorldExecutor;
 import me.biquaternions.fish.util.CallableWrapper;
 import net.minecraft.CrashReport;
@@ -34,8 +36,8 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
 
     private final Queue<Runnable> endOfTickTasks = new ConcurrentLinkedQueue<>();
     private @Nullable TreeType treeType = null;
+    private @Nullable BlockPos sculkSourceBlockOverride = null;
     private boolean ignoreBlockEntityUpdates = false;
-    private boolean disableBlockEntitySnapshots = false;
 
     public SynchronousTickWorldExecutor(final MinecraftServer server) {
         this.server = server;
@@ -139,6 +141,11 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     }
 
     @Override
+    public RegionScheduler generateRegionScheduler() {
+        return new FallbackRegionScheduler();
+    }
+
+    @Override
     public void setIgnoreBlockEntityUpdates(final boolean ignore) {
         this.ignoreBlockEntityUpdates = ignore;
     }
@@ -146,16 +153,6 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     @Override
     public boolean getIgnoreBlockEntityUpdates() {
         return this.ignoreBlockEntityUpdates;
-    }
-
-    @Override
-    public void setDisableBlockEntitySnapshots(final boolean disable) {
-        this.disableBlockEntitySnapshots = disable;
-    }
-
-    @Override
-    public boolean getDisableBlockEntitySnapshots() {
-        return this.disableBlockEntitySnapshots;
     }
 
     @Override
@@ -171,6 +168,21 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     @Override
     public void removeTreeType() {
         this.treeType = null;
+    }
+
+    @Override
+    public void setSculkSourceBlockOverride(final BlockPos pos) {
+        this.sculkSourceBlockOverride = pos;
+    }
+
+    @Override
+    public @Nullable BlockPos getSculkSourceBlockOverride() {
+        return this.sculkSourceBlockOverride;
+    }
+
+    @Override
+    public void removeSculkSourceBlockOverride() {
+        this.sculkSourceBlockOverride = null;
     }
 
     @Override
