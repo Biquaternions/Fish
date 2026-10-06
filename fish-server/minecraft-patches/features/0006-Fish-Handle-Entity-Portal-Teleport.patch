@@ -10,14 +10,14 @@ However, their approach has some limitations when triggering events, and require
   have a main thread, so we just schedule the task at the end of the main tick.
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 6dd6927600f2526ad68d172c18719a6a85871549..2c2fbe1dc025e1c4706234927dd571217e54b68e 100644
+index e80c5286688c76bf1736f7b82cef78f32925ec5d..2c2fbe1dc025e1c4706234927dd571217e54b68e 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -891,7 +891,6 @@ public abstract class Entity
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
--        if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
+-        if (!net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.isConcurrentExecutor()) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }

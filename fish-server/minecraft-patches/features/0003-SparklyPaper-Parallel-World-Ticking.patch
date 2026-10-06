@@ -252,14 +252,14 @@ index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..22fcd7848d80f3a4fc9455fd0793875e
          player.restoreFrom(serverPlayer, keepAllPlayerData);
          player.setId(serverPlayer.getId());
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 27d11ac41a842309cd421e2955ba490672359873..23010928683aa180f78f3f70667cba3c48ec021d 100644
+index 27d11ac41a842309cd421e2955ba490672359873..13d41c7cb508cd30eed5d34797f5d9dc47bf1399 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -891,6 +891,7 @@ public abstract class Entity
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
-+        if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
++        if (!net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.isConcurrentExecutor()) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
