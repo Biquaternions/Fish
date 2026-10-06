@@ -1,6 +1,7 @@
 package me.biquaternions.fish.threadedregions;
 
 import ca.spottedleaf.common.time.TickData;
+import io.papermc.paper.redstone.RedstoneWireTurbo;
 import io.papermc.paper.threadedregions.EntityScheduler;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import net.minecraft.core.BlockPos;
@@ -11,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.waypoints.ServerWaypointManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.RedstoneWireBlock;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.phys.AABB;
 import org.bukkit.TreeType;
@@ -207,6 +209,27 @@ public interface TickWorldExecutor {
      * @return should ignore
      */
     boolean getIgnoreBlockEntityUpdates();
+
+    /**
+     * Sets if redstone should signal
+     *
+     * @param signal signal
+     */
+    void setRedstoneShouldSignal(final boolean signal);
+
+    /**
+     * Gets if redstone should signal
+     *
+     * @return signal
+     */
+    boolean getRedstoneShouldSignal();
+
+    /**
+     * Gets redstone wire turbo
+     *
+     * @return turbo
+     */
+    RedstoneWireTurbo getRedstoneWireTurbo();
 
     /**
      * Sets tree type.

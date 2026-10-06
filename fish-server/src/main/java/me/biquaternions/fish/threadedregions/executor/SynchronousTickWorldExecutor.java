@@ -2,6 +2,7 @@ package me.biquaternions.fish.threadedregions.executor;
 
 import ca.spottedleaf.common.time.TickData;
 import ca.spottedleaf.moonrise.common.util.TickThread;
+import io.papermc.paper.redstone.RedstoneWireTurbo;
 import io.papermc.paper.threadedregions.EntityScheduler;
 import io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
@@ -21,6 +22,8 @@ import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RedstoneWireBlock;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.phys.AABB;
 import org.bukkit.TreeType;
@@ -41,6 +44,9 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     private @Nullable TreeType treeType = null;
     private @Nullable BlockPos sculkSourceBlockOverride = null;
     private boolean ignoreBlockEntityUpdates = false;
+
+    private final RedstoneWireTurbo redstoneTurbo = new RedstoneWireTurbo((RedstoneWireBlock) Blocks.REDSTONE_WIRE);
+    private boolean redstoneShouldSignal = false;
 
     public SynchronousTickWorldExecutor(final MinecraftServer server) {
         this.server = server;
@@ -176,6 +182,21 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     @Override
     public boolean getIgnoreBlockEntityUpdates() {
         return this.ignoreBlockEntityUpdates;
+    }
+
+    @Override
+    public void setRedstoneShouldSignal(final boolean signal) {
+        this.redstoneShouldSignal = signal;
+    }
+
+    @Override
+    public boolean getRedstoneShouldSignal() {
+        return this.redstoneShouldSignal;
+    }
+
+    @Override
+    public RedstoneWireTurbo getRedstoneWireTurbo() {
+        return this.redstoneTurbo;
     }
 
     @Override

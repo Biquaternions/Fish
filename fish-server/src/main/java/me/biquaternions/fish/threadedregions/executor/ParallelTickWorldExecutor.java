@@ -3,12 +3,14 @@ package me.biquaternions.fish.threadedregions.executor;
 import ca.spottedleaf.common.time.TickData;
 import ca.spottedleaf.common.time.TickTime;
 import ca.spottedleaf.moonrise.common.util.TickThread;
+import io.papermc.paper.redstone.RedstoneWireTurbo;
 import io.papermc.paper.threadedregions.EntityScheduler;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import me.biquaternions.fish.concurrent.WorldExecutorThreadFactory;
 import me.biquaternions.fish.concurrent.thread.WorldTickThread;
 import me.biquaternions.fish.threadedregions.RegionizedWorldData;
 import me.biquaternions.fish.threadedregions.TickWorldExecutor;
+import me.biquaternions.fish.threadedregions.TickWorldScheduler;
 import me.biquaternions.fish.threadedregions.scheduler.WorldRegionScheduler;
 import me.biquaternions.fish.threadedregions.world.WorldEntityTickList;
 import me.biquaternions.fish.threadedregions.world.WorldWaypointManager;
@@ -318,6 +320,21 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     @Override
     public boolean getIgnoreBlockEntityUpdates() {
         return this.ignoreBlockEntityUpdates.get();
+    }
+
+    @Override
+    public void setRedstoneShouldSignal(final boolean signal) {
+        TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal = signal;
+    }
+
+    @Override
+    public boolean getRedstoneShouldSignal() {
+        return TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal;
+    }
+
+    @Override
+    public RedstoneWireTurbo getRedstoneWireTurbo() {
+        return TickWorldScheduler.getCurrentRegionizedWorldData().turbo;
     }
 
     @Override
