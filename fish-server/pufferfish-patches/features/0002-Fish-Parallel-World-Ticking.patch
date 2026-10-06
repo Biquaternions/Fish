@@ -5,7 +5,7 @@ Subject: [PATCH] Fish Parallel World Ticking
 
 
 diff --git a/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java b/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java
-index 5b907462f8998fbdefe27d7270eb5cdde548f3d2..950d4b40901483a68b7825048f9f9fcac4ff5aff 100644
+index 5b907462f8998fbdefe27d7270eb5cdde548f3d2..e972eb0e30b79534fa5c8b9ba67fdd4224754658 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java
 +++ b/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java
 @@ -104,6 +104,12 @@ public class ProfilingManager {
@@ -14,7 +14,7 @@ index 5b907462f8998fbdefe27d7270eb5cdde548f3d2..950d4b40901483a68b7825048f9f9fca
  
 +            // Fish start - Flare world performance collectors
 +            java.util.List<co.technove.flare.live.Collector> collectors = com.google.common.collect.Lists.newArrayList(new TPSCollector(), new WorldCountCollector(ProfilingManager::submitToMainThread), new GCEventCollector(), new StatCollector(), new ThreadCollector());
-+            if (net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.isConcurrentExecutor()) {
++            if (MinecraftServer.getServer().fish$worldExecutor.isConcurrentExecutor()) {
 +                collectors.add(me.biquaternions.fish.flare.collectors.WorldTpsCollector.create());
 +            }
 +            // Fish start - Flare world performance collectors
