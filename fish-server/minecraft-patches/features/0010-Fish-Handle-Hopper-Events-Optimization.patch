@@ -6,19 +6,6 @@ Subject: [PATCH] Fish Handle Hopper Events Optimization
 Without this, all worlds will get the movement event disabled if the last world has the event disabled.
 It can even happen while ticking hoppers, as worlds are ticking in parallel now.
 
-diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index fb36bd10cde7b8fce256c8ebf1bab3fbe5c85ea2..42377427abfd1f9bb72bed95d7aacda9a02b823d 100644
---- a/net/minecraft/server/MinecraftServer.java
-+++ b/net/minecraft/server/MinecraftServer.java
-@@ -1814,7 +1814,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
-             level.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
-             level.hasEntityMoveEvent = io.papermc.paper.event.entity.EntityMoveEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - Add EntityMoveEvent
-             level.updateLagCompensationTick(); // Paper - lag compensation
--            net.minecraft.world.level.block.entity.HopperBlockEntity.skipHopperEvents = level.paperConfig().hopper.disableMoveEvent || org.bukkit.event.inventory.InventoryMoveItemEvent.getHandlerList().getRegisteredListeners().length == 0; // Paper - Perf: Optimize Hoppers
-+            this.fish$globalData.skipHopperEvents = level.paperConfig().hopper.disableMoveEvent || org.bukkit.event.inventory.InventoryMoveItemEvent.getHandlerList().getRegisteredListeners().length == 0; // Paper - Perf: Optimize Hoppers // Fish - Handle Hopper Events Optimizations
-             profiler.push(() -> level + " " + level.dimension().identifier());
-             profiler.push("tick");
- 
 diff --git a/net/minecraft/world/level/block/entity/BlockEntity.java b/net/minecraft/world/level/block/entity/BlockEntity.java
 index ddda24a55201de2136fc6dd2cb863d609925d0ca..3c6395f1d3780c2f41b6fcf2fab56998e306e3f2 100644
 --- a/net/minecraft/world/level/block/entity/BlockEntity.java
