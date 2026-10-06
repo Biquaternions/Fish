@@ -113,7 +113,7 @@ index 4e62e16a76cc8b5f096f7533a372b68daa3cf898..0e00f741361d65e99182382d97214fab
      }
      // CraftBukkit end
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..fa1b41dc8f4795f13c1495ca7f03e7a4c9ca7bab 100644
+index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..0ed50130d87bde22dd4bb259417e8818ceca1a30 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -197,7 +197,7 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -166,7 +166,7 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..fa1b41dc8f4795f13c1495ca7f03e7a4
          this.chunkDataController = new ca.spottedleaf.moonrise.patches.chunk_system.io.datacontroller.ChunkDataController((ServerLevel)(Object)this, this.chunkTaskScheduler);
          // Paper end - rewrite chunk system
          this.getCraftServer().addWorld(this.getWorld()); // CraftBukkit
-+        this.fish$tickExecutor = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? java.util.concurrent.Executors.newSingleThreadExecutor(new me.biquaternions.fish.concurrent.WorldExecutorThreadFactory(this)) : null; // SparklyPaper - parallel world ticking
++        this.fish$tickExecutor = server.fish$worldExecutor.generateWorldExecutorService(this); // SparklyPaper - parallel world ticking
      }
  
      // Paper start
@@ -188,7 +188,7 @@ index 5921fbf3c43de1f2f3b9123797e2fe57179ec4b8..fa1b41dc8f4795f13c1495ca7f03e7a4
          // Paper start - extra debug info
          if (entity.valid) {
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index 56ee7ed4bdedbc5f7d12b9ccd547ff3984158b1d..c1c1f3010f44942bb04acc8858bd18d7c9ae0109 100644
+index 56ee7ed4bdedbc5f7d12b9ccd547ff3984158b1d..743391dc7eaee0ce96b3e9e0f57206c80e3a4cc2 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
 @@ -722,8 +722,10 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
@@ -215,7 +215,7 @@ index 56ee7ed4bdedbc5f7d12b9ccd547ff3984158b1d..c1c1f3010f44942bb04acc8858bd18d7
              return OptionalInt.empty();
          } else {
 +            // SparklyPaper start - parallel world ticking
-+            if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && !this.fish$hasTickedAtLeastOnceInNewWorld) {
++            if (net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.isConcurrentExecutor() && !this.fish$hasTickedAtLeastOnceInNewWorld) {
 +                MinecraftServer.LOGGER.warn("Ignoring request to open container {} because we haven't ticked in the current world yet!", menu, new Throwable());
 +                return OptionalInt.empty();
 +            }
@@ -376,7 +376,7 @@ index 5564a54f23aab158b9506325953ec70cab55c961..fd498e51eb59cf356a2262c972d54d52
                  if (!capturedBlockStates.isEmpty()) {
                      org.bukkit.Location location = org.bukkit.craftbukkit.util.CraftLocation.toBukkit(pos, level);
 diff --git a/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java b/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
-index c2f8479eef826efca3ed2993973b2cfc2c51ed00..eae30d59cf3b1460e1116f7c11aa3eb13199b1c3 100644
+index c2f8479eef826efca3ed2993973b2cfc2c51ed00..47873ae3506f07b90df2bfd79a0c0233c40824fd 100644
 --- a/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BaseContainerBlockEntity.java
 @@ -72,6 +72,12 @@ public abstract class BaseContainerBlockEntity extends BlockEntity implements Co
@@ -384,7 +384,7 @@ index c2f8479eef826efca3ed2993973b2cfc2c51ed00..eae30d59cf3b1460e1116f7c11aa3eb1
  
      public boolean canOpen(final Player player) {
 +        // SparklyPaper start - parallel world ticking (see: PARALLEL_NOTES.md - Opening an inventory after a world switch)
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && this.getLevel() != serverPlayer.level()) {
++        if (net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.isConcurrentExecutor() && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && this.getLevel() != serverPlayer.level()) {
 +            net.minecraft.server.MinecraftServer.LOGGER.warn("Player " + serverPlayer.getScoreboardName() + " (" + serverPlayer.getUUID() + ") attempted to open a BlockEntity @ " + this.getLevel().getWorld().getName() + " " + this.getBlockPos().getX() + ", " + this.getBlockPos().getY() + ", " + this.getBlockPos().getZ() + " while they were in a different world " + serverPlayer.level().getWorld().getName() + " than the block themselves!");
 +            return false;
 +        }
@@ -509,7 +509,7 @@ index dfcc97bdea1393b964d4d7f5211d8f25455bd392..dec447c75e335bb1fae9a3fddbc52192
          LevelChunkSection section = this.getSection(this.getSectionIndex(y));
          boolean wasEmpty = section.hasOnlyAir();
 diff --git a/net/minecraft/world/level/saveddata/maps/MapIndex.java b/net/minecraft/world/level/saveddata/maps/MapIndex.java
-index 6b3ce2ded53a7ea46cf7f0cb49043a022f6d9ee7..8b4f1c8e7691eecfc8637734f35b21cebdfd1199 100644
+index 6b3ce2ded53a7ea46cf7f0cb49043a022f6d9ee7..0f99b08ea79d6f65516cf3528ff48656ad526647 100644
 --- a/net/minecraft/world/level/saveddata/maps/MapIndex.java
 +++ b/net/minecraft/world/level/saveddata/maps/MapIndex.java
 @@ -26,6 +26,15 @@ public class MapIndex extends SavedData {
@@ -517,7 +517,7 @@ index 6b3ce2ded53a7ea46cf7f0cb49043a022f6d9ee7..8b4f1c8e7691eecfc8637734f35b21ce
  
      public MapId getNextMapId() {
 +        // SparklyPaper start - parallel world ticking
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
++        if (net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.isConcurrentExecutor()) {
 +            synchronized (TYPE) {
 +                MapId mapId = new MapId(++this.lastMapId);
 +                this.setDirty();

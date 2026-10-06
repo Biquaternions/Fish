@@ -3,6 +3,7 @@ package me.biquaternions.fish.threadedregions.executor;
 import ca.spottedleaf.common.time.TickData;
 import ca.spottedleaf.common.time.TickTime;
 import ca.spottedleaf.moonrise.common.util.TickThread;
+import io.papermc.paper.threadedregions.EntityScheduler;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import me.biquaternions.fish.concurrent.thread.WorldTickThread;
 import me.biquaternions.fish.threadedregions.RegionizedWorldData;
@@ -22,6 +23,7 @@ import net.minecraft.server.ServerTickRateManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.waypoints.ServerWaypointManager;
 import net.minecraft.util.Util;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.phys.AABB;
@@ -37,6 +39,7 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.function.BooleanSupplier;
 
@@ -114,6 +117,11 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     }
 
     @Override
+    public boolean isConcurrentExecutor() {
+        return true;
+    }
+
+    @Override
     public boolean shouldScheduleExecution() {
         return !TickThread.isTickThread();
     }
@@ -121,6 +129,11 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     @Override
     public boolean shouldScheduleExecution(final Level level) {
         return !TickThread.isTickThreadFor(level);
+    }
+
+    @Override
+    public boolean shouldScheduleExecution(final Entity entity) {
+        return !TickThread.isTickThreadFor(entity);
     }
 
     @Override
@@ -268,6 +281,14 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     }
 
     @Override
+    public EntityScheduler.EntitySchedulerTickList getEntitySchedulerTickList(final Level world) {
+        if (world instanceof ServerLevel serverLevel) {
+            return serverLevel.fish$worldData.entitySchedulerTickList;
+        }
+        throw new IllegalStateException(String.format("World [%s] of type [%s] is not an instance of ServerLevel", world.dimension().identifier(), world.getClass().getName()));
+    }
+
+    @Override
     public EntityTickList generateEntityTickList(final ServerLevel level) {
         return new WorldEntityTickList(level);
     }
@@ -275,6 +296,11 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
     @Override
     public ServerWaypointManager generateWaypointManager(final ServerLevel level) {
         return new WorldWaypointManager(level);
+    }
+
+    @Override
+    public @Nullable ExecutorService generateWorldExecutorService(final ServerLevel world) {
+        return java.util.concurrent.Executors.newSingleThreadExecutor(new me.biquaternions.fish.concurrent.WorldExecutorThreadFactory(world));
     }
 
     @Override

@@ -8,7 +8,7 @@ Similar to Entity Portal Teleportation, we do not need the custom logic, as worl
   we can still rely on the main thread to handle this logic safely.
 
 diff --git a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
-index 4abbb6a8029f6c77fdbeda9376d3d5cc5970896d..066195900d4c92a3bf51307e09787bb73341b5f7 100644
+index 4abbb6a8029f6c77fdbeda9376d3d5cc5970896d..7d9ac647cecca5649bada0c05c34c974c670d5a6 100644
 --- a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
 +++ b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl.java
 @@ -108,6 +108,37 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
@@ -16,11 +16,11 @@ index 4abbb6a8029f6c77fdbeda9376d3d5cc5970896d..066195900d4c92a3bf51307e09787bb7
                          final double preTeleportX = player.getX(), preTeleportY = player.getY(), preTeleportZ = player.getZ();
                          final float preTeleportYRot = player.getYRot(), preTeleportXRot = player.getXRot();
 +                        // Fish start - Handle Enderpearl Teleport
-+                        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(owner)) {
++                        if (level.getServer().fish$worldExecutor.shouldScheduleExecution(owner)) {
 +                            // It is possible to use a Folia-like strategy, although their implementation doesn't trigger some events
 +                            // We can take advantage of the still-existing main thread to handle this at the end of the tick
 +                            // For vanilla-parity reasons, this will only trigger if the ender-pearl and the owner are in different worlds
-+                            this.level().getServer().fish$worldExecutor.executeNonAcquireLock(() -> {
++                            level.getServer().fish$worldExecutor.executeNonAcquireLock(() -> {
 +                                // Pearls disappear with the player on disconnection
 +                                ServerPlayer newOwner = player.teleport(new TeleportTransition(
 +                                    level, teleportPos, Vec3.ZERO, 0.0F, 0.0F, Relative.union(Relative.ROTATION, Relative.DELTA), TeleportTransition.DO_NOTHING).withCause(org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PEARL));

@@ -2,6 +2,7 @@ package me.biquaternions.fish.threadedregions.executor;
 
 import ca.spottedleaf.common.time.TickData;
 import ca.spottedleaf.moonrise.common.util.TickThread;
+import io.papermc.paper.threadedregions.EntityScheduler;
 import io.papermc.paper.threadedregions.scheduler.FallbackRegionScheduler;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import me.biquaternions.fish.threadedregions.TickWorldExecutor;
@@ -18,6 +19,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.waypoints.ServerWaypointManager;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.phys.AABB;
@@ -27,6 +29,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.function.BooleanSupplier;
 
 @NullMarked
@@ -69,6 +72,11 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
         this.handleScheduledTasks();
     }
 
+    @Override
+    public boolean isConcurrentExecutor() {
+        return false;
+    }
+
     private void handleScheduledTasks() {
         Runnable task;
         while ((task = this.endOfTickTasks.poll()) != null) {
@@ -83,6 +91,11 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
 
     @Override
     public boolean shouldScheduleExecution(final Level level) {
+        return false;
+    }
+
+    @Override
+    public boolean shouldScheduleExecution(final Entity entity) {
         return false;
     }
 
@@ -131,6 +144,11 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     }
 
     @Override
+    public EntityScheduler.EntitySchedulerTickList getEntitySchedulerTickList(final Level world) {
+        return MinecraftServer.getServer().entitySchedulerTickList;
+    }
+
+    @Override
     public EntityTickList generateEntityTickList(final ServerLevel level) {
         return new EntityTickList();
     }
@@ -138,6 +156,11 @@ public class SynchronousTickWorldExecutor implements TickWorldExecutor {
     @Override
     public ServerWaypointManager generateWaypointManager(final ServerLevel level) {
         return new ServerWaypointManager(level);
+    }
+
+    @Override
+    public @Nullable ExecutorService generateWorldExecutorService(final ServerLevel world) {
+        return null;
     }
 
     @Override

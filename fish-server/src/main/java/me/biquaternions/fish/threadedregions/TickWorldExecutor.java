@@ -1,6 +1,7 @@
 package me.biquaternions.fish.threadedregions;
 
 import ca.spottedleaf.common.time.TickData;
+import io.papermc.paper.threadedregions.EntityScheduler;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.PacketListener;
@@ -8,6 +9,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.RunningOnDifferentThreadException;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.waypoints.ServerWaypointManager;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.phys.AABB;
@@ -15,6 +17,7 @@ import org.bukkit.TreeType;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.function.BooleanSupplier;
 
 @NullMarked
@@ -27,6 +30,13 @@ public interface TickWorldExecutor {
      * @param hasTimeLeft time left supplier
      */
     void tickWorlds(final Iterable<ServerLevel> worlds, final BooleanSupplier hasTimeLeft);
+
+    /**
+     * Is the scheduler synchronous
+     *
+     * @return synchronous
+     */
+    boolean isConcurrentExecutor();
 
     /**
      * Does the current thread require scheduling execution.
@@ -43,6 +53,15 @@ public interface TickWorldExecutor {
      * @return value
      */
     boolean shouldScheduleExecution(final Level level);
+
+    /**
+     * Does the current thread require scheduling execution.
+     *
+     * @param entity entity
+     *
+     * @return value
+     */
+    boolean shouldScheduleExecution(final Entity entity);
 
     /**
      * Implementation-dependant thread check, it might throw on non-main thread access.
@@ -135,6 +154,15 @@ public interface TickWorldExecutor {
     TickData.@Nullable MSPTData getMSPTData5s(final ServerLevel world);
 
     /**
+     * Entity scheduler tick list
+     *
+     * @param world world
+     *
+     * @return scheduler
+     */
+    EntityScheduler.EntitySchedulerTickList getEntitySchedulerTickList(final Level world);
+
+    /**
      * Generates a new entity tick list.
      *
      * @param world world
@@ -151,6 +179,13 @@ public interface TickWorldExecutor {
      * @return waypoint manager
      */
     ServerWaypointManager generateWaypointManager(final ServerLevel world);
+
+    /**
+     * Generates a new world executor service
+     *
+     * @return executor service
+     */
+    @Nullable ExecutorService generateWorldExecutorService(final ServerLevel world);
 
     /**
      * Generates a new region scheduler

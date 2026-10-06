@@ -16,7 +16,7 @@ Should this be a concern, it is possible to replace the scheduling for the end o
   running this task on the same tick, right after all worlds are done ticking.
 
 diff --git a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
-index ba61762e09ace201173999b3984046f930ccfe57..c2962ceab4aae215488d0a14a2c64a9321a39e38 100644
+index ba61762e09ace201173999b3984046f930ccfe57..f3debd1e1131df5358b8c726d4dd9df3aca8ecfa 100644
 --- a/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
 +++ b/net/minecraft/world/entity/ai/behavior/GoToPotentialJobSite.java
 @@ -45,12 +45,23 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
@@ -24,7 +24,7 @@ index ba61762e09ace201173999b3984046f930ccfe57..c2962ceab4aae215488d0a14a2c64a93
              ServerLevel serverLevel = level.getServer().getLevel(globalPos.dimension());
              if (serverLevel != null) {
 +                // Fish start - Handle Villager POI Access
-+                if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(serverLevel)) {
++                if (serverLevel.getServer().fish$worldExecutor.shouldScheduleExecution(serverLevel)) {
 +                    serverLevel.getServer().fish$worldExecutor.executeNonAcquireLock(serverLevel, () -> {
 +                        PoiManager manager = serverLevel.getPoiManager();
 +                        if (manager.exists(pos, p -> true)) {
@@ -44,7 +44,7 @@ index ba61762e09ace201173999b3984046f930ccfe57..c2962ceab4aae215488d0a14a2c64a93
          });
          body.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
 diff --git a/net/minecraft/world/entity/npc/villager/Villager.java b/net/minecraft/world/entity/npc/villager/Villager.java
-index 39c5fa37d2fcc07d823bcc57bc46ffbfb66d6265..9bb66f9dd0ba442e5bbe095ea614cce7ba855781 100644
+index 39c5fa37d2fcc07d823bcc57bc46ffbfb66d6265..ee790ab624862a45a57614923ed0ea8e6c713ef8 100644
 --- a/net/minecraft/world/entity/npc/villager/Villager.java
 +++ b/net/minecraft/world/entity/npc/villager/Villager.java
 @@ -658,6 +658,18 @@ public class Villager extends AbstractVillager implements VillagerDataHolder, Re
@@ -52,8 +52,8 @@ index 39c5fa37d2fcc07d823bcc57bc46ffbfb66d6265..9bb66f9dd0ba442e5bbe095ea614cce7
                  ServerLevel poiLevel = server.getLevel(memory.dimension());
                  if (poiLevel != null) {
 +                    // Fish start - Handle Villager POI Access
-+                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && !ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(poiLevel)) {
-+                        poiLevel.getServer().fish$worldExecutor.executeNonAcquireLock(poiLevel, () -> {
++                    if (server.fish$worldExecutor.shouldScheduleExecution(poiLevel)) {
++                        server.fish$worldExecutor.executeNonAcquireLock(poiLevel, () -> {
 +                            PoiManager poiManager = poiLevel.getPoiManager();
 +                            Optional<Holder<PoiType>> type = poiManager.getType(memory.pos());
 +                            BiPredicate<Villager, Holder<PoiType>> poiTypePredicate = POI_MEMORIES.get(memoryType);
