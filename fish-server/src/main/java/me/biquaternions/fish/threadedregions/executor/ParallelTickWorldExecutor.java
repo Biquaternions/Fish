@@ -5,6 +5,7 @@ import ca.spottedleaf.common.time.TickTime;
 import ca.spottedleaf.moonrise.common.util.TickThread;
 import io.papermc.paper.threadedregions.EntityScheduler;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
+import me.biquaternions.fish.concurrent.WorldExecutorThreadFactory;
 import me.biquaternions.fish.concurrent.thread.WorldTickThread;
 import me.biquaternions.fish.threadedregions.RegionizedWorldData;
 import me.biquaternions.fish.threadedregions.TickWorldExecutor;
@@ -40,6 +41,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.function.BooleanSupplier;
 
@@ -300,7 +302,7 @@ public class ParallelTickWorldExecutor implements TickWorldExecutor {
 
     @Override
     public @Nullable ExecutorService generateWorldExecutorService(final ServerLevel world) {
-        return java.util.concurrent.Executors.newSingleThreadExecutor(new me.biquaternions.fish.concurrent.WorldExecutorThreadFactory(world));
+        return Executors.newSingleThreadExecutor(new WorldExecutorThreadFactory(world));
     }
 
     @Override
