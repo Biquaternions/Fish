@@ -54,7 +54,7 @@ index c650f26d3ecdeb94a4d0f40637c07c59a6cbdfa6..e9c6ee75734c5fc76b0cd7fef715c355
                  // Paper end
                  // CraftBukkit start
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 4e62e16a76cc8b5f096f7533a372b68daa3cf898..0e00f741361d65e99182382d97214fabacea723f 100644
+index 4e62e16a76cc8b5f096f7533a372b68daa3cf898..62d99625e717d687ad07fc4edffbfe7948be68b7 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -331,6 +331,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -81,7 +81,7 @@ index 4e62e16a76cc8b5f096f7533a372b68daa3cf898..0e00f741361d65e99182382d97214fab
          Runtime.getRuntime().addShutdownHook(new org.bukkit.craftbukkit.util.ServerShutdownThread(this));
          // CraftBukkit end
          this.paperConfigurations = services.paper().configurations(); // Paper - add paper configuration files
-+        this.fish$worldExecutor = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? new me.biquaternions.fish.threadedregions.executor.ParallelTickWorldExecutor(this, me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.threads) : new me.biquaternions.fish.threadedregions.executor.SynchronousTickWorldExecutor(this); // Fish
++        this.fish$worldExecutor = me.biquaternions.fish.FishConfig.getInstance().asyncWorldTicking ? new me.biquaternions.fish.threadedregions.executor.ParallelTickWorldExecutor(this, me.biquaternions.fish.FishConfig.getInstance().threadsWorldTicking) : new me.biquaternions.fish.threadedregions.executor.SynchronousTickWorldExecutor(this); // Fish
      }
  
      protected abstract boolean initServer() throws IOException;

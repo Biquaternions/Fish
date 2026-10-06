@@ -44,6 +44,11 @@ public class FishConfig extends ConfigurablePojo<FishConfig> {
         INITIALIZED = true;
     }
 
+    private transient boolean nonReloadableInitialized = false;
+
+    public transient boolean asyncWorldTicking = false;
+    public transient int threadsWorldTicking;
+
     @Section("info")
     public Info info = new Info();
     public static class Info {
@@ -71,8 +76,7 @@ public class FishConfig extends ConfigurablePojo<FishConfig> {
         public static class WorldTicking {
 
             @Key("enabled")
-            private boolean softEnabled = false;
-            public transient boolean enabled = false;
+            public boolean enabled = false;
 
             @Comment({
                 "\uD83D\uDD03 Maximum number of threads that can be executed at the same time",
@@ -90,8 +94,13 @@ public class FishConfig extends ConfigurablePojo<FishConfig> {
 
     @PostInject
     public void validate() {
-        this.async.worldTicking.enabled = this.async.worldTicking.softEnabled;
-        this.async.worldTicking.threads = fallbackThreads(this.async.worldTicking.softThreads, 1);
+        if (!this.nonReloadableInitialized) {
+            this.asyncWorldTicking = this.async.worldTicking.enabled;
+            this.threadsWorldTicking = FishConfig.fallbackThreads(this.async.worldTicking.threads, 1);
+
+            this.nonReloadableInitialized = true;
+            // return;
+        }
     }
 
     private static int fallbackThreads(int threads, int shifts) {
