@@ -8,10 +8,10 @@ protected net.minecraft.server.waypoints.ServerWaypointManager createConnection(
 protected net.minecraft.server.waypoints.ServerWaypointManager updateConnection(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/waypoints/WaypointTransmitter;Lnet/minecraft/world/waypoints/WaypointTransmitter$Connection;)V
 
 diff --git a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
-index eb7c5ba7168ba4903e93938dd8671227194bec99..0023adfccef13bce06c64407f2c30da74d74d049 100644
+index ef990079fe5214a2817f55249163548f601523de..d643db914ccbced3a0a9f456561a37e15c5e3e55 100644
 --- a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
 +++ b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/ChunkHolderManager.java
-@@ -1153,7 +1153,7 @@ public final class ChunkHolderManager {
+@@ -1168,7 +1168,7 @@ public final class ChunkHolderManager {
          if (changedFullStatus.isEmpty()) {
              return;
          }
@@ -20,7 +20,7 @@ index eb7c5ba7168ba4903e93938dd8671227194bec99..0023adfccef13bce06c64407f2c30da7
              // These will be handled on the next ServerChunkCache$MainThreadExecutor#pollTask, as it runs the distance manager update
              // which will invoke processTicketUpdates
              this.offThreadPendingFullLoadUpdate.addAll(changedFullStatus);
-@@ -1175,7 +1175,7 @@ public final class ChunkHolderManager {
+@@ -1190,7 +1190,7 @@ public final class ChunkHolderManager {
  
      // note: never call while inside the chunk system, this will absolutely break everything
      public void processUnloads() {
@@ -29,14 +29,14 @@ index eb7c5ba7168ba4903e93938dd8671227194bec99..0023adfccef13bce06c64407f2c30da7
  
          if (BLOCK_TICKET_UPDATES.get() == Boolean.TRUE) {
              throw new IllegalStateException("Cannot unload chunks recursively");
-@@ -1444,7 +1444,7 @@ public final class ChunkHolderManager {
+@@ -1484,7 +1484,7 @@ public final class ChunkHolderManager {
          if (BLOCK_TICKET_UPDATES.get() == Boolean.TRUE) {
              throw new IllegalStateException("Cannot update ticket level while unloading chunks or updating entity manager");
          }
 -        final boolean isTickThread = TickThread.isTickThread();
 +        final boolean isTickThread = TickThread.isTickThreadFor(this.world); // SparklyPaper - parallel world ticking
  
-         if (!PlatformHooks.get().allowAsyncTicketUpdates() && isTickThread) {
+         if (!PlatformHooks.get().allowAsyncTicketUpdates() && !isTickThread) {
              TickThread.ensureTickThread("Cannot asynchronously process ticket updates");
 diff --git a/net/minecraft/core/dispenser/DispenseItemBehavior.java b/net/minecraft/core/dispenser/DispenseItemBehavior.java
 index c650f26d3ecdeb94a4d0f40637c07c59a6cbdfa6..e9c6ee75734c5fc76b0cd7fef715c3556eb3350f 100644
@@ -252,7 +252,7 @@ index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..22fcd7848d80f3a4fc9455fd0793875e
          player.restoreFrom(serverPlayer, keepAllPlayerData);
          player.setId(serverPlayer.getId());
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 27d11ac41a842309cd421e2955ba490672359873..13d41c7cb508cd30eed5d34797f5d9dc47bf1399 100644
+index 31b5fed19183e857ed001c4eb7c3445c54a34564..20b7d9dee2d53ca4658c995ab11ba8dd11a35086 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -891,6 +891,7 @@ public abstract class Entity
@@ -497,10 +497,10 @@ index 95ac67eeee1c5c12fd709fe44288d6de9a28b3a1..bba74035fe0c13a568efcb76c58c1e2e
      // CraftBukkit end
  }
 diff --git a/net/minecraft/world/level/chunk/LevelChunk.java b/net/minecraft/world/level/chunk/LevelChunk.java
-index dfcc97bdea1393b964d4d7f5211d8f25455bd392..dec447c75e335bb1fae9a3fddbc52192627d409d 100644
+index b557f66579697e0b2ce385ed5f1de2f57312f825..628437175314fece941018d1850c1e3c501a78de 100644
 --- a/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/net/minecraft/world/level/chunk/LevelChunk.java
-@@ -377,6 +377,7 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
+@@ -382,6 +382,7 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
  
      @Override
      public @Nullable BlockState setBlockState(final BlockPos pos, final BlockState state, final @Block.UpdateFlags int flags) {
