@@ -1,4 +1,4 @@
-package me.biquaternions.fish.async.thread;
+package me.biquaternions.fish.concurrent.thread;
 
 import ca.spottedleaf.moonrise.common.util.TickThread;
 import me.biquaternions.fish.threadedregions.RegionizedWorldData;

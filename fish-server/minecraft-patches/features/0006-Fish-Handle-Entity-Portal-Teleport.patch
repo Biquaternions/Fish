@@ -10,14 +10,14 @@ However, their approach has some limitations when triggering events, and require
   have a main thread, so we just schedule the task at the end of the main tick.
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 023cded309b88af5e981eb9f01a0fdb938012a24..e6fefaa5ca2bbdc2725a9f1d792da5399f1ff5dc 100644
+index e80c5286688c76bf1736f7b82cef78f32925ec5d..2c2fbe1dc025e1c4706234927dd571217e54b68e 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -891,7 +891,6 @@ public abstract class Entity
      // CraftBukkit start
      public void postTick() {
          // No clean way to break out of ticking once the entity has been copied to a new world, so instead we move the portalling later in the tick cycle
--        if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
+-        if (!net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.isConcurrentExecutor()) // SparklyPaper - parallel world ticking (see issue #9, this is executed in the server level tick for non-player entities)
          if (!(this instanceof ServerPlayer) && this.isAlive()) { // Paper - don't attempt to teleport dead entities
              this.handlePortal();
          }
@@ -26,12 +26,12 @@ index 023cded309b88af5e981eb9f01a0fdb938012a24..e6fefaa5ca2bbdc2725a9f1d792da539
                      profiler.push("portal");
                      this.setPortalCooldown();
 +                    // Fish start - Handle Entity Portal Teleport
-+                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
++                    if (level.getServer().fish$worldExecutor.isConcurrentExecutor()) {
 +                        this.portalProcess.fish$teleporting = true;
 +                        // We can't use a 1:1 of Folia's strategy as worlds don't tick independently
 +                        // We can take advantage of the main thread, and schedule this to the end of the tick
 +                        // The vanilla end gateway doesn't really need this, but not being a final class, plugins can do whatever via NMS
-+                        me.biquaternions.fish.async.AsyncWorldTicking.scheduleVoidForEndOfTick(() -> {
++                        level.getServer().fish$worldExecutor.executeNonAcquireLock(() -> {
 +                            final PortalProcessor processor = this.portalProcess;
 +                            if (processor == null) {
 +                                return;
@@ -60,7 +60,7 @@ index 023cded309b88af5e981eb9f01a0fdb938012a24..e6fefaa5ca2bbdc2725a9f1d792da539
                      if (teleportTransition != null) {
                          this.teleportToPortalDestination(level, teleportTransition);
 diff --git a/net/minecraft/world/entity/PortalProcessor.java b/net/minecraft/world/entity/PortalProcessor.java
-index 7ec15f3d3a770e1e9e2fbac29dd38e947bb07091..9a179599fc3f25881ba0d2edf29a5d84ce8cf1ac 100644
+index 7ec15f3d3a770e1e9e2fbac29dd38e947bb07091..aee856c70ad2379ae2e38ef0cd4152bac37ac12e 100644
 --- a/net/minecraft/world/entity/PortalProcessor.java
 +++ b/net/minecraft/world/entity/PortalProcessor.java
 @@ -11,6 +11,7 @@ public class PortalProcessor {
@@ -75,7 +75,7 @@ index 7ec15f3d3a770e1e9e2fbac29dd38e947bb07091..9a179599fc3f25881ba0d2edf29a5d84
      }
  
      public boolean processPortalTeleportation(final ServerLevel serverLevel, final Entity entity, final boolean allowedToTeleport) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.fish$teleporting) return false; // Fish - Handle Entity Portal Teleport
++        if (serverLevel.getServer().fish$worldExecutor.isConcurrentExecutor() && this.fish$teleporting) return false; // Fish - Handle Entity Portal Teleport
          if (!this.insidePortalThisTick) {
              this.decayTick();
              return false;
@@ -83,7 +83,7 @@ index 7ec15f3d3a770e1e9e2fbac29dd38e947bb07091..9a179599fc3f25881ba0d2edf29a5d84
      }
  
      public boolean hasExpired() {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) return !this.fish$teleporting && this.portalTime <= 0; // Fish - Handle Entity Portal Teleport, called from AR
++        if (net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.isConcurrentExecutor()) return !this.fish$teleporting && this.portalTime <= 0; // Fish - Handle Entity Portal Teleport, called from AR
          return this.portalTime <= 0;
      }
  

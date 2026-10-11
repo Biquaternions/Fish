@@ -24,46 +24,39 @@ Additionally, PacketUtil requires validating against the current ticking thread 
   an inventory while another is currently opened in a scheduled task.
 
 diff --git a/net/minecraft/network/protocol/PacketUtils.java b/net/minecraft/network/protocol/PacketUtils.java
-index 144c18c08bf8f03d907b97f968aa171a9fbf997f..ac531086508f38d6af31670968d6ae710a2aea1c 100644
+index 144c18c08bf8f03d907b97f968aa171a9fbf997f..52095b642943ec241595600e4fef3df9125a69e8 100644
 --- a/net/minecraft/network/protocol/PacketUtils.java
 +++ b/net/minecraft/network/protocol/PacketUtils.java
-@@ -15,6 +15,15 @@ public class PacketUtils {
+@@ -15,7 +15,7 @@ public class PacketUtils {
      private static final Logger LOGGER = LogUtils.getLogger();
  
      public static <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final ServerLevel level) throws RunningOnDifferentThreadException {
-+        // Fish start - Location scheduler handling
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
-+            if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(level)) {
-+                level.getServer().packetProcessor().scheduleIfPossible(listener, packet);
-+                throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
-+            }
-+            return;
-+        }
-+        // Fish start - Location scheduler handling
-         ensureRunningOnSameThread(packet, listener, level.getServer().packetProcessor());
+-        ensureRunningOnSameThread(packet, listener, level.getServer().packetProcessor());
++        level.getServer().fish$worldExecutor.ensureRunningOnSameThread(packet, listener, level); // Fish - Location scheduler handling
      }
  
+     public static <T extends PacketListener> void ensureRunningOnSameThread(final Packet<T> packet, final T listener, final PacketProcessor packetProcessor) throws RunningOnDifferentThreadException {
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index b6920b31a39ecd3f51e046ff807f46e1f329142b..a186148dc817038788f79e4a74b18238692cd23b 100644
+index 0e00f741361d65e99182382d97214fabacea723f..526f1a2f6cb5c38fc10075cb8fcd150bf600f176 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -331,6 +331,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
-     private final Set<String> pluginsBlockingSleep = new java.util.HashSet<>(); // Paper - API to allow/disallow tick sleeping
+@@ -332,6 +332,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
      public static final long SERVER_INIT = System.nanoTime(); // Paper - Lag compensation
-     public gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
+     public final gg.pufferfish.pufferfish.util.AsyncExecutor pufferfish$mobSpawnExecutor = new gg.pufferfish.pufferfish.util.AsyncExecutor("Pufferfish Async Mob Spawning Thread"); // Pufferfish - Optimize mob spawning
+     public final me.biquaternions.fish.threadedregions.TickWorldExecutor fish$worldExecutor; // Fish
 +    public final me.biquaternions.fish.threadedregions.FallbackWorldData fish$globalData = new me.biquaternions.fish.threadedregions.FallbackWorldData(); // Fish - Global Region
      // Paper start - improve tick loop
      public final ca.spottedleaf.common.time.TickData tickTimes1s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
      public final ca.spottedleaf.common.time.TickData tickTimes5s  = new ca.spottedleaf.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
-@@ -1752,6 +1753,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1759,6 +1760,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          this.server.getScheduler().mainThreadHeartbeat(); // CraftBukkit
          // Paper start - optimise Folia entity scheduler
          ((io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler)org.bukkit.Bukkit.getGlobalRegionScheduler()).tick();
-+        if (!me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) { // Fish - Handle Entity Schedulers
++        if (!this.fish$worldExecutor.isConcurrentExecutor()) { // Fish - Handle Entity Schedulers
          for (io.papermc.paper.threadedregions.EntityScheduler scheduler : this.entitySchedulerTickList.getAllSchedulers()) {
              if (scheduler.isRetired()) {
                  continue;
-@@ -1759,6 +1761,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1766,6 +1768,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
  
              scheduler.executeTick();
          }
@@ -72,7 +65,7 @@ index b6920b31a39ecd3f51e046ff807f46e1f329142b..a186148dc817038788f79e4a74b18238
          // Paper end - Folia scheduler API
          io.papermc.paper.adventure.providers.ClickCallbackProviderImpl.ADVENTURE_CLICK_MANAGER.handleQueue(this.tickCount); // Paper
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index ee4c5b760b9a945c2c94a2411abead6e5fdc45bc..729569f750e942c790ed0946c517c454eafeacae 100644
+index 0ed50130d87bde22dd4bb259417e8818ceca1a30..5031b14fc13e0eafda889c549220a69df9161951 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -240,6 +240,8 @@ public class ServerLevel extends Level implements WorldGenLevel, ServerEntityGet
@@ -85,17 +78,15 @@ index ee4c5b760b9a945c2c94a2411abead6e5fdc45bc..729569f750e942c790ed0946c517c454
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 1b3de52ec9c3e1d2fb07491261e03c1df8ab593e..023cded309b88af5e981eb9f01a0fdb938012a24 100644
+index 23010928683aa180f78f3f70667cba3c48ec021d..6dd6927600f2526ad68d172c18719a6a85871549 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -5389,6 +5389,10 @@ public abstract class Entity
+@@ -5389,7 +5389,7 @@ public abstract class Entity
      // Paper end - Folia schedulers
      // Paper start - optimise Folia entity scheduler
      public final void registerScheduler() {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && this.level instanceof ServerLevel serverLevel) {
-+            this.getBukkitEntity().taskScheduler.registerTo(serverLevel.fish$worldData.entitySchedulerTickList);
-+            return;
-+        }
-         this.getBukkitEntity().taskScheduler.registerTo(net.minecraft.server.MinecraftServer.getServer().entitySchedulerTickList);
+-        this.getBukkitEntity().taskScheduler.registerTo(net.minecraft.server.MinecraftServer.getServer().entitySchedulerTickList);
++        this.getBukkitEntity().taskScheduler.registerTo(net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getEntitySchedulerTickList(this.level)); // Fish
      }
      // Paper end - optimise Folia entity scheduler
+ 

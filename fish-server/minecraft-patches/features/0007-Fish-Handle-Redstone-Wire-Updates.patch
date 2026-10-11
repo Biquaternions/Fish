@@ -7,90 +7,81 @@ This patch implements Folia's approach to prevent too many chained neighbors rac
 This creates a boolean in WorldData to keep track of neighbors per-world.
 
 diff --git a/io/papermc/paper/redstone/RedstoneWireTurbo.java b/io/papermc/paper/redstone/RedstoneWireTurbo.java
-index f7820568b78f630e4d234d3dfb36c2167149777a..f674bf9ef25142d979afbce5cfc60faa32abd0d1 100644
+index f7820568b78f630e4d234d3dfb36c2167149777a..fee9b6496c9fb491c8d8ee95fbadd45f9804e187 100644
 --- a/io/papermc/paper/redstone/RedstoneWireTurbo.java
 +++ b/io/papermc/paper/redstone/RedstoneWireTurbo.java
-@@ -827,14 +827,24 @@ public final class RedstoneWireTurbo {
+@@ -827,14 +827,14 @@ public final class RedstoneWireTurbo {
          j = getMaxCurrentStrength(upd, j);
          int l = 0;
  
-+        // Fish start - Fix too many chained neighbors
-+        final int k;
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
-+            me.biquaternions.fish.threadedregions.AbstractWorldData fish$worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData();
-+            fish$worldData.shouldSignal = false;
-+            k = worldIn.getBestNeighborSignal(upd.self);
-+            fish$worldData.shouldSignal = true;
-+        }
-+        else { // Fish end - Fix too many chained neighbors
-         wire.shouldSignal = false;
+-        wire.shouldSignal = false;
++        net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setRedstoneShouldSignal(false); // Fish - Fix too many chained neighbors
          // Unfortunately, World.isBlockIndirectlyGettingPowered is complicated,
          // and I'm not ready to try to replicate even more functionality from
          // elsewhere in Minecraft into this accelerator.  So sadly, we must
          // suffer the performance hit of this very expensive call.  If there
          // is consistency to what this call returns, we may be able to cache it.
--        final int k = worldIn.getBestNeighborSignal(upd.self);
-+        k = worldIn.getBestNeighborSignal(upd.self);
-         wire.shouldSignal = true;
-+        } // Fish - Fix too many chained neighbors
+         final int k = worldIn.getBestNeighborSignal(upd.self);
+-        wire.shouldSignal = true;
++        net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setRedstoneShouldSignal(true); // Fish - Fix too many chained neighbors
  
          // The variable 'k' holds the maximum redstone power value of any adjacent blocks.
          // If 'k' has the highest level of all neighbors, then the power level of this
 diff --git a/net/minecraft/world/level/block/RedstoneWireBlock.java b/net/minecraft/world/level/block/RedstoneWireBlock.java
-index ede64a0afbcdc41e60c3f2f5917c89f09b888433..a29f3a8636c31ecc0c3ae7b5d348151471e144ee 100644
+index c243c32969e29ef84f6c3dabb28325b0d5fd0753..1c83c70b6ba533bf464600b5f303158feeeba457 100644
 --- a/net/minecraft/world/level/block/RedstoneWireBlock.java
 +++ b/net/minecraft/world/level/block/RedstoneWireBlock.java
-@@ -280,6 +280,7 @@ public class RedstoneWireBlock extends Block {
+@@ -280,7 +280,7 @@ public class RedstoneWireBlock extends Block {
              if (orientation != null) {
                  source = pos.relative(orientation.getFront().getOpposite());
              }
-+            if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && worldIn instanceof ServerLevel serverLevel) serverLevel.fish$worldData.turbo.updateSurroundingRedstone(worldIn, pos, state, source); else // SparklyPaper - parallel world ticking
-             turbo.updateSurroundingRedstone(worldIn, pos, state, source);
+-            turbo.updateSurroundingRedstone(worldIn, pos, state, source);
++            net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getRedstoneWireTurbo().updateSurroundingRedstone(worldIn, pos, state, source); // SparklyPaper - parallel world ticking
              return;
          }
-@@ -304,6 +305,7 @@ public class RedstoneWireBlock extends Block {
+         updatePowerStrength(worldIn, pos, state, orientation, blockAdded);
+@@ -304,7 +304,7 @@ public class RedstoneWireBlock extends Block {
                  // [Space Walker] suppress shape updates and emit those manually to
                  // bypass the new neighbor update stack.
                  if (level.setBlock(pos, state, Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS)) {
-+                    if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled && level instanceof ServerLevel serverLevel) serverLevel.fish$worldData.turbo.updateNeighborShapes(level, pos, state); else // SparklyPaper - parallel world ticking
-                     turbo.updateNeighborShapes(level, pos, state);
+-                    turbo.updateNeighborShapes(level, pos, state);
++                    net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getRedstoneWireTurbo().updateNeighborShapes(level, pos, state); // SparklyPaper - parallel world ticking
                  }
              }
-@@ -327,6 +329,13 @@ public class RedstoneWireBlock extends Block {
+         }
+@@ -327,9 +327,9 @@ public class RedstoneWireBlock extends Block {
      }
  
      public int getBlockSignal(final Level level, final BlockPos pos) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) {
-+            me.biquaternions.fish.threadedregions.AbstractWorldData fish$worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData();
-+            fish$worldData.shouldSignal = false;
-+            int blockSignal = level.getBestNeighborSignal(pos);
-+            fish$worldData.shouldSignal = true;
-+            return blockSignal;
-+        }
-         this.shouldSignal = false;
+-        this.shouldSignal = false;
++        net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setRedstoneShouldSignal(false); // Fish - Fix too many chained neighbors
          int blockSignal = level.getBestNeighborSignal(pos);
-         this.shouldSignal = true;
-@@ -423,12 +432,14 @@ public class RedstoneWireBlock extends Block {
+-        this.shouldSignal = true;
++        net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setRedstoneShouldSignal(true); // Fish - Fix too many chained neighbors
+         return blockSignal;
+     }
+ 
+@@ -423,12 +423,12 @@ public class RedstoneWireBlock extends Block {
  
      @Override
      protected int getDirectSignal(final BlockState state, final BlockGetter level, final BlockPos pos, final Direction direction) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) return !me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal ? Redstone.SIGNAL_MIN : state.getSignal(level, pos, direction);
-         return !this.shouldSignal ? Redstone.SIGNAL_MIN : state.getSignal(level, pos, direction);
+-        return !this.shouldSignal ? Redstone.SIGNAL_MIN : state.getSignal(level, pos, direction);
++        return !net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getRedstoneShouldSignal() ? Redstone.SIGNAL_MIN : state.getSignal(level, pos, direction); // Fish - Fix too many chained neighbors
      }
  
      @Override
      protected int getSignal(final BlockState state, final BlockGetter level, final BlockPos pos, final Direction direction) {
 -        if (this.shouldSignal && direction != Direction.DOWN) {
-+        boolean shouldSignal0 = me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled ? me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal : this.shouldSignal;
-+        if (shouldSignal0 && direction != Direction.DOWN) {
++        if (net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getRedstoneShouldSignal() && direction != Direction.DOWN) { // Fish - Fix too many chained neighbors
              int power = this.ownSignal(state, level, pos);
              if (power == 0) {
                  return Redstone.SIGNAL_MIN;
-@@ -463,6 +474,7 @@ public class RedstoneWireBlock extends Block {
+@@ -463,7 +463,7 @@ public class RedstoneWireBlock extends Block {
  
      @Override
      protected boolean isSignalSource(final BlockState state) {
-+        if (me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled) return me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData().shouldSignal;
-         return this.shouldSignal;
+-        return this.shouldSignal;
++        return net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.getRedstoneShouldSignal(); // Fish - Fix too many chained neighbors
      }
  
+     public static int getColorForPower(final int power) {

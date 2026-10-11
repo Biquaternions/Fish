@@ -16,7 +16,7 @@ The user is now forced to read an entry in the repository before using the featu
   https://github.com/Biquaternions/Fish/blob/ver/1.21.8/docs/PWT_RULES.md
 
 diff --git a/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java b/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
-index d393e76d75a2cb8950c633235f3cc56db744d107..2fb5fc0e82b13c92d445460a70036cd168b8fd13 100644
+index c71f46aa41a219dcd275dc2e477c67a6ff6d1a98..e14fe28c7cc0cc81f18e9c01ddf88976126c8254 100644
 --- a/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
 +++ b/src/main/java/ca/spottedleaf/moonrise/common/util/TickThread.java
 @@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
@@ -92,7 +92,7 @@ index d393e76d75a2cb8950c633235f3cc56db744d107..2fb5fc0e82b13c92d445460a70036cd1
          }
      }
 @@ -108,7 +99,7 @@ public class TickThread extends Thread {
-     public static void ensureTickThread(final net.minecraft.server.level.ServerLevel world, final String reason) {
+     public static void ensureTickThread(final net.minecraft.world.level.Level world, final String reason) {
          if (!TickThread.isTickThreadFor(world)) {
              LOGGER.error("Thread " + Thread.currentThread().getName() + " failed main thread check: " + reason + " @ world " + world.getWorld().getName() + " - " + TickThread.getTickThreadInformation(world.getServer()), new Throwable()); // SparklyPaper - parallel world ticking
 -            if (FISH$HARD_THROW) throw new IllegalStateException(reason);

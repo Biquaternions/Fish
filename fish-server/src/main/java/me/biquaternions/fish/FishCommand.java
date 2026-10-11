@@ -100,7 +100,7 @@ public class FishCommand {
         double utilisationTotal = reportGlobal == null ? 0.0 : reportGlobal.utilisation();
         List<Component> extraMessages = Lists.newArrayList();
 
-        if (FishConfig.getInstance().async.worldTicking.enabled) {
+        if (server.fish$worldExecutor.isConcurrentExecutor()) {
             PriorityQueue<Triple<Double, Double, ServerLevel>> levelsQueue = new PriorityQueue<>((a, b) -> b.getLeft().compareTo(a.getLeft()));
             Iterable<ServerLevel> levels = server.getAllLevels();
 

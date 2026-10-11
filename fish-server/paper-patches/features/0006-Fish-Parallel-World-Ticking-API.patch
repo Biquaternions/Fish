@@ -13,10 +13,10 @@ With this approach only new methods are added into already existing Bukkit API, 
   get standarized.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 98d33da27643f0e95ca95256031cf94f66863945..1b3947723946b5ef93c1bab42366ade2d182a895 100644
+index b35a7b065c3d769dd2ad2a325046ae26764706d6..151735cebcf2697e84eaf18bdd17a9ab1c31fb9f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -2953,4 +2953,11 @@ public final class CraftServer implements Server {
+@@ -2951,4 +2951,11 @@ public final class CraftServer implements Server {
      public void allowPausing(final Plugin plugin, final boolean value) {
          this.console.addPluginAllowingSleep(plugin.getName(), value);
      }
@@ -24,15 +24,15 @@ index 98d33da27643f0e95ca95256031cf94f66863945..1b3947723946b5ef93c1bab42366ade2
 +    // Fish start - Parallel World Ticking API
 +    @Override
 +    public boolean isParallelWorldTickingEnabled() {
-+        return me.biquaternions.fish.FishConfig.getInstance().async.worldTicking.enabled;
++        return net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.isConcurrentExecutor();
 +    }
 +    // Fish end - Parallel World Ticking API
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index b7b1fc3b1609266b479d892fdd51bf47dad0d568..3e90267334ec91b548e04096e82961c07da9efad 100644
+index 5da6dfa5b50ae15288bbda66d85994779e98174e..d4c2b90f4764429146a0628c0b4138c026ed8788 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -2065,4 +2065,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -2069,4 +2069,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
          return POINTERS_SUPPLIER.view(this);
      }
      // Paper end
@@ -40,12 +40,12 @@ index b7b1fc3b1609266b479d892fdd51bf47dad0d568..3e90267334ec91b548e04096e82961c0
 +    // Fish start - Parallel World Ticking API
 +    @Override
 +    public long @NotNull [] getTickTimes() {
-+        final ca.spottedleaf.common.time.TickData.MSPTData reportData = me.biquaternions.fish.async.AsyncWorldTicking.getMSPTData5s(this.world);
++        final ca.spottedleaf.common.time.TickData.MSPTData reportData = this.world.getServer().fish$worldExecutor.getMSPTData5s(this.world);
 +        return reportData == null ? new long[0] : reportData.rawData().clone();
 +    }
 +    @Override
 +    public double getAverageTickTime() {
-+        final ca.spottedleaf.common.time.TickData.MSPTData reportData = me.biquaternions.fish.async.AsyncWorldTicking.getMSPTData5s(this.world);
++        final ca.spottedleaf.common.time.TickData.MSPTData reportData = this.world.getServer().fish$worldExecutor.getMSPTData5s(this.world);
 +        return reportData == null ? 0.0 : reportData.avg();
 +    }
 +    // Fish end - Parallel World Ticking API

@@ -5,7 +5,6 @@ import ca.spottedleaf.concurrentutil.util.ConcurrentUtil;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.minecraft.server.level.ServerLevel;
-import me.biquaternions.fish.async.AsyncWorldTicking;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.plugin.IllegalPluginAccessException;
@@ -41,7 +40,8 @@ public final class WorldRegionScheduler implements RegionScheduler {
         Objects.requireNonNull(world, "World may not be null");
         Objects.requireNonNull(run, "Runnable may not be null");
 
-        AsyncWorldTicking.scheduleVoidForEndOfWorldTickDirect(((CraftWorld) world).getHandle(), wrap(plugin, world, chunkX, chunkZ, run));
+        final ServerLevel serverLevel = ((CraftWorld) world).getHandle();
+        serverLevel.getServer().fish$worldExecutor.executeNonAcquireLock(serverLevel, wrap(plugin, world, chunkX, chunkZ, run));
     }
 
     @Override
