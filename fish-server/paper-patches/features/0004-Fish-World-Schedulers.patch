@@ -24,10 +24,10 @@ This patch implements region schedulers for each world and a compatibility layer
   than plugins trying to perform read/writes.
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 5f33ba98facf68a185263d4e6cff96207426aa79..b35a7b065c3d769dd2ad2a325046ae26764706d6 100644
+index 549864ac47c1a6805403ee56fc110d09da2a01c3..1387ac3b4d082fadaddd9c628b1e4eaf2d87fe0f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -287,7 +287,7 @@ public final class CraftServer implements Server {
+@@ -289,7 +289,7 @@ public final class CraftServer implements Server {
      private final ServerConfiguration serverConfig = new PaperServerConfiguration();
  
      // Paper start - Folia region threading API
@@ -37,10 +37,10 @@ index 5f33ba98facf68a185263d4e6cff96207426aa79..b35a7b065c3d769dd2ad2a325046ae26
      private final io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler globalRegionScheduler = new io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler();
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-index 3628b0af5d02236f0a876e8c704ba5d9e633e92c..5da6dfa5b50ae15288bbda66d85994779e98174e 100644
+index 88b24834efb900c577a9593fd44f410c6cd51ce5..e4bf7f02498a4c385be7c48c13747d800af5cd05 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
-@@ -479,7 +479,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -493,7 +493,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean refreshChunk(int x, int z) {
@@ -52,7 +52,7 @@ index 3628b0af5d02236f0a876e8c704ba5d9e633e92c..5da6dfa5b50ae15288bbda66d8599477
          ChunkHolder playerChunk = this.world.getChunkSource().chunkMap.getVisibleChunkIfPresent(ChunkPos.pack(x, z));
          if (playerChunk == null) return false;
  
-@@ -743,7 +746,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -757,7 +760,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public boolean generateTree(Location loc, TreeType type, BlockChangeDelegate delegate) {
@@ -64,7 +64,7 @@ index 3628b0af5d02236f0a876e8c704ba5d9e633e92c..5da6dfa5b50ae15288bbda66d8599477
          this.world.captureTreeGeneration = true;
          this.world.captureBlockStates = true;
          List<org.bukkit.craftbukkit.block.CraftBlockState> capturedBlockStates;
-@@ -846,7 +852,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -860,7 +866,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      private boolean createExplosion(double x, double y, double z, float power, boolean setFire, boolean breakBlocks, Entity source, Consumer<net.minecraft.world.level.ServerExplosion> configurator) {
          // Paper end - expand explosion API
@@ -76,7 +76,7 @@ index 3628b0af5d02236f0a876e8c704ba5d9e633e92c..5da6dfa5b50ae15288bbda66d8599477
          net.minecraft.world.level.Level.ExplosionInteraction explosionType;
          if (!breakBlocks) {
              explosionType = net.minecraft.world.level.Level.ExplosionInteraction.NONE; // Don't break blocks
-@@ -905,7 +914,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -919,7 +928,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public int getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
@@ -85,7 +85,7 @@ index 3628b0af5d02236f0a876e8c704ba5d9e633e92c..5da6dfa5b50ae15288bbda66d8599477
          warnUnsafeChunk("getting a faraway chunk", x >> 4, z >> 4); // Paper
          // Transient load for this tick
          return this.world.getChunk(x >> 4, z >> 4).getHeight(CraftHeightMap.toNMS(heightMap), x, z);
-@@ -920,8 +929,11 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -934,8 +943,11 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void setBiome(int x, int y, int z, Holder<net.minecraft.world.level.biome.Biome> biome) {
@@ -98,7 +98,7 @@ index 3628b0af5d02236f0a876e8c704ba5d9e633e92c..5da6dfa5b50ae15288bbda66d8599477
          if (this.world.hasChunkAt(pos)) {
              net.minecraft.world.level.chunk.LevelChunk chunk = this.world.getChunkAt(pos);
  
-@@ -1867,7 +1879,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+@@ -1881,7 +1893,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
  
      @Override
      public void sendGameEvent(Entity sourceEntity, org.bukkit.GameEvent gameEvent, Vector position) {

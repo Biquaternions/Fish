@@ -62,7 +62,7 @@
  dependencies {
 -    implementation(project(":pufferfish-api")) // Pufferfish
 +    implementation(project(":fish-api")) // Pufferfish // Fish
-     implementation(platform("ca.spottedleaf.leafpile:bom:1.2.4"))
+     implementation(platform("ca.spottedleaf.leafpile:bom:1.3.2"))
      implementation("ca.spottedleaf.leafpile:common")
      implementation("ca.spottedleaf.leafpile:concurrentutil")
 @@ -206,14 +_,14 @@

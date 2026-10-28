@@ -20,7 +20,7 @@ index ddda24a55201de2136fc6dd2cb863d609925d0ca..3c6395f1d3780c2f41b6fcf2fab56998
          }
      }
 diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..9f9bcc15c75b76c922325b71a57ac45178b257cb 100644
+index 803e36f33c706d8484739cb21af25b9289dc8808..2baa29cf52ca9b2a10dd726400e81567d5fead93 100644
 --- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -223,7 +223,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
@@ -30,10 +30,10 @@ index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..9f9bcc15c75b76c922325b71a57ac451
 -        skipPushModeEventFire = skipHopperEvents;
 +        me.biquaternions.fish.threadedregions.AbstractWorldData worldData = me.biquaternions.fish.threadedregions.TickWorldScheduler.getCurrentRegionizedWorldData(); // Fish - Handle Hopper Events Optimizations
 +        worldData.skipPushModeEventFire = worldData.skipHopperEvents; // Fish - Handle Hopper Events Optimizations
+         final long disallowedSlots = callPrepareTransferEvent(level, hopper, destination, true); // Paper - Add PrepareHopperTransferEvent
          boolean foundItem = false;
          for (int i = 0; i < hopper.getContainerSize(); ++i) {
-             final ItemStack item = hopper.getItem(i);
-@@ -238,7 +239,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -240,7 +241,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
  
                  // We only need to fire the event once to give protection plugins a chance to cancel this event
                  // Because nothing uses getItem, every event call should end up the same result.
@@ -42,7 +42,7 @@ index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..9f9bcc15c75b76c922325b71a57ac451
                      movedItem = callPushMoveEvent(destination, movedItem, hopper);
                      if (movedItem == null) { // cancelled
                          origItemStack.setCount(originalItemCount);
-@@ -273,7 +274,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -275,7 +276,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
          final int movedItemCount = Math.min(level.spigotConfig.hopperAmount, originalItemCount);
          movedItem.setCount(movedItemCount);
  
@@ -52,7 +52,7 @@ index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..9f9bcc15c75b76c922325b71a57ac451
              movedItem = callPullMoveEvent(hopper, container, movedItem);
              if (movedItem == null) { // cancelled
                  origItemStack.setCount(originalItemCount);
-@@ -293,9 +295,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -295,9 +297,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
                  origItemStack.setCount(originalItemCount - movedItemCount + remainingItemCount);
              }
  
@@ -64,7 +64,7 @@ index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..9f9bcc15c75b76c922325b71a57ac451
              container.setChanged();
              return true;
          }
-@@ -325,7 +327,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -327,7 +329,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
          );
          final boolean result = event.callEvent();
          if (!event.calledGetItem && !event.calledSetItem) {
@@ -74,7 +74,7 @@ index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..9f9bcc15c75b76c922325b71a57ac451
          }
          if (!result) {
              applyCooldown(hopper);
-@@ -348,7 +351,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -350,7 +353,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
          final io.papermc.paper.event.inventory.PaperInventoryMoveItemEvent event = new io.papermc.paper.event.inventory.PaperInventoryMoveItemEvent(sourceInventory, org.bukkit.craftbukkit.inventory.CraftItemStack.asBukkitMirror(itemstack), destination, false);
          final boolean result = event.callEvent();
          if (!event.calledGetItem && !event.calledSetItem) {
@@ -84,7 +84,7 @@ index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..9f9bcc15c75b76c922325b71a57ac451
          }
          if (!result) {
              applyCooldown(hopper);
-@@ -485,8 +489,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -504,8 +508,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
          BlockState blockState = level.getBlockState(blockPos);
          Container container = getSourceContainer(level, hopper, blockPos, blockState);
          if (container != null) {
@@ -92,10 +92,10 @@ index 17c28fbedde81aaf792508af1d0e33ef521e4ef0..9f9bcc15c75b76c922325b71a57ac451
              Direction direction = Direction.DOWN;
 -            skipPullModeEventFire = skipHopperEvents; // Paper - Perf: Optimize Hoppers
 +            worldData.skipPullModeEventFire = worldData.skipHopperEvents; // Paper - Perf: Optimize Hoppers // Fish - Handle Hopper Events Optimizations
+             final long disallowedSlots = callPrepareTransferEvent(level, container, hopper, false); // Paper - Add PrepareHopperTransferEvent
  
              for (int slot : getSlots(container, direction)) {
-                 if (tryTakeInItemFromSlot(hopper, container, slot, direction, level)) { // Spigot
-@@ -590,9 +595,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+@@ -611,9 +616,9 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
                      itemStack = itemStack.split(container.getMaxStackSize());
                  }
                  // Spigot end

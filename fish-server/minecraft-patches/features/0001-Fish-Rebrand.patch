@@ -31,7 +31,7 @@ index e20f504473bb7a9c3b415aa32b6c9df64bae907a..d6cdf8232d2846478420c352b02e4bf4
                  LOGGER.warn("Failed to save {}", this.file, e);
              }
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index aa7f2ba4d931f98ce15c52dc2b99f07504149582..2566e01a1fe9eb298a3b1652d93b84b118d498bb 100644
+index a6d9b95c42926754acd2e54e7af7ade3f7d2c322..17631c1b018a8b90b01e83ccee6b8fae02cc73b8 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
 @@ -166,6 +166,19 @@ public class Main {
@@ -104,16 +104,3 @@ index 023cca49c6dd0f2961cf30f02c7cd74601f73f8b..04b5396520f83f70f05629201c83ad1e
      private JComponent buildChatPanel() {
          JPanel panel = new JPanel(new BorderLayout());
          JTextArea chatArea = new JTextArea();
-diff --git a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
-index a385d63608760b3746d0e9c4ed9fe0a4dd4bfcbe..fd8ca88feea85c092de0a9354900d0c459f549e6 100644
---- a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
-+++ b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
-@@ -297,7 +297,7 @@ public class RegionFileStorage implements AutoCloseable, ca.spottedleaf.moonrise
- 
-     // Paper start
-     private static void printOversizedLog(String msg, Path file, int x, int z) {
--        LOGGER.error("{} ({} - {},{}) Go clean it up to remove this message. /minecraft:tp {} 128 {} - DO NOT REPORT THIS TO PUFFERFISH - You may ask for help on Discord, but do not file an issue. These error messages can not be removed.", msg, file.toString().replaceAll(".+[\\\\/]", ""), x, z, x << 4, z << 4); // Pufferfish - Rebrand
-+        LOGGER.error("{} ({} - {},{}) Go clean it up to remove this message. /minecraft:tp {} 128 {} - DO NOT REPORT THIS TO FISH - You may ask for help on Discord, but do not file an issue. These error messages can not be removed.", msg, file.toString().replaceAll(".+[\\\\/]", ""), x, z, x << 4, z << 4); // Pufferfish - Rebrand // Fish - Rebrand
-     }
- 
-     private static CompoundTag readOversizedChunk(RegionFile regionfile, ChunkPos chunkCoordinate) throws IOException {
