@@ -409,96 +409,15 @@ index a1b0168077b83575f16dd377da2e1ba520d3bd19..5983f67edb0e457857f7c77e39231459
  
      @Override
 diff --git a/net/minecraft/world/level/block/grower/TreeGrower.java b/net/minecraft/world/level/block/grower/TreeGrower.java
-index 2345bf0b7eb4750824d5fc747730b90669aafccf..441abd254c394a95b71115c2e32ab4c2909e5e73 100644
+index c6ebd031389108a7506232386322ecd706fde84d..964f07c69989e5aae6572f2434a7770a3d81859b 100644
 --- a/net/minecraft/world/level/block/grower/TreeGrower.java
 +++ b/net/minecraft/world/level/block/grower/TreeGrower.java
-@@ -234,61 +234,63 @@ public final class TreeGrower {
+@@ -234,7 +234,7 @@ public final class TreeGrower {
  
      // CraftBukkit start
      private void setTreeType(Holder<Feature> feature) {
-+        org.bukkit.TreeType treeType; // SparklyPaper - parallel world ticking
-         if (feature.is(TreeFeatures.OAK) || feature.is(TreeFeatures.OAK_BEES_005)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.TREE;
-+            treeType = org.bukkit.TreeType.TREE;
-         } else if (feature.is(TreeFeatures.HUGE_RED_MUSHROOM)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.RED_MUSHROOM;
-+            treeType = org.bukkit.TreeType.RED_MUSHROOM;
-         } else if (feature.is(TreeFeatures.HUGE_BROWN_MUSHROOM)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.BROWN_MUSHROOM;
-+            treeType = org.bukkit.TreeType.BROWN_MUSHROOM;
-         } else if (feature.is(TreeFeatures.JUNGLE_TREE)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.COCOA_TREE;
-+            treeType = org.bukkit.TreeType.COCOA_TREE;
-         } else if (feature.is(TreeFeatures.JUNGLE_TREE_NO_VINE)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.SMALL_JUNGLE;
-+            treeType = org.bukkit.TreeType.SMALL_JUNGLE;
-         } else if (feature.is(TreeFeatures.PINE)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.TALL_REDWOOD;
-+            treeType = org.bukkit.TreeType.TALL_REDWOOD;
-         } else if (feature.is(TreeFeatures.SPRUCE)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.REDWOOD;
-+            treeType = org.bukkit.TreeType.REDWOOD;
-         } else if (feature.is(TreeFeatures.ACACIA)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.ACACIA;
-+            treeType = org.bukkit.TreeType.ACACIA;
-         } else if (feature.is(TreeFeatures.BIRCH) || feature.is(TreeFeatures.BIRCH_BEES_005)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.BIRCH;
-+            treeType = org.bukkit.TreeType.BIRCH;
-         } else if (feature.is(TreeFeatures.SUPER_BIRCH_BEES_0002)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.TALL_BIRCH;
-+            treeType = org.bukkit.TreeType.TALL_BIRCH;
-         } else if (feature.is(TreeFeatures.SWAMP_OAK)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.SWAMP;
-+            treeType = org.bukkit.TreeType.SWAMP;
-         } else if (feature.is(TreeFeatures.FANCY_OAK) || feature.is(TreeFeatures.FANCY_OAK_BEES_005)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.BIG_TREE;
-+            treeType = org.bukkit.TreeType.BIG_TREE;
-         } else if (feature.is(TreeFeatures.JUNGLE_BUSH)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.JUNGLE_BUSH;
-+            treeType = org.bukkit.TreeType.JUNGLE_BUSH;
-         } else if (feature.is(TreeFeatures.DARK_OAK)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.DARK_OAK;
-+            treeType = org.bukkit.TreeType.DARK_OAK;
-         } else if (feature.is(TreeFeatures.MEGA_SPRUCE)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.MEGA_REDWOOD;
-+            treeType = org.bukkit.TreeType.MEGA_REDWOOD;
-         } else if (feature.is(TreeFeatures.MEGA_PINE)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.MEGA_PINE;
-+            treeType = org.bukkit.TreeType.MEGA_PINE;
-         } else if (feature.is(TreeFeatures.MEGA_JUNGLE_TREE)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.JUNGLE;
-+            treeType = org.bukkit.TreeType.JUNGLE;
-         } else if (feature.is(TreeFeatures.AZALEA_TREE)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.AZALEA;
-+            treeType = org.bukkit.TreeType.AZALEA;
-         } else if (feature.is(TreeFeatures.MANGROVE)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.MANGROVE;
-+            treeType = org.bukkit.TreeType.MANGROVE;
-         } else if (feature.is(TreeFeatures.TALL_MANGROVE)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.TALL_MANGROVE;
-+            treeType = org.bukkit.TreeType.TALL_MANGROVE;
-         } else if (feature.is(TreeFeatures.CHERRY) || feature.is(TreeFeatures.CHERRY_BEES_005)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.CHERRY;
-+            treeType = org.bukkit.TreeType.CHERRY;
-         } else if (feature.is(TreeFeatures.PALE_OAK) || feature.is(TreeFeatures.PALE_OAK_BONEMEAL)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.PALE_OAK;
-+            treeType = org.bukkit.TreeType.PALE_OAK;
-         } else if (feature.is(TreeFeatures.PALE_OAK_CREAKING)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.PALE_OAK_CREAKING;
-+            treeType = org.bukkit.TreeType.PALE_OAK_CREAKING;
-         } else if (feature.is(TreeFeatures.RED_POPLAR)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.RED_POPLAR;
-+            treeType = org.bukkit.TreeType.RED_POPLAR;
-         } else if (feature.is(TreeFeatures.ORANGE_POPLAR)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.ORANGE_POPLAR;
-+            treeType = org.bukkit.TreeType.ORANGE_POPLAR;
-         } else if (feature.is(TreeFeatures.YELLOW_POPLAR)) {
--            net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.TreeType.YELLOW_POPLAR;
-+            treeType = org.bukkit.TreeType.YELLOW_POPLAR;
-         }  else {
-             throw new IllegalArgumentException("Unknown tree generator " + feature);
-         }
-+        net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setTreeType(treeType); // SparklyPaper - parallel world ticking
+-        net.minecraft.world.level.block.SaplingBlock.treeType = org.bukkit.craftbukkit.CraftTreeType.fromFeature(feature.unwrapKey().orElseThrow());
++        net.minecraft.server.MinecraftServer.getServer().fish$worldExecutor.setTreeType(org.bukkit.craftbukkit.CraftTreeType.fromFeature(feature.unwrapKey().orElseThrow())); // SparklyPaper - parallel world ticking
      }
      // CraftBukkit end
  }
